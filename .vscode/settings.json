@@ -92,5 +92,12 @@
         "variant": "cpp",
         "stdio.h": "c",
         "string.h": "c"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/lingnc/BookManager",
+            "binaryPath": "/home/lingnc/BookManager/main",
+            "binaryArgs": []
+        }
+    ]
 }

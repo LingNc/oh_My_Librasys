@@ -22,6 +22,18 @@ struct String {
     // 返回 char* 指向该字符串地址
     char *(*c_str)(string);
 
+    // 写入字符
+    // 返回写入后的字符串
+    string(*write_char)(string, char);
+
+    // 写入 C 风格字符串
+    // 返回写入后的字符串
+    string(*write_cstr)(string, const char *);
+
+    // 写入 String 对象
+    // 返回写入后的字符串
+    string(*write_string)(string, string);
+
     // 追加字符
     // 返回追加后的字符串
     string (*append_char)(string, char);
@@ -79,7 +91,7 @@ struct String {
     int (*empty)(string);
 
     // 获取字符串的原始数据
-    // 返回 const char* 指向字符串数据
+    // 返回 const char* 指向序列化的二进制流数据
     const char *(*data)(string);
 };
 

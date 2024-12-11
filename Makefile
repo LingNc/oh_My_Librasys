@@ -4,26 +4,31 @@
 CC = gcc
 
 # 编译器选项
-CFLAGS = -Wall -g -I BookManager/include
+CFLAGS = -Wall -g -I include
 
 # 目标文件
 TARGET = main
 
 # 源文件
-SRCS = main.c BookManager/src/String.c
+SRCS = src/main.c src/String.c
+
+# 对象文件目录
+OBJDIR = build
 
 # 对象文件
-OBJS = $(SRCS:.c=.o)
+OBJS = $(SRCS:src/%.c=$(OBJDIR)/%.o)
+
+# 创建对象文件目录
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 # 编译目标
-$(TARGET): $(OBJS)
-    $(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+$(TARGET): $(OBJDIR) $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
 # 编译规则
-%.o: %.c
-    $(CC) $(CFLAGS) -c $< -o $@
+$(OBJDIR)/%.o: src/%.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # 清理
 .PHONY: clean
-clean:
-    rm -f $(TARGET) $(OBJS)

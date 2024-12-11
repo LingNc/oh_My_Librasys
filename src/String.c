@@ -7,6 +7,29 @@ char *_string_c_str(string this){
     return this->str;
 }
 
+// write_char 函数实现
+string _string_write_char(string this,char c){
+    this->str=(char *)realloc(this->str,2);
+    this->str[0]=c;
+    this->str[1]='\0';
+    this->length=1;
+    return this;
+}
+
+// write_cstr 函数实现
+string _string_write_cstr(string this,const char *s){
+    size_t len=strlen(s);
+    this->str=(char *)realloc(this->str,len+1);
+    memcpy(this->str,s,len+1);
+    this->length=len;
+    return this;
+}
+
+// write_string 函数实现
+string _string_write_string(string this,string other){
+    return _string_write_cstr(this,other->str);
+}
+
 // append_char 函数实现
 string _string_append_char(string this,char c){
     this->str=(char *)realloc(this->str,this->length+2);
@@ -108,7 +131,12 @@ int _string_empty(string this){
 
 // data 函数实现
 const char *_string_data(string this){
-    return this->str;
+    // 序列化数据包括字符串长度和字符串内容
+    size_t out_size=sizeof(size_t)+this->length;
+    char *serialized_data=(char *)malloc(out_size);
+    memcpy(serialized_data,&this->length,sizeof(size_t));
+    memcpy(serialized_data+sizeof(size_t),this->str,this->length);
+    return serialized_data;
 }
 
 // 初始化 String 对象的函数
@@ -120,6 +148,9 @@ void string_init(string this){
 
     // 赋值函数指针
     this->c_str=_string_c_str;
+    this->write_char=_string_write_char;
+    this->write_cstr=_string_write_cstr;
+    this->write_string=_string_write_string;
     this->append_char=_string_append_char;
     this->append_cstr=_string_append_cstr;
     this->append_string=_string_append_string;
