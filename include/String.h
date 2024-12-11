@@ -17,7 +17,8 @@ struct String {
     size_t length;
     // 表示无位置的常量
     size_t npos;
-
+    // 表示序列化之后的数据
+    char *serialize;
     // 获取 C 风格字符串函数
     // 返回 char* 指向该字符串地址
     char *(*c_str)(string);

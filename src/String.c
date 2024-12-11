@@ -133,15 +133,17 @@ int _string_empty(string this){
 const char *_string_data(string this){
     // 序列化数据包括字符串长度和字符串内容
     size_t out_size=sizeof(size_t)+this->length;
-    char *serialized_data=(char *)malloc(out_size);
-    memcpy(serialized_data,&this->length,sizeof(size_t));
-    memcpy(serialized_data+sizeof(size_t),this->str,this->length);
-    return serialized_data;
+    this->serialize=(char *)realloc(this->serialize,
+        out_size);
+    memcpy(this->serialize,&this->length,sizeof(size_t));
+    memcpy(this->serialize+sizeof(size_t),this->str,this->length);
+    return this->serialize;
 }
 
 // 初始化 String 对象的函数
 void string_init(string this){
     this->str=(char *)malloc(1);
+    this->serialize=(char *)malloc(1);
     this->str[0]='\0';
     this->length=0;
     this->npos=(size_t)(-1);
