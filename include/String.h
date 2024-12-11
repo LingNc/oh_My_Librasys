@@ -9,7 +9,7 @@ typedef struct String String;
 typedef String *string;
 
 // String 结构体的定义
-struct String {
+struct String{
     // 成员变量
     // 指向字符串数据的指针
     char *str;
@@ -25,63 +25,76 @@ struct String {
 
     // 写入字符
     // 返回写入后的字符串
-    string(*write_char)(string, char);
+    string(*write_char)(string,char);
 
     // 写入 C 风格字符串
     // 返回写入后的字符串
-    string(*write_cstr)(string, const char *);
+    string(*write_cstr)(string,const char *);
 
     // 写入 String 对象
     // 返回写入后的字符串
-    string(*write_string)(string, string);
+    string(*write_string)(string,string);
+
+    // 删除指定位置的字符
+    // 返回删除后的字符串
+    string(*erase_char)(string,size_t);
+
+    // 删除第几个位置开始，长度多长的字符串
+    // 返回删除后的字符串
+    string(*erase)(string,size_t,size_t);
+
 
     // 追加字符
     // 返回追加后的字符串
-    string (*append_char)(string, char);
+    string(*append_char)(string,char);
 
     // 追加 C 风格字符串
     // 返回追加后的字符串
-    string (*append_cstr)(string, const char*);
+    string(*append_cstr)(string,const char *);
 
     // 追加 String 对象
     // 返回追加后的字符串
-    string (*append_string)(string, string);
+    string(*append_string)(string,string);
 
     // 插入字符
     // 返回插入后的字符串
-    string (*insert_char)(string, size_t, char);
+    string(*insert_char)(string,size_t,char);
 
     // 插入 C 风格字符串
     // 返回插入后的字符串
-    string (*insert_cstr)(string, size_t, const char*);
+    string(*insert_cstr)(string,size_t,const char *);
 
     // 插入 String 对象
     // 返回插入后的字符串
-    string (*insert_string)(string, size_t, string);
+    string(*insert_string)(string,size_t,string);
 
     // 查找字符
     // 返回字符位置，未找到返回 npos
-    size_t (*find_char)(string, size_t, char);
+    size_t(*find_char)(string,size_t,char);
 
     // 查找 C 风格字符串
     // 返回字符串位置，未找到返回 npos
-    size_t (*find_cstr)(string, size_t, const char *);
+    size_t(*find_cstr)(string,size_t,const char *);
 
     // 查找 String 对象
     // 返回字符串位置，未找到返回 npos
-    size_t (*find_string)(string, size_t, string);
+    size_t(*find_string)(string,size_t,string);
 
     // 获取字符串的大小
     // 返回字符串的大小
-    size_t (*size)(string);
+    size_t(*size)(string);
 
     // 获取字符串的长度
     // 返回字符串的长度
-    size_t (*length_func)(string);
+    size_t(*length_func)(string);
 
     // 获取指定位置的字符
     // 返回指定位置的字符
-    char (*at)(string, size_t);
+    char (*at)(string,size_t);
+
+    // 获取某个下标位置的指针
+    // 返回 char* 指向该位置
+    char *(*it)(string,size_t);
 
     // 清空字符串
     // 无返回值

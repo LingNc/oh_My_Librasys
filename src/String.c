@@ -1,4 +1,4 @@
-#include "String.h"
+#include "../include/String.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -79,6 +79,25 @@ string _string_insert_string(string this,size_t pos,string other){
     return _string_insert_cstr(this,pos,other->str);
 }
 
+// erase_char 函数实现
+string _string_erase_char(string this, size_t pos){
+    if(pos >= this->length) return this;
+    memmove(this->str + pos, this->str + pos + 1, this->length - pos);
+    this->length -= 1;
+    this->str = (char *)realloc(this->str, this->length + 1);
+    return this;
+}
+
+// erase 函数实现
+string _string_erase(string this, size_t pos, size_t len){
+    if(pos >= this->length) return this;
+    if(pos + len > this->length) len = this->length - pos;
+    memmove(this->str + pos, this->str + pos + len, this->length - pos - len + 1);
+    this->length -= len;
+    this->str = (char *)realloc(this->str, this->length + 1);
+    return this;
+}
+
 // find_char 函数实现
 size_t _string_find_char(string this,size_t pos,char c){
     if(pos>=this->length) return this->npos;
@@ -114,6 +133,12 @@ size_t _string_length_func(string this){
 char _string_at(string this,size_t pos){
     if(pos>=this->length) return '\0';
     return this->str[pos];
+}
+
+// it 函数实现
+char *_string_it(string this, size_t pos){
+    if(pos >= this->length) return NULL;
+    return this->str + pos;
 }
 
 // clear 函数实现
@@ -159,12 +184,15 @@ void string_init(string this){
     this->insert_char=_string_insert_char;
     this->insert_cstr=_string_insert_cstr;
     this->insert_string=_string_insert_string;
+    this->erase_char=_string_erase_char;
+    this->erase=_string_erase;
     this->find_char=_string_find_char;
     this->find_cstr=_string_find_cstr;
     this->find_string=_string_find_string;
     this->size=_string_size;
     this->length_func=_string_length_func;
     this->at=_string_at;
+    this->it=_string_it;
     this->clear=_string_clear;
     this->empty=_string_empty;
     this->data=_string_data;
