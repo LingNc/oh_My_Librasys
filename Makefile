@@ -10,7 +10,7 @@ CFLAGS = -Wall -g -I include
 TARGET = main
 
 # 源文件
-SRCS = src/main.c src/String.c
+SRCS = src/main.c src/String.c 
 
 # 对象文件目录
 OBJDIR = build
