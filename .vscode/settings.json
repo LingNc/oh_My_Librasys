@@ -92,7 +92,9 @@
         "variant": "cpp",
         "stdio.h": "c",
         "string.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "ncurses.h": "c",
+        "menu.h": "c"
     },
     "makefile.launchConfigurations": [
         {
