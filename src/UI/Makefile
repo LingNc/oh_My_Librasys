@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g
 
 # 链接选项
-LDFLAGS = -lncurses -lmenu
+LDFLAGS = -lncursesw -lmenuw
 
 # 目标文件
 TARGET = menu
