@@ -39,7 +39,7 @@ string _string_append_char(string this,char c){
     return this;
 }
 
-// append_cstr 函数实现
+// append_cstr 函数��现
 string _string_append_cstr(string this,const char *s){
     size_t len=strlen(s);
     this->_data=(char *)realloc(this->_data,this->_length+len+1);
@@ -51,6 +51,16 @@ string _string_append_cstr(string this,const char *s){
 // append_string 函数实现
 string _string_append_string(string this,string other){
     return _string_append_cstr(this,other->_data);
+}
+
+// append_n 函数实现
+string _string_append_n(string this, const char *s, size_t n) {
+    size_t len = strnlen(s, n);
+    this->_data = (char *)realloc(this->_data, this->_length + len + 1);
+    memcpy(this->_data + this->_length, s, len);
+    this->_length += len;
+    this->_data[this->_length] = '\0';
+    return this;
 }
 
 // insert_char 函数实现
@@ -211,6 +221,7 @@ void _init(string this){
     this->append_char=_string_append_char;
     this->append_cstr=_string_append_cstr;
     this->append=_string_append_string;
+    this->append_n=_string_append_n;
     this->insert_char=_string_insert_char;
     this->insert_cstr=_string_insert_cstr;
     this->insert=_string_insert_string;
