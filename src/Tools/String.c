@@ -187,6 +187,16 @@ bool _string_in_data(string this, const char *data) {
 bool _string_free(string this){
     string_destroy(this);
 }
+
+// copy 函数实现
+string _string_copy(string this, string other) {
+    if (this == other) return this;
+    this->_data = (char *)realloc(this->_data, other->_length + 1);
+    memcpy(this->_data, other->_data, other->_length + 1);
+    this->_length = other->_length;
+    return this;
+}
+
 // 初始化 String 对象的函数
 string new_string(string this){
     this->_data=(char *)malloc(1);
@@ -220,6 +230,7 @@ string new_string(string this){
     this->data=_string_data;
     this->in_data=_string_in_data;
     this->free=_string_free;
+    this->copy = _string_copy;
     return this;
 }
 

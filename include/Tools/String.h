@@ -24,6 +24,10 @@ struct String{
     // 返回 char* 指向该字符串地址
     char *(*c_str)(string);
 
+    // 拷贝构造函数
+    // 返回自己
+    string(*copy)(string this,string other);
+
     // 写入字符
     // 返回写入后的字符串
     string(*write_char)(string,char);
@@ -90,11 +94,11 @@ struct String{
     size_t(*size)(string);
 
     // 获取字符串的长度
-    // 返回字符串的长度
+    // 返回字符串的长��
     size_t(*length)(string);
 
     // 获取指定位置的字符
-    // 返回指���位置的字符
+    // 返回指指定位置的字符
     char (*at)(string,size_t);
 
     // 获取某个下标位置的指针
