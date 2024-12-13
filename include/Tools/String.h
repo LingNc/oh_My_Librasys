@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 // String 结构体的前向声明
 typedef struct String String;
@@ -12,13 +13,13 @@ typedef String *string;
 struct String{
     // 成员变量
     // 指向字符串数据的指针
-    char *str;
+    char *_data;
     // 字符串的长度
-    size_t length;
+    size_t _length;
     // 表示无位置的常量
     size_t npos;
     // 表示序列化之后的数据
-    char *serialize;
+    char *_serialize;
     // 获取 C 风格字符串函数
     // 返回 char* 指向该字符串地址
     char *(*c_str)(string);
@@ -33,7 +34,7 @@ struct String{
 
     // 写入 String 对象
     // 返回写入后的字符串
-    string(*write_string)(string,string);
+    string(*write)(string,string);
 
     // 删除指定位置的字符
     // 返回删除后的字符串
@@ -54,7 +55,7 @@ struct String{
 
     // 追加 String 对象
     // 返回追加后的字符串
-    string(*append_string)(string,string);
+    string(*append)(string,string);
 
     // 插入字符
     // 返回插入后的字符串
@@ -66,7 +67,7 @@ struct String{
 
     // 插入 String 对象
     // 返回插入后的字符串
-    string(*insert_string)(string,size_t,string);
+    string(*insert)(string,size_t,string);
 
     // 查找字符
     // 返回字符位置，未找到返回 npos
@@ -78,7 +79,11 @@ struct String{
 
     // 查找 String 对象
     // 返回字符串位置，未找到返回 npos
-    size_t(*find_string)(string,size_t,string);
+    size_t(*find)(string,size_t,string);
+
+    // 字符串字典序对比
+    // 大于返回1，小于返回-1，等于0
+    int (*cmp)(string,string);
 
     // 获取字符串的大小
     // 返回字符串的大小
@@ -86,10 +91,10 @@ struct String{
 
     // 获取字符串的长度
     // 返回字符串的长度
-    size_t(*length_func)(string);
+    size_t(*length)(string);
 
     // 获取指定位置的字符
-    // 返回指定位置的字符
+    // 返回指���位置的字符
     char (*at)(string,size_t);
 
     // 获取某个下标位置的指针
@@ -107,11 +112,19 @@ struct String{
     // 获取字符串的原始数据
     // 返回 const char* 指向序列化的二进制流数据
     const char *(*data)(string);
+
+    // 读入序列化数据进行反序列化
+    // 返回 true 表示成功，false 表示失败
+    bool (*in_data)(string,const char *);
+
+    // 释放指针
+    // 返回 true 表示成功，false 表示失败
+    bool (*free)(string);
 };
 
 // 初始化 String 对象
 // 无返回值
-void string_init(string this);
+string new_string(string this);
 
 // 销毁 String 对象
 // 无返回值
