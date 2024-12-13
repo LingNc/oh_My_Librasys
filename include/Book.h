@@ -21,6 +21,15 @@ struct Book{
     // 表示序列化之后的数据
     char serialize[1500];
 
+    // 复制图书数据
+    book(*copy)(book this,book other);
+
+    // 比较图书数据
+    int (*cmp)(book this,book other);
+
+    // 释放图书数据
+    void (*free)(book this);
+
     // 获取图书的数据
     // 返回 const char* 指向序列化的二进制流数据
     const char *(*data)(book);
@@ -29,14 +38,6 @@ struct Book{
     int (*in_data)(book,const char*);
 };
 
-void book_init(book this){
-    memset(this->ISBN,0,sizeof(this->ISBN));
-    memset(this->author,0,sizeof(this->author));
-    memset(this->bookName,0,sizeof(this->bookName));
-    memset(this->publisher,0,sizeof(this->publisher));
-    this->status=0;
-    this->data = _book_data;
-    this->in_data = _book_in_data;
-}
+void new_book(book this);
 
 #endif
