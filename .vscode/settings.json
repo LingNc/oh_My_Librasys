@@ -99,6 +99,11 @@
             "cwd": "/home/lingnc/BookManager",
             "binaryPath": "/home/lingnc/BookManager/main",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/attacking_bird/BookManager",
+            "binaryPath": "/home/attacking_bird/BookManager/main",
+            "binaryArgs": []
         }
     ]
 }
