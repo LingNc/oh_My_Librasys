@@ -1,4 +1,4 @@
-#include "./include/Tools/String.h"
+#include "Tools/String.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -122,7 +122,7 @@ size_t _string_find_string(string this,size_t pos,string other){
 // 字符串字典序对比
 // 大于返回1，小于返回-1，等于0
 int _string_cmp(string this,string other){
-    return strcmp(this->c_str(this),other->c_str(other));
+    return strcmp(((string)this)->c_str(this),((string)other)->c_str(other));
 }
 
 // size 函数实现
@@ -135,14 +135,14 @@ size_t _string_length_func(string this){
     return this->_length;
 }
 
-// at 函数实现
-char _string_at(string this,size_t pos){
+// it 函数实现
+char _string_it(string this,size_t pos){
     if(pos>=this->_length) return '\0';
     return this->_data[pos];
 }
 
-// it 函数实现
-char *_string_it(string this,size_t pos){
+// at 函数实现
+char *_string_at(string this,size_t pos){
     if(pos>=this->_length) return NULL;
     return this->_data+pos;
 }
@@ -172,33 +172,31 @@ const char *_string_data(string this){
 }
 
 // in_data 函数实现
-bool _string_in_data(string this, const char *data) {
-    if (!data) return false;
+bool _string_in_data(string this,const char *data){
+    if(!data) return false;
     size_t len;
-    memcpy(&len, data, sizeof(size_t));
-    this->_data = (char *)realloc(this->_data, len + 1);
-    if (!this->_data) return false;
-    memcpy(this->_data, data + sizeof(size_t), len);
-    this->_data[len] = '\0';
-    this->_length = len;
+    memcpy(&len,data,sizeof(size_t));
+    this->_data=(char *)realloc(this->_data,len+1);
+    if(!this->_data) return false;
+    memcpy(this->_data,data+sizeof(size_t),len);
+    this->_data[len]='\0';
+    this->_length=len;
     return true;
 }
 // free 实现
-bool _string_free(string this){
-    string_destroy(this);
+void _string_free(string this){
+    delete_string(this);
 }
 
 // copy 函数实现
-string _string_copy(string this, string other) {
-    if (this == other) return this;
-    this->_data = (char *)realloc(this->_data, other->_length + 1);
-    memcpy(this->_data, other->_data, other->_length + 1);
-    this->_length = other->_length;
+string _string_copy(string this,string other){
+    if(this==other) return this;
+    this->_data=(char *)realloc(this->_data,other->_length+1);
+    memcpy(this->_data,other->_data,other->_length+1);
+    this->_length=other->_length;
     return this;
 }
-
-// 初始化 String 对象的函数
-string new_string(string this){
+void _init(string this){
     this->_data=(char *)malloc(1);
     this->_serialize=(char *)malloc(1);
     this->_data[0]='\0';
@@ -230,12 +228,20 @@ string new_string(string this){
     this->data=_string_data;
     this->in_data=_string_in_data;
     this->free=_string_free;
-    this->copy = _string_copy;
+    this->copy=_string_copy;
+}
+// 创建 String 对象的函数
+string new_string(){
+    string this=(string)malloc(sizeof(string));
+    _init(this);
     return this;
 }
 
+void init_string(string this){
+    _init(this);
+}
 // 销毁 String 对象的函数
-void string_destroy(string this){
+void delete_string(string this){
     free(this->_data);
     free(this->_serialize);
 }

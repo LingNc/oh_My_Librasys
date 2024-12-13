@@ -93,7 +93,9 @@
         "stdio.h": "c",
         "string.h": "c",
         "stddef.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "vector.h": "c",
+        "stdbool.h": "c"
     },
     "makefile.launchConfigurations": [
         {

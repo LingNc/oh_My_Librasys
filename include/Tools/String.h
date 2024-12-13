@@ -94,16 +94,16 @@ struct String{
     size_t(*size)(string);
 
     // 获取字符串的长度
-    // 返回字符串的长��
+    // 返回字符串的长度
     size_t(*length)(string);
 
     // 获取指定位置的字符
     // 返回指指定位置的字符
-    char (*at)(string,size_t);
+    char (*it)(string,size_t);
 
     // 获取某个下标位置的指针
     // 返回 char* 指向该位置
-    char *(*it)(string,size_t);
+    char *(*at)(string,size_t);
 
     // 清空字符串
     // 无返回值
@@ -118,20 +118,23 @@ struct String{
     const char *(*data)(string);
 
     // 读入序列化数据进行反序列化
-    // 返回 true 表示成功，false 表示失败
-    bool (*in_data)(string,const char *);
+    // 无返回值
+    void (*in_data)(string,const char *);
 
     // 释放指针
-    // 返回 true 表示成功，false 表示失败
-    bool (*free)(string);
+    // 无返回值
+    void (*free)(string);
 };
 
-// 初始化 String 对象
+// 新建 String 对象
 // 无返回值
-string new_string(string this);
+string new_string();
+
+// 初始化 String 对象
+void init_string(string this);
 
 // 销毁 String 对象
 // 无返回值
-void string_destroy(string this);
+void delete_string(string this);
 
 #endif
