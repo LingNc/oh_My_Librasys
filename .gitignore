@@ -11,6 +11,7 @@
 !**/*.c
 !**/*.h
 !Makefile
+!README.md
 
 # 必须排除的部分
 # windows编译文件
