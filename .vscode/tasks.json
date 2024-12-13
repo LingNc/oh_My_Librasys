@@ -44,6 +44,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
+                "-std=gnu11",
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"

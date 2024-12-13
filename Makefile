@@ -4,13 +4,13 @@
 CC = gcc
 
 # 编译器选项
-CFLAGS = -Wall -g -I include
+CFLAGS = -Wall -g -I include -std=gnu11
 
 # 目标文件
 TARGET = main
 
 # 源文件
-SRCS = src/main.c src/String.c 
+SRCS = src/main.c src/String.c
 
 # 对象文件目录
 OBJDIR = build
