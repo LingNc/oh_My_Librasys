@@ -92,7 +92,8 @@
         "variant": "cpp",
         "stdio.h": "c",
         "string.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "stdlib.h": "c"
     },
     "makefile.launchConfigurations": [
         {
