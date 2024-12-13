@@ -65,10 +65,6 @@ struct String{
     // 返回 追加后的字符串
     string(*append_n)(string, const char *, size_t n);
 
-    // 追加 char* 指向的字符串的前 n 个字符
-    // 返回 追加后的字符串
-    string(*appends)(string,const char *,size_t n);
-
     // 插入字符
     // 返回插入后的字符串
     string(*insert_char)(string,size_t,char);
