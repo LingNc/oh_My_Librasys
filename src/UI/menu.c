@@ -1,12 +1,13 @@
-#include <ncursesw/ncurses.h>
-#include <ncursesw/menu.h>
-#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
+//#include "menu.h"
+#include "utils.h"
 
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define HIGHT 24
 #define WIDTH 80
+
+
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))    //只能在主函数用,指针退化,无法得出
 
 WINDOW *display_background()
 {
@@ -30,7 +31,7 @@ WINDOW *display_background()
 }
 
 void func(char *name);
- void display_main_menu();
+void display_main_menu();
 
 
 void display_manager_menu()
@@ -143,6 +144,9 @@ void display_manager_menu()
         wrefresh(manag_menu_win);
     }
 
+
+    // destroy_menu(manag_menu,manag_items,manag_menu_win);
+
     // 清理
     unpost_menu(manag_menu);
     free_menu(manag_menu);
@@ -176,39 +180,22 @@ void display_manager_menu()
     background = display_background();
     refresh();
 
-    // 初始化选项item
-    n_main_choices = ARRAY_SIZE(main_choices);
-    main_items = (ITEM **)calloc(n_main_choices + 1, sizeof(ITEM *));
-    for (int i = 0; i < n_main_choices; i++)
-    {
-        main_items[i] = new_item(main_choices[i], "");
-        // 为每个item绑定函数
-        set_item_userptr(main_items[i], func);
-    }
-    main_items[n_main_choices] = (ITEM *)NULL;
+    n_main_choices =ARRAY_SIZE(main_choices);
+    main_items = creat_items(main_choices, n_main_choices);
 
     // item创建完毕,创建菜单
     main_menu = new_menu((ITEM **)main_items);
-    win_menu = newwin(12, 20, 11, WIDTH/2);
+    win_menu = creat_win(12, 20, 11, WIDTH/2);
     wborder(win_menu, ' ', ' ',' ', ' ', ' ', ' ', ' ', ' ');
     wrefresh(win_menu);
 
-    // 将菜单绑定到main窗口
-    set_menu_win(main_menu, win_menu);
-    set_menu_sub(main_menu, derwin(win_menu, 9, 15, 1, 5));
-
-    keypad(win_menu, true);
-    set_menu_mark(main_menu, "*");
-    set_menu_fore(main_menu, COLOR_PAIR(1) | A_REVERSE);
-	set_menu_back(main_menu, COLOR_PAIR(2));
-    set_menu_spacing(main_menu, 0, 2, 0);
+    init_menu_in_win(main_menu, win_menu, 9, 15, 1, 5 );
 
     // 上传菜单
     mvprintw(LINES - 3, 0, "按 <ENTER> 选择");
     mvprintw(LINES - 2, 0, "上下选择, 退格键退出");
 
-    post_menu(main_menu);
-    wrefresh(win_menu);
+    refresh_menu(main_menu,win_menu);
 
     int input_c;        // 用户输入的按键,不能为char, 有些按键的宏大于128
     while ((input_c = wgetch(win_menu)) != KEY_BACKSPACE)
@@ -242,16 +229,13 @@ void display_manager_menu()
             p((char *)item_name(cur));
             post_menu(main_menu);
             refresh();
-            break;
+            return;
         }
         break;
         }
     }
 
-    unpost_menu(main_menu);
-    for (int i = 0; i < n_main_choices; ++i)
-        free_item(main_items[i]);
-    free_menu(main_menu);
+    destroy_menu(main_menu, main_items, win_menu);
     endwin();
 }
 
@@ -269,22 +253,13 @@ void func(char *name)
         refresh();
     }
 }
+
+
 int main()
 {
-    // 设置本地化以支持多字节字符
-    setlocale(LC_ALL, "");
-    // 初始设置curses
-    initscr();
-    start_color();
-    cbreak();
-    noecho();
-    init_pair(1, COLOR_CYAN, COLOR_WHITE);
-    init_pair(2, COLOR_CYAN, COLOR_BLACK);
-    keypad(stdscr, true);
+    init_all();
 
     display_main_menu();
-    //display_manager_menu();
-
 
     endwin();
 }
