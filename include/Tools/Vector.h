@@ -78,6 +78,8 @@ struct Vector{
     // 当前元素数量
     size_t _size;
 
+    // 初始化元素
+    void (*_init_item)(void *this);
     // 释放单个元素
     // 无返回值
     void (*_free_item)(void *itemAddr);
