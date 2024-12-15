@@ -24,10 +24,6 @@ struct String{
     // 返回 char* 指向该字符串地址
     char *(*c_str)(string);
 
-    // 拷贝构造函数
-    // 返回自己
-    string(*copy)(string this,string other);
-
     // 写入字符
     // 返回写入后的字符串
     string(*write_char)(string,char);
@@ -47,7 +43,6 @@ struct String{
     // 删除第几个位置开始，长度多长的字符串
     // 返回删除后的字符串
     string(*erase)(string,size_t,size_t);
-
 
     // 追加字符
     // 返回追加后的字符串
@@ -89,10 +84,6 @@ struct String{
     // 返回字符串位置，未找到返回 npos
     size_t(*find)(string,size_t,string);
 
-    // 字符串字典序对比
-    // 大于返回1，小于返回-1，等于0
-    int (*cmp)(string,string);
-
     // 获取字符串的大小
     // 返回字符串的大小
     size_t(*size)(string);
@@ -103,11 +94,11 @@ struct String{
 
     // 获取指定位置的字符
     // 返回指指定位置的字符
-    char (*it)(string,size_t);
+    char (*at)(string,size_t);
 
     // 获取某个下标位置的指针
     // 返回 char* 指向该位置
-    char *(*at)(string,size_t);
+    char *(*it)(string,size_t);
 
     // 清空字符串
     // 无返回值
@@ -117,6 +108,21 @@ struct String{
     // 返回 1 表示为空，0 表示不为空
     int (*empty)(string);
 
+    // 构造函数,初始化String所需要的一切
+    void (*init)(string this);
+
+    // 拷贝构造函数
+    // 返回自己
+    string(*copy)(string this,string other);
+
+    // 释放指针
+    // 无返回值
+    void (*free)(string);
+
+    // 字符串字典序对比
+    // 大于返回1，小于返回-1，等于0
+    int (*cmp)(string,string);
+
     // 获取字符串的原始数据
     // 返回 const char* 指向序列化的二进制流数据
     const char *(*data)(string);
@@ -124,10 +130,6 @@ struct String{
     // 读入序列化数据进行反序列化
     // 无返回值
     void (*in_data)(string,const char *);
-
-    // 释放指针
-    // 无返回值
-    void (*free)(string);
 };
 
 // 新建 String 对象

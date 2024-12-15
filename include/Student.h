@@ -20,7 +20,7 @@ struct Student{
     // 借阅图书列表，最多10本
     Vector borrowBooks;
 
-    bool (*init)(student this,char name[],char className[]);
+    bool (*init)(student this);
 
     char *_serialize;
     const char *(*data)(student this);

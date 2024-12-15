@@ -21,7 +21,10 @@ struct Book{
     // 表示序列化之后的数据
     char serialize[1500];
 
-    // 复制图书数据
+    // 构造函数
+    book(*init)(book this);
+
+    // 拷贝构造函数
     book(*copy)(book this,book other);
 
     // 比较图书数据
