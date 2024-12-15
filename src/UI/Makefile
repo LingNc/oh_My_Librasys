@@ -8,10 +8,10 @@ CFLAGS = -Wall -Wextra -g
 LDFLAGS = -lncursesw -lmenuw
 
 # 目标文件
-TARGET = menu
+TARGET = main
 
 # 源文件
-SRCS = menu.c utils.c
+SRCS = menu.c utils.c screen.c main.c
 
 # 生成的对象文件
 OBJS = $(SRCS:.c=.o)

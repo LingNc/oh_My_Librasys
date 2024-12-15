@@ -5,6 +5,7 @@
 #include <ncursesw/menu.h>
 #include <locale.h>
 #include <stdlib.h>
+#include "screen.h"
 
 
 void init_all();

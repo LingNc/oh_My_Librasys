@@ -20,7 +20,7 @@ ITEM** creat_items(char** choices, int n_choices)
     {
         items[i] = new_item(choices[i], "");
     }
-    items[n_choices] =(ITEM**)NULL;
+    items[n_choices] = (ITEM*)NULL;
     return items;
 }
 

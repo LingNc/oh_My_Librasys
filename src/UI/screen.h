@@ -1,20 +1,41 @@
+//用于管理界面栈的相关函数与结构
+
 #ifndef SCREENS_H
 #define SCREENS_H
 
+
+#define STACK_SIZE 100
 //指代不同界面的变量
-typedef enum {
-    SCREEN_MAIN_MENU,
-    SCREEN_1,
-    SCREEN_2,
-    SCREEN_3,
-    SCREEN_4,
-    SCREEN_5,
-    SCREEN_6,
-    SCREEN_EXIT,
-    SCREEN_BACK
+typedef enum
+{
+    // 主界面
+    MAIN, // 主界面
+
+    // 管理员界面
+    ADMIN_LOGIN,    // 管理员登录
+    ADMIN_MENU,     // 管理员主界面
+    BOOK_MANAGE,    // 图书管理*
+    STUDENT_MANAGE, // 学生管理*
+    BORROW_RECORDS, // 借书记录管理*
+    ABOUT,          //关于
+
+    // 学生界面
+    STUDENT_LOGIN, // 学生登录
+    STUDENT_MENU,  // 学生主界面
+    SEARCH_BOOKS,  // 搜索图书*
+    BORROW_BOOK,   // 借书*
+    RETURN_BOOK,   // 还书*
+    VIEW_RECORDS,  // 查看借书记录*
+
+    // 通用界面
+    CONFIRM,     // 确认界面
+    SUCCESS,     // 操作成功提示
+    ERROR,       // 操作失败提示
+    BACK,         // 返回
+    EXIT,        //退出
 } Screen;
 
-//
+//界面栈的定义
 typedef struct {
     Screen screens[100];
     int top;
@@ -24,10 +45,5 @@ typedef struct {
 void push_screen(Stack *stack, Screen screen);
 Screen pop_screen(Stack *stack);
 
-//定义窗口的打印与处理的接口
-typedef struct {
-    void (*display)(void);  //显示界面函数的接口
-    Screen (*input_handler)(Stack *stack);    //当前界面的处理函数,返回下一个界面
-} WinProcess;
 
 #endif

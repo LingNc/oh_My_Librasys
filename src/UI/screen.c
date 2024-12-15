@@ -1,27 +1,33 @@
-#include "screen.h"
 #include <stdio.h>
-
+#include <stdlib.h>
+#include "screen.h"
 #include "menu.h"
 
 void push_screen(Stack *stack, Screen screen)
 {
-    stack ->top++;
-    if (stack->top > 99)
+    if (stack->top >= STACK_SIZE - 1)
     {
-        perror("视频栈已满");
-        exit(1);
+        fprintf(stderr, "屏幕栈已满\n");
+        exit(EXIT_FAILURE);
     }
-    stack -> screens[stack -> top] = screen;
+    stack->screens[++(stack->top)] = screen;
 }
 
 Screen pop_screen(Stack *stack)
 {
-    stack -> top--;
+    if (stack->top < 0)
+    {
+        fprintf(stderr, "屏幕栈为空\n");
+        exit(EXIT_FAILURE);
+    }
+    return stack->screens[(stack->top)--];
 }
 
-WinProcess wins[] = {
-    [SCREEN_MAIN_MENU] = {display_main_menu, main_menu_input},
-    [SCREEN_1] = {option1_display, option1_input},
-    [SCREEN_2] = {option2_display, option2_input},
-    // 其他界面...
+//函数指针数组, 打印当前界面,处理选项,返回下一项
+Screen (*screen_functions[])() = {
+    [MAIN] = main_menu,
+    [BACK] = NULL,
+    [EXIT] = NULL,
 };
+
+ 
