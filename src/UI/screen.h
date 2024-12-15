@@ -10,6 +10,7 @@ typedef enum
 {
     // 主界面
     MAIN, // 主界面
+    ABOUT,          //关于
 
     // 管理员界面
     ADMIN_LOGIN,    // 管理员登录
@@ -17,7 +18,6 @@ typedef enum
     BOOK_MANAGE,    // 图书管理*
     STUDENT_MANAGE, // 学生管理*
     BORROW_RECORDS, // 借书记录管理*
-    ABOUT,          //关于
 
     // 学生界面
     STUDENT_LOGIN, // 学生登录

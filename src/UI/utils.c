@@ -1,5 +1,6 @@
 #include "utils.h"
 
+
 void init_all()
 {
     // 设置本地化以支持多字节字符
@@ -10,6 +11,13 @@ void init_all()
     cbreak();
     noecho();
     keypad(stdscr, true);
+    update_terminal_size();
+    if (terminal.width < 87 || terminal.height < 24)
+    {
+        endwin();
+        fprintf(stderr, "终端尺寸过小，请调整终端窗口大小。\n");
+        exit(1);
+    }
 }
 
 ITEM** creat_items(char** choices, int n_choices)
@@ -54,6 +62,20 @@ void refresh_menu(MENU* menu, WINDOW* win)
 {
     post_menu(menu);
     wrefresh(win);
+}
+void resize_main_menu(MENU *menu, WINDOW **win)
+{
+    unpost_menu(menu);  // 取消发布菜单
+    if (*win != NULL)
+        delwin(*win);
+    *win = creat_win(12, 20, 14, (terminal.width - 20) / 2);
+    keypad(*win, TRUE);
+    init_menu_in_win(menu, *win, 9, 15, 1, 5);
+    wborder(*win, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+    post_menu(menu);
+    wrefresh(menu_sub(menu));  // 刷新子窗口
+    wrefresh(*win);
+    refresh();  // 刷新整个屏幕
 }
 
 void destroy_menu(MENU* menu, ITEM** items, WINDOW* menu_win)

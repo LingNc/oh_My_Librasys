@@ -26,6 +26,7 @@ Screen pop_screen(Stack *stack)
 //函数指针数组, 打印当前界面,处理选项,返回下一项
 Screen (*screen_functions[])() = {
     [MAIN] = main_menu,
+    [ADMIN_MENU] = admin_menu,
     [BACK] = NULL,
     [EXIT] = NULL,
 };

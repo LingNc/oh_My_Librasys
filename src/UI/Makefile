@@ -11,7 +11,7 @@ LDFLAGS = -lncursesw -lmenuw
 TARGET = main
 
 # 源文件
-SRCS = menu.c utils.c screen.c main.c
+SRCS = menu.c utils.c screen.c main.c terminal.c
 
 # 生成的对象文件
 OBJS = $(SRCS:.c=.o)

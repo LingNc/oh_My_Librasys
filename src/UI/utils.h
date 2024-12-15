@@ -6,6 +6,7 @@
 #include <locale.h>
 #include <stdlib.h>
 #include "screen.h"
+#include "terminal.h"
 
 
 void init_all();
@@ -19,6 +20,7 @@ WINDOW* creat_win(int hight, int width, int y, int x);
 void init_menu_in_win(MENU* menu, WINDOW* win, int hight, int width, int y, int x);
 
 void refresh_menu(MENU* menu, WINDOW* win);
+void resize_main_menu(MENU *menu, WINDOW **win);
 
 void destroy_menu(MENU* menu, ITEM** items, WINDOW* menu_win);
 

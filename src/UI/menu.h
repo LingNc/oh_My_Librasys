@@ -13,9 +13,10 @@
 // void display_manager_menu();
 
 
-WINDOW *display_background();
+void display_title();
 
 Screen main_menu();
+Screen admin_menu();
 
 
 #endif

@@ -2,6 +2,7 @@
 #include "screen.h"
 #include "utils.h"
 
+
 extern Screen (*screen_functions[])();
 
 int main()
