@@ -51,7 +51,7 @@ struct Vector{
     void (*resize)(vector this,size_t newSize);
 
     // 初始化
-    void (*init)(vector this);
+    void (*init)(vector this,const char type[]);
     // 初始化类型
     // void (*iInt)(vector this);
     // void (*iString)(vector this);
@@ -102,10 +102,12 @@ struct Vector{
 vector new_vector(const char* type);
 
 // 对已有的 Vector 初始化
-void init_vector(vector this);
+void init_vector(vector this,const char* type);
 
 // 释放向量
 // 返回空向量指针
 vector free_vector(vector this);
+
+#define vector(TYPE) new_vector(#TYPE)
 
 #endif

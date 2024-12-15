@@ -258,7 +258,6 @@ static vector _init_type(vector this,const char *type){
     }
     return this;
 }
-
 // 初始化向量函数指针
 static vector _vector_init_func(vector this){
     this->push_back=_vector_push_back;
@@ -270,7 +269,6 @@ static vector _vector_init_func(vector this){
     this->data=_vector_data;
     this->in_data=_vector_in_data;
     this->resize=_vector_resize;
-    this->init=_vector_init_func;
     // 类型初始化
     // this->iInt=_vector_init_int;
     // this->iString=_vector_init_string;
@@ -278,16 +276,22 @@ static vector _vector_init_func(vector this){
     // this->iStudent=_vector_init_student;
     return this;
 }
+// 全部初始化
+static void _init(vector this,const char type[]){
+    this->init=_init;
+    _vector_init_func(this);
+    _init_type(this,type);
+}
 
 // 对已有的 Vector 初始化
-void init_vector(vector this){
-    _vector_init_func(this);
+void init_vector(vector this,const char* type){
+    _init(this,type);
 }
 
 // 创建新的向量
 vector new_vector(const char* type){
     vector this=malloc(sizeof(struct Vector));
     assert(this!=NULL);
-    _init_type(this,type);
-    return _init_func(this);
+    _init(this,type);
+    return this;
 }
