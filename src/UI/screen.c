@@ -27,6 +27,15 @@ Screen pop_screen(Stack *stack)
 Screen (*screen_functions[])() = {
     [MAIN] = main_menu,
     [ADMIN_MENU] = admin_menu,
+    [BOOK_MANAGE] = book_manage_info,
+    [STUDENT_MANAGE] = stu_manage_info,
+    [BORROW_RECORDS] = borrow_records,
+    [STUDENT_MENU] = stu_menu,
+    [SEARCH_BOOKS] = borrow_records,
+    [BORROW_BOOK] = search_books,
+    [RETURN_BOOK] = return_book,
+    [VIEW_RECORDS] = view_records,
+    [ABOUT] = about,
     [BACK] = NULL,
     [EXIT] = NULL,
 };

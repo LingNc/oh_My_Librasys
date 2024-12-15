@@ -20,7 +20,7 @@ void init_all()
     }
 }
 
-ITEM** creat_items(char** choices, int n_choices)
+ITEM** creat_items(char** choices, int n_choices) 
 {
     ITEM **items;
     items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
@@ -31,11 +31,6 @@ ITEM** creat_items(char** choices, int n_choices)
     items[n_choices] = (ITEM*)NULL;
     return items;
 }
-
-// void set_func(ITEM** items, int n_chioces, )
-// {
-    
-// }
 
 WINDOW* creat_win(int hight, int width, int y, int x)
 {
@@ -88,4 +83,39 @@ void destroy_menu(MENU* menu, ITEM** items, WINDOW* menu_win)
     free(items);
     delwin(menu_win);
 }
+
+void resize_menu(MENU *menu, WINDOW **win)
+{
+    unpost_menu(menu);  // 取消发布菜单
+    if (*win != NULL)
+        delwin(*win);
+    
+    int height, width, x, y;
+    getmaxyx(*win, height, width);
+    getbegyx(*win, y, x);
+
+    *win = creat_win(height, width, y, x);
+    keypad(*win, TRUE);
+    init_menu_in_win(menu, *win,height*9/10, width*9/10, height*1/20, width*1/20);
+    box(*win, 0, 0);
+    post_menu(menu);
+    wrefresh(menu_sub(menu));  // 刷新子窗口
+    wrefresh(*win);
+}
+
+void refresh_win(WINDOW** win)
+{
+    if (*win != NULL) {
+        int height, width, y, x;
+        getmaxyx(*win, height, width);
+        getbegyx(*win, y, x);
+        delwin(*win);
+        
+        *win = creat_win(height, width, y, x);
+        keypad(*win, TRUE);
+        box(*win, 0, 0);
+        wrefresh(*win);
+    }
+}
+
 

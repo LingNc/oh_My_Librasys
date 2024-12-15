@@ -24,4 +24,8 @@ void resize_main_menu(MENU *menu, WINDOW **win);
 
 void destroy_menu(MENU* menu, ITEM** items, WINDOW* menu_win);
 
+void resize_menu(MENU *menu, WINDOW **win);
+
+void refresh_win(WINDOW** win);
+
 #endif

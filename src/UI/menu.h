@@ -17,6 +17,17 @@ void display_title();
 
 Screen main_menu();
 Screen admin_menu();
+Screen book_manage_info();
+Screen stu_manage_info();
+Screen borrow_records();
 
+Screen stu_menu();
+Screen borrow_records();
+Screen search_books();
+Screen borrow_book();
+Screen return_book();
+Screen view_records();
+
+Screen about();
 
 #endif
