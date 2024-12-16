@@ -1,8 +1,8 @@
-#include"List.h"
-#include"String.h"
-#include"Book.h"
-#include"Student.h"
+#ifndef _type_lib
+#define _type_lib
+
 #include<string.h>
+#include<assert.h>
 
 // 基础类型的cmp函数定义
 // 比较两个元素
@@ -17,18 +17,7 @@
     if (itemSize == sizeof(TYPE)) \
         return _default_cmp_for(TYPE, a, b);
 
-int _default_cmp(const void *a, const void *b, size_t itemSize) {
-    _default_cmp_if_for(int)
-    else _default_cmp_if_for(float)
-    else _default_cmp_if_for(double)
-    else _default_cmp_if_for(long long)
-    else _default_cmp_if_for(long double)
-    else _default_cmp_if_for(char)
-    else {
-        assert(0 && "_default_cmp 传入了不支持的比较类型");
-        return 0;
-    }
-}
+extern int _default_cmp(const void *a,const void *b,size_t itemSize);
 
 // 通用初始化类型函数
 #define _init_define_type(this,TYPE) \
@@ -60,10 +49,10 @@ int _default_cmp(const void *a, const void *b, size_t itemSize) {
 #define _init_type(this,type) \
     ({ \
         size_t result = 0; \
-        _init_type_for(String); \
-        _init_type_for(Book); \
-        _init_type_for(Student); \
-    else{ \
+        _init_type_for(String) \
+        _init_type_for(Book) \
+        _init_type_for(Student) \
+        else{ \
             this->_copy_item=NULL; \
             this->_free_item=NULL; \
             this->_cmp_item=NULL; \
@@ -83,14 +72,16 @@ int _default_cmp(const void *a, const void *b, size_t itemSize) {
 
 #define _init_default_func(type) \
     /* 构造函数 */ \
-    type(*init)(type this); \
+    type (*init)(type this); \
     /* 拷贝构造函数 */ \
-    type(*copy)(type this,book other); \
+    type (*copy)(type this,type other); \
     /* 比较函数 */ \
-    int (*cmp)(type this,book other); \
+    int (*cmp)(type this,type other); \
     /* 析构函数 */ \
     void (*free)(type this); \
     /* 获取图书的序列化数据 */ \
     const char *(*data)(type this); \
     /* 读入图书的数据，反序列化 */ \
     void (*in_data)(type this,const char* data);
+
+#endif
