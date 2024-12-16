@@ -4,8 +4,14 @@
 #include<string.h>
 #include<assert.h>
 
-// 基础类型的cmp函数定义
-// 比较两个元素
+/*
+定义：
+    基础类型的cmp函数定义
+用途：
+    比较两个元素，可以按照指定类型进行比较，用于基础的数据类型进行比较
+格式：
+    _default_cmp_for(TYPE,a,b)，TYPE为指定的类型，a，b为要比较的两个变量
+*/
 #define _default_cmp_for(TYPE, a, b) \
     ({ \
         TYPE TYPE_a = *(TYPE *)a; \
@@ -13,13 +19,38 @@
         (TYPE_a > TYPE_b) - (TYPE_a < TYPE_b); \
     })
 
+/*
+定义：
+    根据元素大小选择合适的比较函数
+用途：
+    根据元素的大小选择合适的比较函数，用于比较不同大小的元素
+格式：
+    _default_cmp_if_for(TYPE)，TYPE为指定的类型
+*/
 #define _default_cmp_if_for(TYPE) \
     if (itemSize == sizeof(TYPE)) \
         return _default_cmp_for(TYPE, a, b);
 
+/*
+定义：
+    默认比较函数，非自定义结构体的比较函数
+用途：
+    根据元素大小选择合适的比较函数，用于比较不同大小的元素
+格式：
+    _default_cmp(const void *a,const void *b,size_t itemSize)，a，b为要比较的两个变量，itemSize为元素大小
+实现：
+    在TYPE.c文件中
+*/
 extern int _default_cmp(const void *a,const void *b,size_t itemSize);
 
-// 通用初始化类型函数
+/*
+定义：
+    通用初始化类型函数
+用途：
+    初始化类型的各个函数指针，用于初始化不同类型的函数指针
+格式：
+    _init_define_type(this,TYPE)，this为当前对象，TYPE为指定的类型
+*/
 #define _init_define_type(this,TYPE) \
     ({ \
         this->_base = malloc(sizeof(TYPE)); \
@@ -30,22 +61,42 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
         this->_data_item = ((TYPE *)this->_base)->data; \
         this->_in_data_item = ((TYPE *)this->_base)->in_data; \
         sizeof(TYPE); \
-})
+    })
 
-// 简化代码宏替换
+/*
+定义：
+    简化代码宏替换
+用途：
+    根据类型名称初始化类型，用于简化代码
+格式：
+    _init_type_for(TYPE)，TYPE为指定的类型
+*/
 #define _init_type_for(TYPE) \
     if (strcmp(type, #TYPE) == 0) \
         result = _init_define_type(this, TYPE);
 
-// 简化代码
+/*
+定义：
+    简化代码
+用途：
+    初始化基本类型的比较函数，用于简化代码
+格式：
+    _init_type_for_basic_with_cmp(TYPE)，TYPE为指定的类型
+*/
 #define _init_type_for_basic_with_cmp(TYPE) \
     if (strcmp(type, #TYPE) == 0) { \
         this->_cmp_item = _default_cmp; \
         result=sizeof(TYPE); \
     }
 
-
-// 对所有支持的数据类型进行对应的匹配，并返回该类型所需的基本大小
+/*
+定义：
+    对所有支持的数据类型进行对应的匹配，并返回该类型所需的基本大小
+用途：
+    初始化类型的各个函数指针，用于初始化不同类型的函数指针
+格式：
+    _init_type(this,type)，this为当前对象，type为指定的类型
+*/
 #define _init_type(this,type) \
     ({ \
         size_t result = 0; \
@@ -70,6 +121,14 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
         result; \
     })
 
+/*
+定义：
+    为自定义的每一种类型(结构体)，快速的初始化默认函数指针
+用途：
+    定义类型的默认函数指针，用于初始化不同类型的函数指针
+格式：
+    _init_default_func(type)，type为指定的类型
+*/
 #define _init_default_func(type) \
     /* 构造函数 */ \
     type (*init)(type this); \

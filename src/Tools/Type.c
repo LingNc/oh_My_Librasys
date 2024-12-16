@@ -1,5 +1,5 @@
 #include"Tools/Type.h"
-
+// 默认比较函数，非自定义结构体的比较函数
 int _default_cmp(const void *a,const void *b,size_t itemSize){
     _default_cmp_if_for(int)
     else _default_cmp_if_for(float)
