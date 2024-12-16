@@ -2,6 +2,7 @@
 #include <string.h>
 #include "menu.h"
 #include "utils.h"
+#include "list.h"
 #include "terminal.h"
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))    //只能在主函数用,指针退化,无法得出
@@ -33,7 +34,7 @@ Screen main_menu()
     clear();
     refresh();
     display_title();
-        refresh();
+    refresh();
 
     int n_choices = ARRAY_SIZE(main_choices);      // 菜单选项数量
     ITEM **items = creat_items(main_choices, n_choices);// 将字符串初始话为主菜单的选项
@@ -98,7 +99,6 @@ Screen main_menu()
     }
 }
 
-
 Screen admin_menu()
 {
     char *admin_choices[] = {
@@ -158,6 +158,7 @@ Screen admin_menu()
                 return next_screen;
             }else if (strcmp(chioce_name, "图书管理") == 0)
             {
+                
                 next_screen = BOOK_MANAGE;
                 return next_screen;
             }else if (strcmp(chioce_name, "学生管理") == 0)
@@ -186,11 +187,16 @@ Screen admin_menu()
 
 Screen book_manage_info()
 {
-    WINDOW* win = newwin(terminal.height/2,terminal.width/2, terminal.height/4,terminal.width/4);
-    box(win,0,0);
-    mvwprintw(win,1,1,"正在施工");
-    wrefresh(win);
-    wgetch(win);
+    // WINDOW* win = newwin(terminal.height/2,terminal.width/2, terminal.height/4,terminal.width/4);
+    // box(win,0,0);
+    // mvwprintw(win,1,1,"正在施工");
+    // WINDOW *info = creat_win(terminal.height - 2, terminal.width - (terminal.width / 4) - 3, 1, terminal.width / 4 + 2);
+    // mvwprintw(info,1,1,"正在施工");
+    // wrefresh(info);
+    // wrefresh(win);
+    // wgetch(win);
+
+    list();
     return BACK;
 }
 
@@ -203,6 +209,7 @@ Screen stu_manage_info()
     wgetch(win);
     return BACK;
 }
+
 Screen borrow_records()
 {
     WINDOW* win = newwin(terminal.height/2,terminal.width/2, terminal.height/4,terminal.width/4);
@@ -348,7 +355,10 @@ Screen about()
     box(win,0,0);
     mvwprintw(win,1,1,"Oh My Labrasys 是一款专为图书管理设计的软件，界面简洁直观，功能布局清晰。");
     mvwprintw(win,2,1,"还没完呢, 该怎么些, 后面的好难");
+    mvwprintw(win,3,1,"12月16号， 今天排版列表花了一下午， 最后还是用了最简单的定位解决了");
     wrefresh(win);
     wgetch(win);
     return BACK;
 }
+
+
