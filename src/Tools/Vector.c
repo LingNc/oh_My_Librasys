@@ -1,4 +1,5 @@
 #include "Tools/Vector.h"
+#include<stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -65,8 +66,10 @@ static size_t _vector_size(vector this){
 
 // 查找元素，返回位置
 static size_t _vector_find(vector this,const void *key,size_t startIndex){
-    if(startIndex>=this->_size)
+    if(startIndex>=this->_size){
+        perror("Vector: _vector_find 下标越界");
         return this->npos;
+    }
     for(size_t i=startIndex; i<this->_size; i++){
         void *elem=(char *)this->_data+i*this->_itemSize;
         int cmp_result;
