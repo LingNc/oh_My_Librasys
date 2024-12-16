@@ -108,7 +108,7 @@ void init_vector(vector this,const char* type);
 
 // 释放向量
 // 返回空向量指针
-vector free_vector(vector this);
+void delete_vector(vector this);
 
 #define vector(TYPE) new_vector(#TYPE)
 // #define new_vector(TYPE) new_vector(#TYPE)

@@ -6,17 +6,18 @@
 
 // 函数声明
 static void _grow(vector this);
-static void _vector_push_back(vector this, const void *item);
+static void _init_all(vector this, const char type[]);
+static void _vector_push_back(vector this,const void *item);
 static void _vector_erase(vector this, size_t position);
 static void *_vector_at(vector this, size_t position);
 static size_t _vector_size(vector this);
 static size_t _vector_find(vector this, const void *key, size_t startIndex);
-static void _vector_free(vector this);
+static void _vector_delete(vector this);
 static const char *_vector_data(vector this);
 static bool _vector_in_data(vector this, const char *data);
 static void _vector_resize(vector this, size_t newSize);
 static vector _vector_init_func(vector this);
-static void _init_all(vector this, const char type[]);
+
 
 // 动态扩展向量的容量
 static void _grow(vector this){
@@ -62,42 +63,6 @@ static size_t _vector_size(vector this){
     return this->_size;
 }
 
-// // 比较两个元素
-// static int _default_cmp(const void *a,const void *b,size_t itemSize){
-//     if(itemSize==sizeof(int)){
-//         int int_a=*(int *)a;
-//         int int_b=*(int *)b;
-//         return (int_a>int_b)-(int_a<int_b);
-//     }
-//     else if(itemSize==sizeof(float)){
-//         float float_a=*(float *)a;
-//         float float_b=*(float *)b;
-//         return (float_a>float_b)-(float_a<float_b);
-//     }
-//     else if(itemSize==sizeof(double)){
-//         double double_a=*(double *)a;
-//         double double_b=*(double *)b;
-//         return (double_a>double_b)-(double_a<double_b);
-//     }
-//     else if(itemSize==sizeof(long long)){
-//         long long ll_a=*(long long *)a;
-//         long long ll_b=*(long long *)b;
-//         return (ll_a>ll_b)-(ll_a<ll_b);
-//     }
-//     else if(itemSize==sizeof(long double)){
-//         long double ld_a=*(long double *)a;
-//         long double ld_b=*(long double *)b;
-//         return (ld_a>ld_b)-(ld_a<ld_b);
-//     }
-//     else if(itemSize==sizeof(char)){
-//         char char_a=*(char *)a;
-//         char char_b=*(char *)b;
-//         return (char_a>char_b)-(char_a<char_b);
-//     }
-//     assert(0&&"Vector: _default_cmp 传入了不支持的比较类型");
-//     return 0;
-// }
-
 // 查找元素，返回位置
 static size_t _vector_find(vector this,const void *key,size_t startIndex){
     if(startIndex>=this->_size)
@@ -116,7 +81,7 @@ static size_t _vector_find(vector this,const void *key,size_t startIndex){
 }
 
 // 释放向量
-static void _vector_free(vector this){
+static void _vector_delete(vector this){
     if(this->_free_item){
         for(size_t i=0; i<this->_size; i++){
             this->_free_item((char *)this->_data+i*this->_itemSize);
@@ -178,7 +143,7 @@ static vector _vector_init_func(vector this){
     this->at=_vector_at;
     this->size=_vector_size;
     this->find=_vector_find;
-    this->free=_vector_free;
+    this->free=_vector_delete;
     this->data=_vector_data;
     this->in_data=_vector_in_data;
     this->resize=_vector_resize;
@@ -202,15 +167,20 @@ static void _init_all(vector this,const char type[]){
     this->_size=0;
 }
 
-// 对已有的 Vector 初始化
-void init_vector(vector this,const char *type){
-    _init_all(this,type);
-}
-
 // 创建新的向量
 vector new_vector(const char *type){
     vector this=malloc(sizeof(Vector));
     assert(this!=NULL);
     _init_all(this,type);
     return this;
+}
+
+// 对已有的 Vector 初始化
+void init_vector(vector this,const char *type){
+    _init_all(this,type);
+}
+
+// 释放向量
+void delete_vector(vector this){
+    _vector_delete(this);
 }
