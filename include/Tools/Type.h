@@ -17,7 +17,7 @@
     if (itemSize == sizeof(TYPE)) \
         return _default_cmp_for(TYPE, a, b);
 
-static int _default_cmp(const void *a, const void *b, size_t itemSize) {
+int _default_cmp(const void *a, const void *b, size_t itemSize) {
     _default_cmp_if_for(int)
     else _default_cmp_if_for(float)
     else _default_cmp_if_for(double)
@@ -80,3 +80,17 @@ static int _default_cmp(const void *a, const void *b, size_t itemSize) {
         } \
         result; \
     })
+
+#define _init_default_func(type) \
+    /* 构造函数 */ \
+    type(*init)(type this); \
+    /* 拷贝构造函数 */ \
+    type(*copy)(type this,book other); \
+    /* 比较函数 */ \
+    int (*cmp)(type this,book other); \
+    /* 析构函数 */ \
+    void (*free)(type this); \
+    /* 获取图书的序列化数据 */ \
+    const char *(*data)(type this); \
+    /* 读入图书的数据，反序列化 */ \
+    void (*in_data)(type this,const char* data);

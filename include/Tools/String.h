@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "Type.h"
 
 // String 结构体的前向声明
 typedef struct String String;
@@ -108,28 +109,7 @@ struct String{
     // 返回 1 表示为空，0 表示不为空
     int (*empty)(string);
 
-    // 构造函数,初始化String所需要的一切
-    void (*init)(string this);
-
-    // 拷贝构造函数
-    // 返回自己
-    string(*copy)(string this,string other);
-
-    // 释放指针
-    // 无返回值
-    void (*free)(string);
-
-    // 字符串字典序对比
-    // 大于返回1，小于返回-1，等于0
-    int (*cmp)(string,string);
-
-    // 获取字符串的原始数据
-    // 返回 const char* 指向序列化的二进制流数据
-    const char *(*data)(string);
-
-    // 读入序列化数据进行反序列化
-    // 无返回值
-    void (*in_data)(string,const char *);
+    _init_default_func(string);
 };
 
 // 新建 String 对象
