@@ -111,5 +111,5 @@ void init_vector(vector this,const char* type);
 vector free_vector(vector this);
 
 #define vector(TYPE) new_vector(#TYPE)
-
+// #define new_vector(TYPE) new_vector(#TYPE)
 #endif

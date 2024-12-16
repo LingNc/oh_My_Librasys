@@ -108,8 +108,8 @@ struct String{
     // 检查字符串是否为空
     // 返回 1 表示为空，0 表示不为空
     int (*empty)(string);
-
     _init_default_func(string);
+
 };
 
 // 新建 String 对象

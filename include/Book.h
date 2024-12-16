@@ -23,6 +23,6 @@ struct Book{
     _init_default_func(book);
 };
 
-void new_book(book this);
+book new_book(book this);
 
 #endif

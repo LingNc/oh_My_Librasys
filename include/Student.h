@@ -21,8 +21,6 @@ struct Student{
     // 借阅图书列表，最多10本
     int borrowBooks;
 
-    bool (*init)(student this);
-
     // 序列化数据
     char *_serialize;
     _init_default_func(student);
