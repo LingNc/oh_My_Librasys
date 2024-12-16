@@ -23,6 +23,12 @@ typedef struct {
     int num;
 } Book;
 
+typedef struct {
+    size_t all;
+    size_t acceess;
+    char name[100];
+    char date[20];
+}Info;
 void list();
 
 #endif
