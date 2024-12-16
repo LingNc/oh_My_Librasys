@@ -17,6 +17,8 @@ struct String{
     char *_data;
     // 字符串的长度
     size_t _length;
+    // 已分配内存大小
+    size_t _allocatedSize;
     // 表示无位置的常量
     size_t npos;
     // 表示序列化之后的数据
@@ -27,15 +29,15 @@ struct String{
 
     // 写入字符
     // 返回写入后的字符串
-    string(*write_char)(string,char);
+    string(*assign_char)(string, char);
 
     // 写入 C 风格字符串
     // 返回写入后的字符串
-    string(*write_cstr)(string,const char *);
+    string(*assign_cstr)(string, const char *);
 
     // 写入 String 对象
-    // 返回写入后的字符串
-    string(*write)(string,string);
+    // 返回写入���的字符串
+    string(*assign)(string, string);
 
     // 删除指定位置的字符
     // 返回删除后的字符串
@@ -85,6 +87,34 @@ struct String{
     // 返回字符串位置，未找到返回 npos
     size_t(*find)(string,size_t,string);
 
+    // 反向查找字符
+    // 返回字符位置，未找到返回 npos
+    size_t(*rfind_char)(string, size_t, char);
+
+    // 反向查找 C 风格字符串
+    // 返回字符串位置，未找到返回 npos
+    size_t(*rfind_cstr)(string, size_t, const char *);
+
+    // 反向查找 String 对象
+    // 返回字符串位置，未找到返回 npos
+    size_t(*rfind)(string, size_t, string);
+
+    // 替换从pos位置开始长度为len的子字符串为s
+    // 返回替换后的字符串
+    string(*replace)(string, size_t, size_t, const char *);
+
+    // 交换字符串
+    // 无返回值
+    void (*swap)(string, string);
+
+    // 追加字符到字符串末尾
+    // 无返回值
+    void (*push_back)(string, char);
+
+    // 删除字符串末尾的字符
+    // 无返回值
+    void (*pop_back)(string);
+
     // 获取字符串的大小
     // 返回字符串的大小
     size_t(*size)(string);
@@ -108,8 +138,9 @@ struct String{
     // 检查字符串是否为空
     // 返回 1 表示为空，0 表示不为空
     int (*empty)(string);
-    _init_default_func(string);
 
+    // 初始化默认函数
+    _init_default_func(string);
 };
 
 // 新建 String 对象
