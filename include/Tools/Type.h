@@ -143,4 +143,26 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     /* 读入图书的数据，反序列化 */ \
     void (*in_data)(type this,const char* data);
 
+/*
+定义：
+    为自定义的每一种类型(结构体)，快速的初始化默认函数指针
+用途：
+    定义类型的默认函数指针，用于初始化不同类型的函数指针
+格式：
+    _init_default_(type,item)，type为指定的类型，item为指定的项目
+*/
+#define _init_default_item(type,item) \
+    /* item构造函数 */ \
+    type (*_init_##item)(type this); \
+    /* item拷贝构造函数 */ \
+    type (*_copy_##item)(type this,type other); \
+    /* item比较函数 */ \
+    int (*_cmp_##item)(type this,type other); \
+    /* item析构函数 */ \
+    void (*_free_##item)(type this); \
+    /* item获取图书的序列化数据 */ \
+    const char *(*_data_##item)(type this); \
+    /* item读入图书的数据，反序列化 */ \
+    void (*_in_data_##item)(type this,const char* data);
+
 #endif
