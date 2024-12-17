@@ -10,7 +10,7 @@ CFLAGS = -Wall -g -I include
 TARGET = main
 
 # 查找所有源文件
-SRCS = $(wildcard src/Tools/*.c src/*.c)
+SRCS = $(wildcard src/Tools/*.c src/DataBase/*c src/*.c )
 
 # 对象文件目录
 OBJDIR = build
