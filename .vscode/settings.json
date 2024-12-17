@@ -93,8 +93,13 @@
         "stdio.h": "c",
         "string.h": "c",
         "stddef.h": "c",
-        "ncurses.h": "c",
-        "menu.h": "c"
+        "stdlib.h": "c",
+        "vector.h": "c",
+        "stdbool.h": "c",
+        "type.h": "c",
+        "assert.h": "c",
+        "list.h": "c",
+        "student.h": "c"
     },
     "makefile.launchConfigurations": [
         {
@@ -105,6 +110,11 @@
         {
             "cwd": "/home/attacking_bird/BookManager",
             "binaryPath": "/home/attacking_bird/BookManager/main",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lingnc/oh_My_Librasys",
+            "binaryPath": "/home/lingnc/oh_My_Librasys/main",
             "binaryArgs": []
         }
     ]

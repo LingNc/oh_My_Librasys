@@ -11,10 +11,12 @@
 !**/*.c
 !**/*.h
 !Makefile
+!README.md
 
 !**/*.md
 
 # 必须排除的部分
+**/test.c
 # windows编译文件
 */*.exe
 # 密钥文件
