@@ -1,29 +1,31 @@
 #ifndef _student_lib
 #define _student_lib
 
-#include<string.h>
-#include<stddef.h>
-#include<stdlib.h>
-#include"Book.h"
-#include"Tools/Type.h"
-#include"Tools/Vector.h"
+#include "Tools/String.h"
+#include "Tools/Type.h"
+#include "Tools/Vector.h"
+#include "Book.h"
+
+#define MAX_AVAILABLE 10
 
 typedef struct Student Student;
 typedef Student *student;
 
-struct Student{
-    // 姓名
-    char name[20];
-    // 班级
-    char className[20];
-    // 借书数量
-    int borrowCount;
-    // 借阅图书列表，最多10本
-    int borrowBooks;
+struct Student {
+    size_t id;
+    string name;
+    string class;
+    string department;
+    int borrowedCount;
+    string borrowedDate;
+    string returnDate;
+    vector books; // 动态数组，存储借阅的图书信息
 
     // 序列化数据
-    char *_serialize;
+    string _serialize;
     _init_default_func(student);
 };
+
+student new_student();
 
 #endif
