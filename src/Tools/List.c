@@ -53,7 +53,7 @@ static size_t _capacity(List *self);
 static int _find_data(const List *self, void *target, const char *dataType);
 
 // 创建新节点
-static List_node *_list_node_new(void *val);
+static List_node *_list_node_new(void *data, const char *dataType);
 
 // 初始化链表的函数指针
 static List *_List_init_func(List *self);
@@ -300,7 +300,7 @@ static void _delete(List *self)
 static void _insert(List *self, int pos, void *data, const char *dataType)
 {
   assert(self != NULL && pos >= 0 && pos <= self->len);
-  List_node *new_node = list_node_new(data, dataType);
+  List_node *new_node = _list_node_new(data, dataType);
 
   assert(new_node != NULL);
   if (pos == 0)
@@ -411,15 +411,15 @@ static int _find_data(const List *self, void *target, const char *dataType)
 }
 
 // 创建新节点
-static List_node *_list_node_new(void *val)
+static List_node *_list_node_new(void *data, const char *dataType)
 {
   List_node *node;
   if (!(node = LIST_MALLOC(sizeof(List_node))))
   {
     return NULL; // 内存分配失败，返回 NULL
   }
-  node->_typename = new_string();
-  node->val = val;   // 将传入的值赋给节点的 val 字段
+  node->_typename = dataType;
+  node->val = data;   // 将传入的值赋给节点的 val 字段
   node->prev = NULL; // 初始化前驱指针为 NULL
   node->next = NULL; // 初始化后继指针为 NULL
   return node;       // 返回新创建的节点

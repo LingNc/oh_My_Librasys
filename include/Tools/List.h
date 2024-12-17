@@ -170,7 +170,7 @@ typedef struct List
   int (*find_data)(const List *self, T target, const char *dataType);
 
   // 创建新节点，存储值val的函数指针
-  List_node *(*list_node_new)(void *val);
+  List_node *(*list_node_new)(void *data, const char *dataType);
 } List;
 
 // #define DEFAULT_CAPACITY 8 // 默认容量为8
