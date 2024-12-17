@@ -232,21 +232,7 @@ static List_node *_at(List *self, int index)
   return current;         // 返回该节点
 }
 
-static void _remove(List *self, List_node *current)
-{
-  if (current->prev)                  // 如果有前驱节点
-    current->prev->next = current->next; // 前驱节点的后指针指向当前节点的后继
-  else
-    self->head = current->next; // 没有前驱，表示是头节点，更新头指针
 
-  if (current->next)                  // 如果有后继节点
-    current->next->prev = current->prev; // 后继节点的前指针指向当前节点的前驱
-  else
-    self->tail = current->prev; // 没有后继，表示是尾节点，更新尾指针
-
-  _list_node_destroy(current); // 释放节点内存
-  --self->len;              // 减少链表长度
-}
 
 // 销毁链表
 static void _delete(List *self)
@@ -263,6 +249,47 @@ static void _delete(List *self)
   self->head = NULL;
   self->tail = NULL;
   self->len = 0;
+}
+
+// 从指定位置删除数据
+static void _erase(List *self, int pos)
+{
+  if (self == NULL || pos < 0 || pos >= self->len)
+    return; // 无效位置
+  List_node *current = self->head;
+  while (pos--)
+  {
+    current = current->next;
+  }
+
+    if (current->prev)                  // 如果有前驱节点
+    current->prev->next = current->next; // 前驱节点的后指针指向当前节点的后继
+  else
+    self->head = current->next; // 没有前驱，表示是头节点，更新头指针
+
+  if (current->next)                  // 如果有后继节点
+    current->next->prev = current->prev; // 后继节点的前指针指向当前节点的前驱
+  else
+    self->tail = current->prev; // 没有后继，表示是尾节点，更新尾指针
+
+  _list_node_destroy(current);
+  self->len--;
+}
+
+static void _remove(List *self, List_node *current)
+{
+  if (current->prev)                  // 如果有前驱节点
+    current->prev->next = current->next; // 前驱节点的后指针指向当前节点的后继
+  else
+    self->head = current->next; // 没有前驱，表示是头节点，更新头指针
+
+  if (current->next)                  // 如果有后继节点
+    current->next->prev = current->prev; // 后继节点的前指针指向当前节点的前驱
+  else
+    self->tail = current->prev; // 没有后继，表示是尾节点，更新尾指针
+
+  _list_node_destroy(current); // 释放节点内存
+  --self->len;              // 减少链表长度
 }
 
 // 在指定位置插入数据
@@ -306,30 +333,6 @@ static void _insert(List *self, int pos, void *data, const char *dataType)
   self->len++;
 }
 
-// 从指定位置删除数据
-static void _erase(List *self, int pos)
-{
-  if (self == NULL || pos < 0 || pos >= self->len)
-    return; // 无效位置
-  List_node *current = self->head;
-  while (pos--)
-  {
-    current = current->next;
-  }
-
-    if (current->prev)                  // 如果有前驱节点
-    current->prev->next = current->next; // 前驱节点的后指针指向当前节点的后继
-  else
-    self->head = current->next; // 没有前驱，表示是头节点，更新头指针
-
-  if (current->next)                  // 如果有后继节点
-    current->next->prev = current->prev; // 后继节点的前指针指向当前节点的前驱
-  else
-    self->tail = current->prev; // 没有后继，表示是尾节点，更新尾指针
-
-  _list_node_destroy(current);
-  self->len--;
-}
 
 // 打印链表中的所有元素
 static void _print(const List *self)
