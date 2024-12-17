@@ -7,6 +7,12 @@
 // 创建一个新的链表
 static List *_list_new(void);
 
+// 创建新节点
+static List_node *_list_node_new(void *data, const char *dataType);
+
+// 初始化链表的函数指针
+static List *_List_init_func(List *self);
+
 // 销毁链表
 static void _list_destroy(List *self);
 
@@ -23,19 +29,20 @@ static void *_pop_front(List *self);
 static List_node *_push_front(List *self, List_node *current);
 
 // 按索引访问链表中的节点
-static List_node *_at(List *self, int index);
+static List_node *_at(List *self, int pos);
+
+// 从指定位置删除数据
+static void _erase(List *self, int pos);
 
 // 移除链表中的指定节点
 static void _remove(List *self, List_node *current);
 
+static void _list_node_destroy(List_node *self);
 // 销毁链表
 static void _delete(List *self);
 
 // 在指定位置插入数据
 static void _insert(List *self, int pos, void *data, const char *dataType);
-
-// 从指定位置删除数据
-static void _erase(List *self, int pos);
 
 // 打印链表中的所有元素
 static void _print(const List *self);
@@ -48,14 +55,6 @@ static size_t _capacity(List *self);
 
 // 查找链表中的数据
 static int _find(const List *self, void *target, const char *dataType);
-
-// 创建新节点
-static List_node *_list_node_new(void *data, const char *dataType);
-
-// 初始化链表的函数指针
-static List *_List_init_func(List *self);
-
-static void _list_node_destroy(List_node *self);
 
 static List *_list_new(void)
 {
@@ -126,6 +125,47 @@ static List *_List_init_func(List *self)
   self->_typename = "List"; // 设置内部数据类型名为"List"
 
   return self;
+}
+
+// 在指定位置插入数据
+static void _insert(List *self, int pos, void *data, const char *dataType)
+{
+  assert(self != NULL && pos >= 0 && pos <= self->len);
+  List_node *new_node = _list_node_new(data, dataType);
+
+  assert(new_node != NULL);
+  if (pos == 0)
+  { // 插入到头部
+    new_node->next = self->head;
+    if (self->head != NULL)
+    {
+      self->head->prev = new_node;
+    }
+    self->head = new_node;
+    if (self->tail == NULL)
+    {
+      self->tail = new_node;
+    }
+  }
+  else if (pos == self->len)
+  { // 插入到尾部
+    self->tail->next = new_node;
+    new_node->prev = self->tail;
+    self->tail = new_node;
+  }
+  else
+  { // 插入到中间
+    List_node *current = self->head;
+    for (int i = 0; i < pos; i++)
+    {
+      current = current->next;
+    }
+    new_node->next = current;
+    new_node->prev = current->prev;
+    current->prev->next = new_node;
+    current->prev = new_node;
+  }
+  self->len++;
 }
 
 static List_node *_push_back(List *self, List_node *current)
@@ -317,47 +357,6 @@ static void _remove(List *self, List_node *current)
 
   _list_node_destroy(current); // 释放节点内存
   --self->len;                 // 减少链表长度
-}
-
-// 在指定位置插入数据
-static void _insert(List *self, int pos, void *data, const char *dataType)
-{
-  assert(self != NULL && pos >= 0 && pos <= self->len);
-  List_node *new_node = _list_node_new(data, dataType);
-
-  assert(new_node != NULL);
-  if (pos == 0)
-  { // 插入到头部
-    new_node->next = self->head;
-    if (self->head != NULL)
-    {
-      self->head->prev = new_node;
-    }
-    self->head = new_node;
-    if (self->tail == NULL)
-    {
-      self->tail = new_node;
-    }
-  }
-  else if (pos == self->len)
-  { // 插入到尾部
-    self->tail->next = new_node;
-    new_node->prev = self->tail;
-    self->tail = new_node;
-  }
-  else
-  { // 插入到中间
-    List_node *current = self->head;
-    for (int i = 0; i < pos; i++)
-    {
-      current = current->next;
-    }
-    new_node->next = current;
-    new_node->prev = current->prev;
-    current->prev->next = new_node;
-    current->prev = new_node;
-  }
-  self->len++;
 }
 
 // 打印链表中的所有元素
