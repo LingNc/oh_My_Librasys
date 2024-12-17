@@ -22,9 +22,6 @@ static List_node *_pop_front(List *self);
 // 在链表头部添加节点
 static List_node *_push_front(List *self, List_node *node);
 
-// 查找链表中的节点
-static List_node *_find(List *self, void *val);
-
 // 按索引访问链表中的节点
 static List_node *_at(List *self, int index);
 
@@ -50,7 +47,7 @@ static size_t _size(List *self);
 static size_t _capacity(List *self);
 
 // 查找链表中的数据
-static int _find_data(const List *self, void *target, const char *dataType);
+static int _find(const List *self, void *target, const char *dataType);
 
 // 创建新节点
 static List_node *_list_node_new(void *data, const char *dataType);
@@ -98,8 +95,6 @@ static List *_List_init_func(List *self)
   self->print = _print;
   // 设置获取链表大小的函数
   self->size = _size;
-  // 设置查找数据的函数
-  self->find_data = _find_data;
   // 设置创建新节点的函数
   self->list_node_new = _list_node_new;
 
@@ -108,7 +103,6 @@ static List *_List_init_func(List *self)
   self->tail = NULL;        // 尾节点指针初始化为NULL
   self->len = 0;            // 链表长度初始化为0
   self->data = NULL;        // 数据数组指针初始化为NULL
-  self->size = 0;           // 当前存储的元素数量初始化为0
   self->free = NULL;        // 初始化free函数指针为空
   self->match = NULL;       // 初始化match函数指针为空
   self->capacity = 0;       // 数组容量初始化为0
@@ -117,28 +111,32 @@ static List *_List_init_func(List *self)
   return self;
 }
 
-static void _list_destroy(List *self) {
-    if (self == NULL) return;
+static void _list_destroy(List *self)
+{
+  if (self == NULL)
+    return;
 
-    List_node *current = self->head;
-    while (current != NULL) {
-        List_node *next = current->next;
+  List_node *current = self->head;
+  while (current != NULL)
+  {
+    List_node *next = current->next;
 
-        // 释放节点值
-        if (self->free != NULL) {
-            self->free(current->val); // 调用自定义释放函数
-        }
-
-        // 释放节点本身
-        free(current->_typename); // 释放类型名字符串
-        free(current);            // 释放节点
-
-        current = next;
+    // 释放节点值
+    if (self->free != NULL)
+    {
+      self->free(current->val); // 调用自定义释放函数
     }
 
-    self->head = NULL;
-    self->tail = NULL;
-    self->len = 0;
+    // 释放节点本身
+    free(current->_typename); // 释放类型名字符串
+    free(current);            // 释放节点
+
+    current = next;
+  }
+
+  self->head = NULL;
+  self->tail = NULL;
+  self->len = 0;
 }
 
 static List_node *_push_back(List *self, List_node *node)
@@ -225,30 +223,7 @@ static List_node *_push_front(List *self, List_node *node)
   return node;
 }
 
-static List_node *_find(List *self, void *val)
-{
-  List_node *node = self->head;
 
-  while (node)
-  { // 遍历链表
-    if (self->match)
-    { // 如果有匹配函数
-      if (self->match(val, node->val))
-      {              // 调用匹配函数检查值
-        return node; // 返回匹配的节点
-      }
-    }
-    else
-    { // 没有匹配函数
-      if (val == node->val)
-      {              // 直接比较值
-        return node; // 返回匹配的节点
-      }
-    }
-    node = node->next;
-  }
-  return NULL; // 没有找到匹配节点
-}
 
 static List_node *_at(List *self, int index)
 {
@@ -396,7 +371,7 @@ static size_t _size(List *self)
 }
 
 // 查找链表中的数据
-static int _find_data(const List *self, void *target, const char *dataType)
+static int _find(const List *self, void *target, const char *dataType)
 {
   if (self == NULL || self->head == NULL)
     return -1;
