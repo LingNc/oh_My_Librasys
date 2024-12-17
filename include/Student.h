@@ -2,9 +2,8 @@
 #define _student_lib
 
 #include "Tools/String.h"
-#include "Tools/Type.h"
 #include "Tools/Vector.h"
-#include "Book.h"
+// #include "Book.h"
 
 #define MAX_AVAILABLE 10
 

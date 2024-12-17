@@ -5,9 +5,6 @@
 #include"Tools/Vector.h"
 #include"Tools/String.h"
 #include"Tools/Type.h"
-#include"Tools/Pair.h"
-#include"Student.h"
-#include"Book.h"
 #include"DataBase/Index.h"
 
 typedef struct DataBase DataBase;

@@ -2,6 +2,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+// 函数声明
+const char *_book_data(book this);
+int _book_in_data(book this, const char *data);
+book _book_copy(book this, book other);
+int _book_cmp(book this, book other);
+void _book_free(book this);
+book new_book();
+
 // data获得序列化数据实现
 const char *_book_data(book this) {
     this->_serialize->clear(this->_serialize);

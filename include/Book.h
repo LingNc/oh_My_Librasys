@@ -2,12 +2,6 @@
 #define _book_lib
 
 #include "Tools/String.h"
-#include "Tools/Type.h"
-
-#define ISBN_WIDTH 15
-#define BOOKNAME_WIDTH 1000
-#define AUTHOR_WIDTH 100
-#define PUBLISHER_WIDTH 100
 
 typedef struct Book Book;
 typedef Book *book;

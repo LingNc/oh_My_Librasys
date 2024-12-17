@@ -1,7 +1,15 @@
 #include "Student.h"
+#include "Book.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// 函数声明
+student new_student();
+void borrow_book(student this, book b);
+void return_book(student this, book b);
+const char *_student_data(student this);
+int _student_in_data(student this, const char *data);
 
 // 初始化学生
 student new_student() {
@@ -89,5 +97,5 @@ int _student_in_data(student this, const char *data) {
     this->returnDate->assign_cstr(this->returnDate, data + offset);
     offset += this->returnDate->length(this->returnDate);
 
-    return 1; // 表��成功
+    return 1; // 表示成功
 }

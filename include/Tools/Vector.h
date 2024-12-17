@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <Tools/String.h>
-#include <Book.h>
-#include <Student.h>
+// #include <Book.h>
+// #include <Student.h>
 
 typedef struct Vector Vector;
 typedef Vector *vector;
@@ -73,7 +73,7 @@ struct Vector{
     // 序列化字符串
     string _serialize;
 
-    // 单个元素大小
+    // ��个元素大小
     size_t _itemSize;
 
     // 已分配的内存大小

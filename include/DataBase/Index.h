@@ -2,7 +2,6 @@
 #define _index_lib
 
 #include "Tools/Vector.h"
-#include "Tools/Pair.h"
 #include <stdbool.h>
 
 typedef struct DataBase_Index DataBase_Index;

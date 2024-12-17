@@ -3,7 +3,7 @@
 
 #include<string.h>
 #include<assert.h>
-
+#include"Tools/Type.h"
 /*
 定义：
     基础类型的cmp函数定义

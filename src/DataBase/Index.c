@@ -1,4 +1,5 @@
 #include "DataBase/Index.h"
+#include "Tools/Pair.h"
 #include <stdio.h>
 #include <stdlib.h>
 
