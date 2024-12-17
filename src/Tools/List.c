@@ -4,14 +4,66 @@
 #include <assert.h>
 #include <math.h>
 
+// 创建一个新的链表
+static List *_list_new(void);
 
+// 销毁链表
+static void _list_destroy(List *self);
 
+// 在链表尾部添加节点
+static List_node *_push_back(List *self, List_node *node);
 
-List *new_List(void)
+// 从链表尾部移除节点
+static List_node *_pop_back(List *self);
+
+// 从链表头部移除节点
+static List_node *_pop_front(List *self);
+
+// 在链表头部添加节点
+static List_node *_push_front(List *self, List_node *node);
+
+// 查找链表中的节点
+static List_node *_find(List *self, void *val);
+
+// 按索引访问链表中的节点
+static List_node *_at(List *self, int index);
+
+// 移除链表中的指定节点
+static void _remove(List *self, List_node *node);
+
+// 销毁链表
+static void _delete(List *self);
+
+// 在指定位置插入数据
+static void _insert(List *self, int pos, void *data, const char *dataType);
+
+// 从指定位置删除数据
+static void _erase(List *self, int pos);
+
+// 打印链表中的所有元素
+static void _print(const List *self);
+
+// 获取链表中元素的数量
+static size_t _size(List *self);
+
+// 获取链表的容量
+static size_t _capacity(List *self);
+
+// 查找链表中的数据
+static int _find_data(const List *self, void *target, const char *dataType);
+
+// 创建新节点
+static List_node *_list_node_new(void *val);
+
+// 初始化链表的函数指针
+static List *_List_init_func(List *self);
+
+static List *_list_new(void)
 {
   List *self;
   if (!(self = LIST_MALLOC(sizeof(List))))
-    return NULL;      // 分配内存失败，返回NULL
+    return NULL; // 分配内存失败，返回NULL
+  _List_init_func(self);
   self->head = NULL;  // 初始化头指针为空
   self->tail = NULL;  // 初始化尾指针为空
   self->free = NULL;  // 初始化free函数指针为空
@@ -20,7 +72,54 @@ List *new_List(void)
   return self;
 }
 
-void destroy_list(List *self)
+static List *_List_init_func(List *self)
+{
+  // 初始化链表的函数指针
+  self->list_new = _list_new;
+  // 设置销毁链表的函数
+  self->list_destroy = _list_destroy;
+  // 设置尾部添加节点的函数
+  self->push_back = _push_back;
+  // 设置头部添加节点的函数
+  self->push_front = _push_front;
+  // 设置查找节点的函数
+  self->find = _find;
+  // 设置按索引访问节点的函数
+  self->at = _at;
+  // 设置从尾部移除节点的函数
+  self->pop_back = _pop_back;
+  // 设置从头部移除节点的函数
+  self->pop_front = _pop_front;
+  // 设置移除指定节点的函数
+  self->remove = _remove;
+  // 设置销毁链表的函数
+  self->delete = _delete;
+  // 设置插入数据的函数
+  self->insert = _insert;
+  // 设置删除数据的函数
+  self->erase = _erase;
+  // 设置打印链表的函数
+  self->print = _print;
+  // 设置获取链表大小的函数
+  self->size = _size;
+  // 设置查找数据的函数
+  self->find_data = _find_data;
+  // 设置创建新节点的函数
+  self->list_node_new = _list_node_new;
+
+  // 初始化数据成员
+  self->head = NULL;        // 头节点指针初始化为NULL
+  self->tail = NULL;        // 尾节点指针初始化为NULL
+  self->len = 0;            // 链表长度初始化为0
+  self->data = NULL;        // 数据数组指针初始化为NULL
+  self->size = 0;           // 当前存储的元素数量初始化为0
+  self->capacity = 0;       // 数组容量初始化为0
+  self->_typename = "List"; // 设置内部数据类型名为"List"
+
+  return self;
+}
+
+static void _list_destroy(List *self)
 {
   unsigned int len = self->len;
   List_node *next;
@@ -38,7 +137,7 @@ void destroy_list(List *self)
   LIST_FREE(self); // 释放列表结构体内存
 }
 
-List_node *push_back(List *self, List_node *node)
+static List_node *_push_back(List *self, List_node *node)
 {
   if (!node)
     return NULL; // 节点为空，返回NULL
@@ -60,7 +159,7 @@ List_node *push_back(List *self, List_node *node)
   return node;
 }
 
-List_node *pop_back(List *self)
+static List_node *_pop_back(List *self)
 {
   if (!self->len)
     return NULL; // 链表为空，返回NULL
@@ -80,7 +179,7 @@ List_node *pop_back(List *self)
   return node;
 }
 
-List_node *pop_front(List *self)
+static List_node *_pop_front(List *self)
 {
   if (!self->len)
     return NULL; // 链表为空，返回NULL
@@ -100,7 +199,7 @@ List_node *pop_front(List *self)
   return node;
 }
 
-List_node *push_front(List *self, List_node *node)
+static List_node *_push_front(List *self, List_node *node)
 {
   if (!node)
     return NULL; // 节点为空，返回NULL
@@ -122,7 +221,7 @@ List_node *push_front(List *self, List_node *node)
   return node;
 }
 
-List_node *find_node(List *self, void *val)
+static List_node *_find(List *self, void *val)
 {
   List_node *node = self->head;
 
@@ -147,7 +246,7 @@ List_node *find_node(List *self, void *val)
   return NULL; // 没有找到匹配节点
 }
 
-List_node *get_node_at(List *self, int index)
+static List_node *_at(List *self, int index)
 {
   assert(index >= 0 && index < self->len); // 索引在范围内
   List_node *node = self->head;            // 获取第一个节点
@@ -156,7 +255,7 @@ List_node *get_node_at(List *self, int index)
   return node;         // 返回该节点
 }
 
-void remove_node(List *self, List_node *node)
+static void _remove(List *self, List_node *node)
 {
   if (node->prev)                  // 如果有前驱节点
     node->prev->next = node->next; // 前驱节点的后指针指向当前节点的后继
@@ -175,257 +274,153 @@ void remove_node(List *self, List_node *node)
   --self->len;     // 减少链表长度
 }
 
-int CheckCapacity(List *self, size_t insertSize)
+// 销毁链表
+static void _delete(List *self)
 {
-  assert(self && insertSize > 0);
-  if (insertSize <= self->capacity - self->size)
+  if (self == NULL)
+    return;
+  List_node *current = self->head;
+  while (current != NULL)
   {
-    return 1;
-  }
-  else if (insertSize > 1)
-  {
-    Data *ptr = (Data *)realloc(
-        self->data, (self->capacity + insertSize) * sizeof(Data));
-    if (NULL == ptr)
+    List_node *next = current->next;
+    if (self->free != NULL)
     {
-      printf("realloc fail");
-      return 0;
+      self->free(current->val); // 调用自定义释放函数
     }
-    self->data = ptr;
-    self->capacity = self->capacity + insertSize;
-    return 1;
+    free(current->_typename); // 释放类型名字符串
+    free(current);            // 释放节点
+    current = next;
+  }
+  self->head = NULL;
+  self->tail = NULL;
+  self->len = 0;
+}
+
+// 在指定位置插入数据
+static void _insert(List *self, int pos, void *data, const char *dataType)
+{
+  assert(self != NULL && pos >= 0 && pos <= self->len);
+  List_node *new_node = list_node_new(data, dataType);
+
+  assert(new_node != NULL);
+  if (pos == 0)
+  { // 插入到头部
+    new_node->next = self->head;
+    if (self->head != NULL)
+    {
+      self->head->prev = new_node;
+    }
+    self->head = new_node;
+    if (self->tail == NULL)
+    {
+      self->tail = new_node;
+    }
+  }
+  else if (pos == self->len)
+  { // 插入到尾部
+    self->tail->next = new_node;
+    new_node->prev = self->tail;
+    self->tail = new_node;
+  }
+  else
+  { // 插入到中间
+    List_node *current = self->head;
+    for (int i = 0; i < pos; i++)
+    {
+      current = current->next;
+    }
+    new_node->next = current;
+    new_node->prev = current->prev;
+    current->prev->next = new_node;
+    current->prev = new_node;
+  }
+  self->len++;
+}
+
+// 从指定位置删除数据
+static void _erase(List *self, int pos)
+{
+  if (self == NULL || pos < 0 || pos >= self->len)
+    return; // 无效位置
+  List_node *current = self->head;
+  for (int i = 0; i < pos; i++)
+  {
+    current = current->next;
+  }
+  if (current->prev != NULL)
+  {
+    current->prev->next = current->next;
   }
   else
   {
-    Data *ptr = (Data *)realloc(
-        self->data, (self->capacity * 2) * sizeof(Data));
-    if (NULL == ptr)
-    {
-      printf("realloc fail");
-      return 0;
-    }
-    self->data = ptr;
-    self->capacity = self->capacity * 2;
-    return 1;
+    self->head = current->next;
+  }
+  if (current->next != NULL)
+  {
+    current->next->prev = current->prev;
+  }
+  else
+  {
+    self->tail = current->prev;
+  }
+  if (self->free != NULL)
+  {
+    self->free(current->val); // 调用自定义释放函数
+  }
+  free(current->_typename); // 释放类型名字符串
+  free(current);            // 释放节点
+  self->len--;
+}
+
+// 打印链表中的所有元素
+static void _print(const List *self)
+{
+  if (self == NULL || self->head == NULL)
+    return;
+  List_node *current = self->head;
+  while (current != NULL)
+  {
+    printf("Value: %p, Type: %s\n", current->val, current->_typename);
+    current = current->next;
   }
 }
 
-
-
-void PrintList(const List *self)
+// 获取链表中元素的数量
+static size_t _size(List *self)
 {
-  assert(self);
-  for (int i = 0; i < self->size; i++)
-  {
-    if (0 == strcmp("char", self->data[i].type))
-    {
-      printf("<%s>%c ", self->data[i].type, self->data[i].data.c);
-    }
-    else if (0 == strcmp("int", self->data[i].type))
-    {
-      printf("<%s>%d ", self->data[i].type, self->data[i].data.i);
-    }
-    else if (0 == strcmp("double", self->data[i].type))
-    {
-      printf("<%s>%lf ", self->data[i].type, self->data[i].data.d);
-    }
-    else if (0 == strcmp("size_t", self->data[i].type))
-    {
-      printf("<%s>%zu ", self->data[i].type, self->data[i].data.sz);
-    }
-    else if (0 == strcmp("char*", self->data[i].type))
-    {
-      printf("<%s>%s ", self->data[i].type, self->data[i].data.pc);
-    }
-  }
-  printf("\n");
+  return (size_t)self->len;
 }
 
-
-
-
-
-
-
-
-
-void InitList(List *self)
+// 查找链表中的数据
+static int _find_data(const List *self, void *target, const char *dataType)
 {
-  assert(self);
-  Data *ptr = (Data *)malloc(DEFAULT_CAPACITY * sizeof(Data));
-  if (NULL == ptr)
-  {
-    printf("malloc fail");
-    exit(-1);
-  }
-  self->data = ptr;
-  self->capacity = DEFAULT_CAPACITY;
-  self->size = 0;
-}
-void DestoryList(List *self)
-{
-  assert(self);
-  free(self->data);
-  self->data = NULL;
-  self->capacity = self->size = 0;
-}
-
-
-
-
-
-void PushBack(List *self, T data, const char *dataType)
-{
-  assert(self && dataType);
-  if (1 == CheckCapacity(self, 1))
-  {
-    self->data[self->size].data = data;
-    self->data[self->size].type = dataType;
-    self->size++;
-  }
-}
-void PopBack(List *self)
-{
-  assert(self);
-  if (self->size > 0)
-  {
-    self->size--;
-  }
-}
-void PushFront(List *self, T data, const char *dataType)
-{
-  assert(self && dataType);
-  if (1 == CheckCapacity(self, 1))
-  {
-    for (int i = self->size - 1; i >= 0; i--)
-    {
-      self->data[i + 1] = self->data[i];
-    }
-    self->data[0].data = data;
-    self->data[0].type = dataType;
-    self->size++;
-  }
-}
-void PopFront(List *self)
-{
-  assert(self);
-  if (self->size > 0)
-  {
-    for (int i = 0; i < self->size - 1; i++)
-    {
-      self->data[i] = self->data[i + 1];
-    }
-    self->size--;
-  }
-}
-int FindListData(const List *self, T target, const char *dataType)
-{
-  assert(self);
-  if (0 == strcmp("int", dataType))
-  {
-    for (int i = 0; i < self->size; i++)
-    {
-      if (0 == strcmp("int", self->data[i].type))
-      {
-        if (target.i == self->data[i].data.i)
-        {
-          return i;
-        }
-      }
-    }
+  if (self == NULL || self->head == NULL)
     return -1;
-  }
-  if (0 == strcmp("char*", dataType))
+  List_node *current = self->head;
+  int index = 0;
+  while (current != NULL)
   {
-    for (int i = 0; i < self->size; i++)
+    if (self->match != NULL && self->match(current->val, target))
     {
-      if (0 == strcmp("char*", self->data[i].type))
-      {
-        if (0 == strcmp(target.pc, self->data[i].data.pc))
-        {
-          return i;
-        }
-      }
+      return index;
     }
-    return -1;
-  }
-  if (0 == strcmp("char", dataType))
-  {
-    for (int i = 0; i < self->size; i++)
-    {
-      if (0 == strcmp("char", self->data[i].type))
-      {
-        if (target.c == self->data[i].data.c)
-        {
-          return i;
-        }
-      }
-    }
-    return -1;
-  }
-  if (0 == strcmp("double", dataType))
-  {
-    for (int i = 0; i < self->size; i++)
-    {
-      if (0 == strcmp("double", self->data[i].type))
-      {
-        if (target.d == self->data[i].data.d)
-        {
-          return i;
-        }
-      }
-    }
-    return -1;
-  }
-  if (0 == strcmp("size_t", dataType))
-  {
-    for (int i = 0; i < self->size; i++)
-    {
-      if (0 == strcmp("size_t", self->data[i].type))
-      {
-        if (target.sz == self->data[i].data.sz)
-        {
-          return i;
-        }
-      }
-    }
-    return -1;
+    current = current->next;
+    index++;
   }
   return -1;
 }
-void PosInsert(List *self, int pos, T data, const char *dataType)
+
+// 创建新节点
+static List_node *_list_node_new(void *val)
 {
-  assert(self && dataType && pos >= 0);
-  if (1 == CheckCapacity(self, 1))
+  List_node *node;
+  if (!(node = LIST_MALLOC(sizeof(List_node))))
   {
-    for (int i = self->size - 1; i >= pos; i--)
-    {
-      self->data[i + 1] = self->data[i];
-    }
-    self->data[pos].data = data;
-    self->data[pos].type = dataType;
-    self->size++;
+    return NULL; // 内存分配失败，返回 NULL
   }
-}
-void PosErase(List *self, int pos)
-{
-  assert(self && pos >= 0);
-  if (self->size > 0)
-  {
-    for (int i = pos; i < self->size - 1; i++)
-    {
-      self->data[i] = self->data[i + 1];
-    }
-    self->size--;
-  }
-}
-size_t ListSize(List *self)
-{
-  assert(self);
-  return self->size;
-}
-size_t ListCapacity(List *self)
-{
-  assert(self);
-  return self->capacity;
+  node->_typename = new_string();
+  node->val = val;   // 将传入的值赋给节点的 val 字段
+  node->prev = NULL; // 初始化前驱指针为 NULL
+  node->next = NULL; // 初始化后继指针为 NULL
+  return node;       // 返回新创建的节点
 }
