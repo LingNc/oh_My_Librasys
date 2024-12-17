@@ -14,10 +14,10 @@ static void _list_destroy(List *self);
 static List_node *_push_back(List *self, List_node *current);
 
 // 从链表尾部移除节点
-static List_node *_pop_back(List *self);
+static void *_pop_back(List *self);
 
 // 从链表头部移除节点
-static List_node *_pop_front(List *self);
+static void *_pop_front(List *self);
 
 // 在链表头部添加节点
 static List_node *_push_front(List *self, List_node *current);
@@ -66,6 +66,22 @@ static List *_list_new(void)
 
   return self;
 }
+
+// 创建新节点
+static List_node *_list_node_new(void *data, const char *dataType)
+{
+  List_node *current;
+  if (!(current = LIST_MALLOC(sizeof(List_node))))
+  {
+    return NULL; // 内存分配失败，返回 NULL
+  }
+  current->_typename = dataType;
+  current->val = data;  // 将传入的值赋给节点的 val 字段
+  current->prev = NULL; // 初始化前驱指针为 NULL
+  current->next = NULL; // 初始化后继指针为 NULL
+  return current;       // 返回新创建的节点
+}
+
 static List *_List_init_func(List *self)
 {
   // 初始化链表的函数指针
@@ -161,7 +177,7 @@ static List_node *_push_back(List *self, List_node *current)
   return current;
 }
 
-static List_node *_pop_back(List *self)
+static void *_pop_back(List *self)
 {
   if (!self->len)
     return NULL; // 链表为空，返回NULL
@@ -178,10 +194,11 @@ static List_node *_pop_back(List *self)
   }
 
   current->next = current->prev = NULL; // 断开删除节点的前后指针
-  return current;
+  _list_node_destroy(current);
+
 }
 
-static List_node *_pop_front(List *self)
+static void *_pop_front(List *self)
 {
   if (!self->len)
     return NULL; // 链表为空，返回NULL
@@ -198,7 +215,7 @@ static List_node *_pop_front(List *self)
   }
 
   current->next = current->prev = NULL; // 断开删除节点的前后指针
-  return current;
+  _list_node_destroy(current);
 }
 
 static List_node *_push_front(List *self, List_node *current)
@@ -372,17 +389,3 @@ static int _find(const List *self, void *target, const char *dataType)
   return -1;
 }
 
-// 创建新节点
-static List_node *_list_node_new(void *data, const char *dataType)
-{
-  List_node *current;
-  if (!(current = LIST_MALLOC(sizeof(List_node))))
-  {
-    return NULL; // 内存分配失败，返回 NULL
-  }
-  current->_typename = dataType;
-  current->val = data;  // 将传入的值赋给节点的 val 字段
-  current->prev = NULL; // 初始化前驱指针为 NULL
-  current->next = NULL; // 初始化后继指针为 NULL
-  return current;       // 返回新创建的节点
-}
