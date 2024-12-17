@@ -3,7 +3,7 @@
 #include <stdlib.h> // IWYU pragma: export
 #include <string.h> // IWYU pragma: export
 #include <time.h>   // IWYU pragma: export
-
+#include <Tools/String.h>
 // T Union: 用于存储不同类型的数据，节省内存
 typedef union
 {
@@ -21,61 +21,114 @@ typedef struct
   const char *type; // 数据的类型（例如"int", "char", "double"等）
 } Data;
 
+typedef struct list_node
+{
+  struct list_node *prev; // 指向前一个节点
+  struct list_node *next; // 指向后一个节点
+  void *val;              // 节点存储的值
+
+} List_node;
+
+#define List(TYPE) new_List(#TYPE)
+
+#ifdef LIST_CONFIG_H
+#define _STR(x) #x
+#define STR(x) _STR(x)
+#include STR(LIST_CONFIG_H)
+#undef _STR
+#undef STR
+#endif
+
+#ifndef LIST_MALLOC
+#define LIST_MALLOC malloc
+#endif
+
+#ifndef LIST_FREE
+#define LIST_FREE free
+#endif
+
 // List结构体: 动态数组，支持多类型数据
 typedef struct
 {
-  Data *data;      // 存储数据的数组
+
+  List_node *head;                // 头节点指针
+  List_node *tail;                // 尾节点指针
+  unsigned int len;               // 链表长度
+  void (*free)(void *val);        // 释放节点值的函数
+  int (*match)(void *a, void *b); // 匹配节点值的函数
+
+  void *data;      // 存储数据的数组
   size_t size;     // 当前存储的元素数量
   size_t capacity; // 数组的容量
+
   // 函数指针，用于数据复制、释放和比较
   void (*copy)(void *dest, void *src);
   void (*free)(void *data);
   int (*cmp)(void *a, void *b);
 
-  // 接口函数
-  void (*push_back)(struct List *this, void *data);
-  void (*pop_back)(struct List *this);
-  int (*find)(struct List *this, void *data);
-  void (*destroy)(struct List *this);
-  void (*print)(const struct List *this);
-  size_t (*size)(const struct List *this);
-  size_t (*capacity)(const struct List *this);
+  // 内部数据类型名
+  string _typename;
+
+  // 内部数据指针
+  void *_data;
+
+  // 内部基准数据函数
+  void *_base;
+
+  // 初始化元素
+  void (*_init_item)(void *self);
+  // 释放单个元素
+  // 无返回值
+  void (*_free_item)(void *itemAddr);
+
+  // 复制单个元素
+  // 无返回值
+  void (*_copy_item)(void *dest, void *src);
+
+  // 比较两个元素
+  // 返回比较结果
+  int (*_cmp_item)(void *item1, void *item2);
+
+  // 用于元素序列化的函数
+  const char *(*_data_item)(void *);
+
+  // 用于元素反序列化的函数
+  void (*_in_data_item)(void *, void *);
+
+  List *(*list_new)(void);                                            // 创建新链表
+  void (*list_destroy)(List *self);                                   // 销毁链表，释放所有资源
+  List_node *(*push_back)(List *self, List_node *node);               // 在链表尾部添加节点
+  List_node *(*push_front)(List *self, List_node *node);              // 在链表头部添加节点
+  List_node *(*find)(List *self, void *val);                          // 查找值为val的节点
+  List_node *(*at)(List *self, int index);                            // 获取索引为index的节点
+  List_node *(*pop_back)(List *self);                                 // 从尾部移除节点并返回
+  List_node *(*pop_front)(List *self);                                // 从头部移除节点并返回
+  void (*remove)(List *self, List_node *node);                        // 从链表中移除指定节点
+  void (*destroy)(List *self);                                        // 销毁链表，释放所有资源
+  void (*insert)(List *self, int pos, T data, const char *dataType);  // 在指定位置插入数据
+  void (*erase)(List *self, int pos);                                 // 从指定位置删除数据
+  void (*print)(const List *self);                                    // 打印List中的所有元素
+  size_t (*size)(List *self);                                         // 获取List中元素的数量
+  size_t (*capacity)(List *self);                                     // 获取List的容量
+  int (*find_data)(const List *self, T target, const char *dataType); // 查找List中的数据
+
+  List_node *(*list_node_new)(void *val); // 创建新节点，存储值val
+
+  // 在指定位置插入数据
+  void (*insert_at)(List *self, int pos, T data, const char *dataType);
+
+  // 从指定位置删除数据
+  void (*erase_at)(List *self, int pos);
+
+  // 打印List中的所有元素
+  void (*print)(const List *self);
+
+  // 查找List中的数据
+  int (*find_data)(const List *self, T target, const char *dataType);
+
 } List;
 
 #define DEFAULT_CAPACITY 8 // 默认容量为8
-
-// 初始化List
-void InitList(List *plist);
-
-// 销毁List
-void DestoryList(List *plist);
-
-// 打印List中的所有元素
-void PrintList(const List *plist);
-
-// 检查是否有足够容量插入指定数量的元素
-int CheckCapacity(List *plist, size_t insertSize);
-
-// 随机插入int类型数据
-void RandomInsertIntData(List *plist, size_t count, size_t maxNum);
-
-// 遍历并打印int类型数据
-void TraverseIntData(const List *plist);
-
-// 随机插入double类型数据
-void RandomInsertDoubleData(List *plist, size_t count);
-
-// 遍历并打印double类型数据
-void TraverseDoubleData(const List *plist);
-
-// 随机插入char类型数据
-void RandomInsertCharData(List *plist, size_t count);
-
-// 遍历并打印char类型数据
-void TraverseCharData(const List *plist);
-
-// 向List末尾添加数据
-void PushBack(List *plist, T data, const char *dataType);
 
 // 类型安全的宏来简化PushBack操作
 #define mPushBack(pLIST, DATA)                    \
@@ -87,12 +140,6 @@ void PushBack(List *plist, T data, const char *dataType);
       char *: PushBack(pLIST, (T)DATA, "char*"),  \
       default: PushBack(pLIST, (T)DATA, "int"))
 
-// 从List末尾删除数据
-void PopBack(List *plist);
-
-// 向List开头添加数据
-void PushFront(List *plist, T data, const char *dataType);
-
 // 类型安全的宏来简化PushFront操作
 #define mPushFront(pLIST, DATA)                    \
   _Generic(DATA,                                   \
@@ -102,12 +149,6 @@ void PushFront(List *plist, T data, const char *dataType);
       size_t: PushFront(pLIST, (T)DATA, "size_t"), \
       char *: PushFront(pLIST, (T)DATA, "char*"),  \
       default: PushFront(pLIST, (T)DATA, "int"))
-
-// 从List开头删除数据
-void PopFront(List *plist);
-
-// 在List中查找数据的索引
-int FindListData(const List *plist, T target, const char *dataType);
 
 // 类型安全的宏来简化FindListData操作
 #define mFindListData(pLIST, DATA)                    \
@@ -119,9 +160,6 @@ int FindListData(const List *plist, T target, const char *dataType);
       char *: FindListData(pLIST, (T)DATA, "char*"),  \
       default: FindListData(pLIST, (T)DATA, "int"))
 
-// 在指定位置插入数据
-void PosInsert(List *plist, int pos, T data, const char *dataType);
-
 // 类型安全的宏来简化PosInsert操作
 #define mPosInsert(pLIST, POS, DATA)                    \
   _Generic(DATA,                                        \
@@ -132,16 +170,10 @@ void PosInsert(List *plist, int pos, T data, const char *dataType);
       char *: PosInsert(pLIST, POS, (T)DATA, "char*"),  \
       default: PosInsert(pLIST, POS, (T)DATA, "int"))
 
-// 从指定位置删除数据
-void PosErase(List *plist, int pos);
-
-// 获取List中元素的数量
-size_t ListSize(List *plist);
-
-// 获取List的容量
-size_t ListCapacity(List *plist);
-
-// 排序List（此函数尚未实现）
-/*
-void SortList(List *plist);
-*/
+#define mPrint(pLIST, type, data)             \
+  _Generic((data),                            \
+      char: printf("<%s>%c ", type, data),    \
+      int: printf("<%s>%d ", type, data),     \
+      double: printf("<%s>%lf ", type, data), \
+      size_t: printf("<%s>%zu ", type, data), \
+      char *: printf("<%s>%s ", type, data))
