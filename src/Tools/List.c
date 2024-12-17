@@ -128,6 +128,90 @@ static List *_List_init_func(List *self)
   return self;
 }
 
+static List_node *_push_back(List *self, List_node *current)
+{
+  if (!current)
+    return NULL; // 节点为空，返回NULL
+
+  if (self->len)
+  {                             // 链表不为空
+    current->prev = self->tail; // 设置新节点的前指针为当前尾节点
+    current->next = NULL;       // 新节点的后指针为空
+    self->tail->next = current; // 当前尾节点的后指针指向新节点
+    self->tail = current;       // 更新尾指针为新节点
+  }
+  else
+  {                                       // 链表为空
+    self->head = self->tail = current;    // 头尾指针都指向新节点
+    current->prev = current->next = NULL; // 新节点的前后指针都为空
+  }
+
+  ++self->len; // 增加链表长度
+  return current;
+}
+
+static void *_pop_back(List *self)
+{
+  if (!self->len)
+    return NULL; // 链表为空，返回NULL
+
+  List_node *current = self->tail; // 获取尾节点
+
+  if (--self->len)
+  {                                            // 链表长度减一，如果仍不为零
+    (self->tail = current->prev)->next = NULL; // 更新尾指针并断开新尾节点的后指针
+  }
+  else
+  {                                 // 链表为空
+    self->tail = self->head = NULL; // 头尾指针都置空
+  }
+
+  current->next = current->prev = NULL; // 断开删除节点的前后指针
+  _list_node_destroy(current);
+}
+
+static void *_pop_front(List *self)
+{
+  if (!self->len)
+    return NULL; // 链表为空，返回NULL
+
+  List_node *current = self->head; // 获取头节点
+
+  if (--self->len)
+  {                                            // 链表长度减一，如果仍不为零
+    (self->head = current->next)->prev = NULL; // 更新头指针并断开新头节点的前指针
+  }
+  else
+  {                                 // 链表为空
+    self->head = self->tail = NULL; // 头尾指针都置空
+  }
+
+  current->next = current->prev = NULL; // 断开删除节点的前后指针
+  _list_node_destroy(current);
+}
+
+static List_node *_push_front(List *self, List_node *current)
+{
+  if (!current)
+    return NULL; // 节点为空，返回NULL
+
+  if (self->len)
+  {                             // 链表不为空
+    current->next = self->head; // 设置新节点的后指针为当前头节点
+    current->prev = NULL;       // 新节点的前指针为空
+    self->head->prev = current; // 当前头节点的前指针指向新节点
+    self->head = current;       // 更新头指针为新节点
+  }
+  else
+  {                                       // 链表为空
+    self->head = self->tail = current;    // 头尾指针都指向新节点
+    current->prev = current->next = NULL; // 新节点的前后指针都为空
+  }
+
+  ++self->len; // 增加链表长度
+  return current;
+}
+
 void _list_node_destroy(List_node *self)
 {
   if (self == NULL)
@@ -155,102 +239,6 @@ static void _list_destroy(List *self)
   self->len = 0;
 }
 
-static List_node *_push_back(List *self, List_node *current)
-{
-  if (!current)
-    return NULL; // 节点为空，返回NULL
-
-  if (self->len)
-  {                          // 链表不为空
-    current->prev = self->tail; // 设置新节点的前指针为当前尾节点
-    current->next = NULL;       // 新节点的后指针为空
-    self->tail->next = current; // 当前尾节点的后指针指向新节点
-    self->tail = current;       // 更新尾指针为新节点
-  }
-  else
-  {                                 // 链表为空
-    self->head = self->tail = current; // 头尾指针都指向新节点
-    current->prev = current->next = NULL; // 新节点的前后指针都为空
-  }
-
-  ++self->len; // 增加链表长度
-  return current;
-}
-
-static void *_pop_back(List *self)
-{
-  if (!self->len)
-    return NULL; // 链表为空，返回NULL
-
-  List_node *current = self->tail; // 获取尾节点
-
-  if (--self->len)
-  {                                         // 链表长度减一，如果仍不为零
-    (self->tail = current->prev)->next = NULL; // 更新尾指针并断开新尾节点的后指针
-  }
-  else
-  {                                 // 链表为空
-    self->tail = self->head = NULL; // 头尾指针都置空
-  }
-
-  current->next = current->prev = NULL; // 断开删除节点的前后指针
-  _list_node_destroy(current);
-
-}
-
-static void *_pop_front(List *self)
-{
-  if (!self->len)
-    return NULL; // 链表为空，返回NULL
-
-  List_node *current = self->head; // 获取头节点
-
-  if (--self->len)
-  {                                         // 链表长度减一，如果仍不为零
-    (self->head = current->next)->prev = NULL; // 更新头指针并断开新头节点的前指针
-  }
-  else
-  {                                 // 链表为空
-    self->head = self->tail = NULL; // 头尾指针都置空
-  }
-
-  current->next = current->prev = NULL; // 断开删除节点的前后指针
-  _list_node_destroy(current);
-}
-
-static List_node *_push_front(List *self, List_node *current)
-{
-  if (!current)
-    return NULL; // 节点为空，返回NULL
-
-  if (self->len)
-  {                          // 链表不为空
-    current->next = self->head; // 设置新节点的后指针为当前头节点
-    current->prev = NULL;       // 新节点的前指针为空
-    self->head->prev = current; // 当前头节点的前指针指向新节点
-    self->head = current;       // 更新头指针为新节点
-  }
-  else
-  {                                 // 链表为空
-    self->head = self->tail = current; // 头尾指针都指向新节点
-    current->prev = current->next = NULL; // 新节点的前后指针都为空
-  }
-
-  ++self->len; // 增加链表长度
-  return current;
-}
-
-static List_node *_at(List *self, int index)
-{
-  assert(index >= 0 && index < self->len); // 索引在范围内
-  List_node *current = self->head;            // 获取第一个节点
-  while (index--)
-    current = current->next; // 移动到指定索引的节点
-  return current;         // 返回该节点
-}
-
-
-
 // 销毁链表
 static void _delete(List *self)
 {
@@ -268,23 +256,45 @@ static void _delete(List *self)
   self->len = 0;
 }
 
+// 查找链表中的数据
+static int _find(const List *self, void *target, const char *dataType)
+{
+  if (self == NULL || self->head == NULL)
+    return -1;
+  List_node *current = self->head;
+  int index = 0;
+  while (current != NULL)
+  {
+    if (self->match != NULL && self->match(current->val, target))
+    {
+      return index;
+    }
+    current = current->next;
+    index++;
+  }
+  return -1;
+}
+
+static List_node *_at(List *self, int index)
+{
+  assert(index >= 0 && index < self->len); // 索引在范围内
+  List_node *current = self->head;         // 获取第一个节点
+  while (index--)
+    current = current->next; // 移动到指定索引的节点
+  return current;            // 返回该节点
+}
+
 // 从指定位置删除数据
 static void _erase(List *self, int pos)
 {
-  if (self == NULL || pos < 0 || pos >= self->len)
-    return; // 无效位置
-  List_node *current = self->head;
-  while (pos--)
-  {
-    current = current->next;
-  }
+  List_node *current = _at(self, pos);
 
-    if (current->prev)                  // 如果有前驱节点
+  if (current->prev)                     // 如果有前驱节点
     current->prev->next = current->next; // 前驱节点的后指针指向当前节点的后继
   else
     self->head = current->next; // 没有前驱，表示是头节点，更新头指针
 
-  if (current->next)                  // 如果有后继节点
+  if (current->next)                     // 如果有后继节点
     current->next->prev = current->prev; // 后继节点的前指针指向当前节点的前驱
   else
     self->tail = current->prev; // 没有后继，表示是尾节点，更新尾指针
@@ -295,18 +305,18 @@ static void _erase(List *self, int pos)
 
 static void _remove(List *self, List_node *current)
 {
-  if (current->prev)                  // 如果有前驱节点
+  if (current->prev)                     // 如果有前驱节点
     current->prev->next = current->next; // 前驱节点的后指针指向当前节点的后继
   else
     self->head = current->next; // 没有前驱，表示是头节点，更新头指针
 
-  if (current->next)                  // 如果有后继节点
+  if (current->next)                     // 如果有后继节点
     current->next->prev = current->prev; // 后继节点的前指针指向当前节点的前驱
   else
     self->tail = current->prev; // 没有后继，表示是尾节点，更新尾指针
 
   _list_node_destroy(current); // 释放节点内存
-  --self->len;              // 减少链表长度
+  --self->len;                 // 减少链表长度
 }
 
 // 在指定位置插入数据
@@ -350,7 +360,6 @@ static void _insert(List *self, int pos, void *data, const char *dataType)
   self->len++;
 }
 
-
 // 打印链表中的所有元素
 static void _print(const List *self)
 {
@@ -369,23 +378,3 @@ static size_t _size(List *self)
 {
   return (size_t)self->len;
 }
-
-// 查找链表中的数据
-static int _find(const List *self, void *target, const char *dataType)
-{
-  if (self == NULL || self->head == NULL)
-    return -1;
-  List_node *current = self->head;
-  int index = 0;
-  while (current != NULL)
-  {
-    if (self->match != NULL && self->match(current->val, target))
-    {
-      return index;
-    }
-    current = current->next;
-    index++;
-  }
-  return -1;
-}
-
