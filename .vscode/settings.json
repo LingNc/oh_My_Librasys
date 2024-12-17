@@ -99,7 +99,8 @@
         "type.h": "c",
         "assert.h": "c",
         "list.h": "c",
-        "student.h": "c"
+        "student.h": "c",
+        "*.def": "c"
     },
     "makefile.launchConfigurations": [
         {

@@ -20,7 +20,7 @@ struct Vector{
 
     // 删除指定位置的元素
     // 无返回值
-    void (*erase)(vector this,size_t position);
+    void (*remove)(vector this,size_t position);
 
     // 获取指定位置的元素
     // 返回该元素指针
@@ -37,6 +37,10 @@ struct Vector{
     // 释放向量
     // 无返回值
     void (*free)(vector this);
+
+    // 清空向量
+    // 无返回值
+    void (*clear)(vector this);
 
     // 序列化向量数据
     // 返回序列化后的数据指针
@@ -78,25 +82,8 @@ struct Vector{
     // 当前元素数量
     size_t _size;
 
-    // 初始化元素
-    void (*_init_item)(void *this);
-    // 释放单个元素
-    // 无返回值
-    void (*_free_item)(void *itemAddr);
-
-    // 复制单个元素
-    // 无返回值
-    void (*_copy_item)(void *dest,void *src);
-
-    // 比较两个元素
-    // 返回比较结果
-    int (*_cmp_item)(void *item1,void *item2);
-
-    // 用于元素序列化的函数
-    const char *(*_data_item)(void *);
-
-    // 用于元素反序列化的函数
-    void (*_in_data_item)(void *,void *);
+    // 初始化标准item函数
+    _init_default_item(void*,item);
 };
 
 // 创建新的向量

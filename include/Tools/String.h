@@ -36,7 +36,7 @@ struct String{
     string(*assign_cstr)(string, const char *);
 
     // 写入 String 对象
-    // 返回写入���的字符串
+    // 返回写String的字符串
     string(*assign)(string, string);
 
     // 删除指定位置的字符

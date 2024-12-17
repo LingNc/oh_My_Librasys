@@ -9,7 +9,8 @@
 static void _grow(vector this);
 static void _init_all(vector this, const char type[]);
 static void _vector_push_back(vector this,const void *item);
-static void _vector_erase(vector this, size_t position);
+static void _vector_remove(vector this, size_t position);
+static void _vector_clear(vector this);
 static void *_vector_at(vector this, size_t position);
 static size_t _vector_size(vector this);
 static size_t _vector_find(vector this, const void *key, size_t startIndex);
@@ -43,14 +44,20 @@ static void _vector_push_back(vector this,const void *item){
 }
 
 // 删除指定位置的元素
-static void _vector_erase(vector this,size_t position){
-    assert(position<this->_size);
-    void *dest=(char *)this->_data+position*this->_itemSize;
-    if(this->_free_item){
+static void _vector_remove(vector this, size_t position) {
+    assert(position < this->_size);
+    void *dest = (char *)this->_data + position * this->_itemSize;
+    if (this->_free_item) {
         this->_free_item(dest);
     }
-    memmove(dest,(char *)dest+this->_itemSize,(this->_size-position-1)*this->_itemSize);
+    memmove(dest, (char *)dest + this->_itemSize, (this->_size - position - 1) * this->_itemSize);
     this->_size--;
+}
+
+// 清空向量
+static void _vector_clear(vector this) {
+    _vector_delete(this);
+    _init_all(this, this->_typename->c_str(this->_typename));
 }
 
 // 获取指定位置的元素
@@ -73,9 +80,7 @@ static size_t _vector_find(vector this,const void *key,size_t startIndex){
     for(size_t i=startIndex; i<this->_size; i++){
         void *elem=(char *)this->_data+i*this->_itemSize;
         int cmp_result;
-        if(this->_cmp_item){
-            cmp_result=this->_cmp_item(elem,(void *)key);
-        }
+        cmp_result=this->_cmp_item(elem,(void *)key);
         if(cmp_result==0){
             return i;
         }
@@ -141,15 +146,16 @@ static void _vector_resize(vector this,size_t newSize){
 }
 
 static vector _vector_init_func(vector this){
-    this->push_back=_vector_push_back;
-    this->erase=_vector_erase;
-    this->at=_vector_at;
-    this->size=_vector_size;
-    this->find=_vector_find;
-    this->free=_vector_delete;
-    this->data=_vector_data;
-    this->in_data=_vector_in_data;
-    this->resize=_vector_resize;
+    this->push_back = _vector_push_back;
+    this->remove = _vector_remove;
+    this->at = _vector_at;
+    this->size = _vector_size;
+    this->find = _vector_find;
+    this->free = _vector_delete;
+    this->clear = _vector_clear;
+    this->data = _vector_data;
+    this->in_data = _vector_in_data;
+    this->resize = _vector_resize;
     return this;
 }
 

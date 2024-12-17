@@ -156,7 +156,7 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     type (*_init_##item)(type this); \
     /* item拷贝构造函数 */ \
     type (*_copy_##item)(type this,type other); \
-    /* item比较函数 */ \
+    /* item比较函�� */ \
     int (*_cmp_##item)(type this,type other); \
     /* item析构函数 */ \
     void (*_free_##item)(type this); \
@@ -164,5 +164,15 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     const char *(*_data_##item)(type this); \
     /* item读入图书的数据，反序列化 */ \
     void (*_in_data_##item)(type this,const char* data);
+
+// 创建新的数据项
+void *new_item(const char *type);
+
+// 定义类型初始化宏
+#define _init_type_for_custom(TYPE) \
+    if (strcmp(type, #TYPE) == 0) { \
+        item = malloc(sizeof(TYPE)); \
+        ((TYPE *)item)->init((TYPE *)item); \
+    }
 
 #endif
