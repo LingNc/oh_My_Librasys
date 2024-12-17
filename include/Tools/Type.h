@@ -54,6 +54,10 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
 #define _init_define_type(this,TYPE) \
     ({ \
         this->_base = malloc(sizeof(TYPE)); \
+        if (!this->_base) { \
+            perror("Type: _base 指针分配失败"); \
+            exit(EXIT_FAILURE); \
+        } \
         this->_init_item=((TYPE *)this->_base)->init; \
         this->_copy_item=((TYPE *)this->_base)->copy; \
         this->_free_item = ((TYPE *)this->_base)->free; \
@@ -156,11 +160,11 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     type (*_init_##item)(type this); \
     /* item拷贝构造函数 */ \
     type (*_copy_##item)(type this,type other); \
-    /* item比较函�� */ \
+    /* item比较函数 */ \
     int (*_cmp_##item)(type this,type other); \
     /* item析构函数 */ \
     void (*_free_##item)(type this); \
-    /* item获取图书的序列化数据 */ \
+    /* item获取图书的序列化��据 */ \
     const char *(*_data_##item)(type this); \
     /* item读入图书的数据，反序列化 */ \
     void (*_in_data_##item)(type this,const char* data);
@@ -172,6 +176,10 @@ void *new_item(const char *type);
 #define _init_type_for_custom(TYPE) \
     if (strcmp(type, #TYPE) == 0) { \
         item = malloc(sizeof(TYPE)); \
+        if (!item) { \
+            perror("Type: item 指针分配失败"); \
+            exit(EXIT_FAILURE); \
+        } \
         ((TYPE *)item)->init((TYPE *)item); \
     }
 

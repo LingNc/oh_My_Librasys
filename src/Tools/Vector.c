@@ -27,6 +27,10 @@ static vector _vector_init_func(vector this);
 static void _grow(vector this){
     this->_allocatedSize*=2;
     this->_data=realloc(this->_data,this->_itemSize*this->_allocatedSize);
+    if (!this->_data) {
+        perror("Vector: _data 指针分配失败");
+        exit(EXIT_FAILURE);
+    }
     assert(this->_data!=NULL);
 }
 
@@ -140,6 +144,10 @@ static bool _vector_in_data(vector this, const char *data) {
 static void _vector_resize(vector this,size_t newSize){
     this->_allocatedSize=newSize;
     this->_data=realloc(this->_data,this->_itemSize*this->_allocatedSize);
+    if (!this->_data) {
+        perror("Vector: _data 指针分配失败");
+        exit(EXIT_FAILURE);
+    }
     assert(this->_data!=NULL);
 }
 
@@ -170,6 +178,10 @@ static void _init_all(vector this,const char type[]){
     this->_serialize=new_string();
     this->_typename=new_string();
     this->_data=malloc(this->_itemSize*this->_allocatedSize);
+    if (!this->_data) {
+        perror("Vector: _data 指针分配失败");
+        exit(EXIT_FAILURE);
+    }
     assert(this->_data!=NULL);
     this->_size=0;
 }
@@ -177,6 +189,10 @@ static void _init_all(vector this,const char type[]){
 // 创建新的向量
 vector new_vector(const char *type){
     vector this=malloc(sizeof(Vector));
+    if (!this) {
+        perror("Vector: this 指针分配失败");
+        exit(EXIT_FAILURE);
+    }
     assert(this!=NULL);
     _init_all(this,type);
     return this;

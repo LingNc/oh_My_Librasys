@@ -38,7 +38,7 @@ struct Vector{
     // 无返回值
     void (*free)(vector this);
 
-    // 清空向量
+    // 清空向��
     // 无返回值
     void (*clear)(vector this);
 

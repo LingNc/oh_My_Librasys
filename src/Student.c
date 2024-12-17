@@ -14,6 +14,10 @@ int _student_in_data(student this, const char *data);
 // 初始化学生
 student new_student() {
     student this = (student)malloc(sizeof(Student));
+    if (!this) {
+        perror("Student: this 指针分配失败");
+        exit(EXIT_FAILURE);
+    }
     this->id = 0;
     this->name = new_string();
     this->class = new_string();

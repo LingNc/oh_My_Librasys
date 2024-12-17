@@ -22,12 +22,12 @@ static size_t _string_find_string(string this, size_t pos, string other);
 static int _string_cmp(string this, string other);
 static size_t _string_size(string this);
 static size_t _string_length_func(string this);
-static char _string_it(string this, size_t pos);
-static char *_string_at(string this, size_t pos);
+static char *_string_it(string this, size_t pos);
+static char _string_at(string this, size_t pos);
 static void _string_clear(string this);
 static int _string_empty(string this);
 static const char *_string_data(string this);
-static bool _string_in_data(string this, const char *data);
+static void _string_in_data(string this, const char *data);
 static void _string_free(string this);
 static string _string_copy(string this, string other);
 static void _init_all(string this);
@@ -189,15 +189,15 @@ static size_t _string_length_func(string this){
 }
 
 // it 函数实现
-static char _string_it(string this,size_t pos){
-    if(pos>=this->_length) return '\0';
-    return this->_data[pos];
+static char *_string_it(string this,size_t pos){
+    if(pos>=this->_length) return NULL;
+    return this->_data+pos;
 }
 
 // at 函数实现
-static char *_string_at(string this,size_t pos){
-    if(pos>=this->_length) return NULL;
-    return this->_data+pos;
+static char _string_at(string this,size_t pos){
+    if(pos>=this->_length) return 0;
+    return this->_data[pos];
 }
 
 // clear 函数实现
@@ -332,15 +332,14 @@ static const char *_string_data(string this) {
 }
 
 // in_data 函数实现
-static bool _string_in_data(string this,const char *data){
-    if(!data) return false;
+static void _string_in_data(string this,const char *data){
+    if(!data) return;
     size_t len;
     memcpy(&len,data,sizeof(size_t));
     _grow(this, len + 1);
     memcpy(this->_data,data+sizeof(size_t),len);
     this->_data[len]='\0';
     this->_length=len;
-    return true;
 }
 
 static void _init_all(string this){
@@ -391,7 +390,7 @@ static void _init_all(string this){
 
 // 创建 String 对象的函数
 string new_string(){
-    string this=(string)malloc(sizeof(string));
+    string this=malloc(sizeof(string));
     _init_all(this);
     return this;
 }

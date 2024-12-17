@@ -96,6 +96,10 @@ void _book_free(book this) {
 // 初始化图书
 book new_book() {
     book this = (book)malloc(sizeof(Book));
+    if (!this) {
+        perror("Book: this 指针分配失败");
+        exit(EXIT_FAILURE);
+    }
     this->ISBN = new_string();
     this->name = new_string();
     this->author = new_string();

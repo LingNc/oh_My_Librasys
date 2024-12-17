@@ -15,6 +15,10 @@ void init_index(database_index index, const char *filePath, size_t bucket_count)
     index->hash = default_hash_func;
     index->bucket_count = bucket_count;
     index->buckets = (vector *)malloc(bucket_count * sizeof(vector));
+    if (!index->buckets) {
+        perror("Index: buckets 指针分配失败");
+        exit(EXIT_FAILURE);
+    }
     for (size_t i = 0; i < bucket_count; ++i) {
         index->buckets[i] = vector(Pair);
     }
