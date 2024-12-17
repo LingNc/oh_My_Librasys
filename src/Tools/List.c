@@ -64,11 +64,7 @@ static List *_list_new(void)
   if (!(self = LIST_MALLOC(sizeof(List))))
     return NULL; // 分配内存失败，返回NULL
   _List_init_func(self);
-  self->head = NULL;  // 初始化头指针为空
-  self->tail = NULL;  // 初始化尾指针为空
-  self->free = NULL;  // 初始化free函数指针为空
-  self->match = NULL; // 初始化match函数指针为空
-  self->len = 0;      // 初始化长度为0
+
   return self;
 }
 
@@ -113,6 +109,8 @@ static List *_List_init_func(List *self)
   self->len = 0;            // 链表长度初始化为0
   self->data = NULL;        // 数据数组指针初始化为NULL
   self->size = 0;           // 当前存储的元素数量初始化为0
+  self->free = NULL;        // 初始化free函数指针为空
+  self->match = NULL;       // 初始化match函数指针为空
   self->capacity = 0;       // 数组容量初始化为0
   self->_typename = "List"; // 设置内部数据类型名为"List"
 
@@ -419,7 +417,7 @@ static List_node *_list_node_new(void *data, const char *dataType)
     return NULL; // 内存分配失败，返回 NULL
   }
   node->_typename = dataType;
-  node->val = data;   // 将传入的值赋给节点的 val 字段
+  node->val = data;  // 将传入的值赋给节点的 val 字段
   node->prev = NULL; // 初始化前驱指针为 NULL
   node->next = NULL; // 初始化后继指针为 NULL
   return node;       // 返回新创建的节点
