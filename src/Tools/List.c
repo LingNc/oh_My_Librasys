@@ -117,22 +117,28 @@ static List *_List_init_func(List *self)
   return self;
 }
 
-static void _list_destroy(List *self)
-{
-  unsigned int len = self->len;
-  List_node *next;
-  List_node *curr = self->head;
+static void _list_destroy(List *self) {
+    if (self == NULL) return;
 
-  while (len--)
-  { // 遍历所有节点
-    next = curr->next;
-    if (self->free)
-      self->free(curr->val); // 如果有free函数，释放节点值
-    LIST_FREE(curr);         // 释放当前节点内存
-    curr = next;
-  }
+    List_node *current = self->head;
+    while (current != NULL) {
+        List_node *next = current->next;
 
-  LIST_FREE(self); // 释放列表结构体内存
+        // 释放节点值
+        if (self->free != NULL) {
+            self->free(current->val); // 调用自定义释放函数
+        }
+
+        // 释放节点本身
+        free(current->_typename); // 释放类型名字符串
+        free(current);            // 释放节点
+
+        current = next;
+    }
+
+    self->head = NULL;
+    self->tail = NULL;
+    self->len = 0;
 }
 
 static List_node *_push_back(List *self, List_node *node)
