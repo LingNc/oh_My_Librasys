@@ -29,5 +29,6 @@ void load_student(student this, size_t id, const char *name, const char *class, 
 
 // 初始化 Student 对象
 student __init_Student();
+student new_student();
 
 #endif
