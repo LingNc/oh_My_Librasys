@@ -21,3 +21,6 @@
 */*.exe
 # 密钥文件
 */*key*
+
+!assets/
+!assets/**/*
