@@ -3,7 +3,6 @@
 
 #include<string.h>
 #include<assert.h>
-#include"Tools/Type.h"
 /*
 定义：
     基础类型的cmp函数定义
@@ -58,12 +57,12 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
             perror("Type: _base 指针分配失败"); \
             exit(EXIT_FAILURE); \
         } \
-        this->_init_item=((TYPE *)this->_base)->init; \
-        this->_copy_item=((TYPE *)this->_base)->copy; \
-        this->_free_item = ((TYPE *)this->_base)->free; \
-        this->_cmp_item = ((TYPE *)this->_base)->cmp; \
-        this->_data_item = ((TYPE *)this->_base)->data; \
-        this->_in_data_item = ((TYPE *)this->_base)->in_data; \
+        this->_init_item = (void (*)(void *))((TYPE *)this->_base)->init; \
+        this->_copy_item = (void *(*)(void *, const void *))((TYPE *)this->_base)->copy; \
+        this->_free_item = (void (*)(void *))((TYPE *)this->_base)->free; \
+        this->_cmp_item = (int (*)(const void *, const void *))((TYPE *)this->_base)->cmp; \
+        this->_data_item = (const char *(*)(const void *))((TYPE *)this->_base)->data; \
+        this->_in_data_item = (void (*)(void *, const char *))((TYPE *)this->_base)->in_data; \
         sizeof(TYPE); \
     })
 
@@ -164,7 +163,7 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     int (*_cmp_##item)(type this,type other); \
     /* item析构函数 */ \
     void (*_free_##item)(type this); \
-    /* item获取图书的序列化��据 */ \
+    /* item获取图书的序列化数据 */ \
     const char *(*_data_##item)(type this); \
     /* item读入图书的数据，反序列化 */ \
     void (*_in_data_##item)(type this,const char* data);

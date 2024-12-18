@@ -16,9 +16,9 @@ static string _string_insert_cstr(string this, size_t pos, const char *s);
 static string _string_insert_string(string this, size_t pos, string other);
 static string _string_erase_char(string this, size_t pos);
 static string _string_erase(string this, size_t pos, size_t len);
-static size_t _string_find_char(string this, size_t pos, char c);
-static size_t _string_find_cstr(string this, size_t pos, const char *s);
-static size_t _string_find_string(string this, size_t pos, string other);
+static size_t _string_find_char(string this, char c, size_t pos);
+static size_t _string_find_cstr(string this, const char *s, size_t pos);
+static size_t _string_find_string(string this, string other, size_t pos);
 static int _string_cmp(string this, string other);
 static size_t _string_size(string this);
 static size_t _string_length_func(string this);
@@ -158,7 +158,7 @@ static string _string_erase(string this,size_t pos,size_t len){
 }
 
 // find_char 函数实现
-static size_t _string_find_char(string this,size_t pos,char c){
+static size_t _string_find_char(string this, char c, size_t pos){
     if(pos>=this->_length) return this->npos;
     char *p=strchr(this->_data+pos,c);
     if(p) return p-this->_data;
@@ -166,7 +166,7 @@ static size_t _string_find_char(string this,size_t pos,char c){
 }
 
 // find_cstr 函数实现
-static size_t _string_find_cstr(string this,size_t pos,const char *s){
+static size_t _string_find_cstr(string this, const char *s, size_t pos){
     if(pos>=this->_length) return this->npos;
     char *p=strstr(this->_data+pos,s);
     if(p) return p-this->_data;
@@ -174,8 +174,8 @@ static size_t _string_find_cstr(string this,size_t pos,const char *s){
 }
 
 // find_string 函数实现
-static size_t _string_find_string(string this,size_t pos,string other){
-    return _string_find_cstr(this,pos,other->_data);
+static size_t _string_find_string(string this, string other, size_t pos){
+    return _string_find_cstr(this, other->_data, pos);
 }
 
 // size 函数实现
@@ -390,7 +390,7 @@ static void _init_all(string this){
 
 // 创建 String 对象的函数
 string new_string(){
-    string this=malloc(sizeof(string));
+    string this=malloc(sizeof(String));
     _init_all(this);
     return this;
 }
