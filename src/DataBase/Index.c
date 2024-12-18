@@ -59,7 +59,7 @@ void add_index(database_index index, size_t key, size_t offset) {
     size_t bucket_index = hash % index->bucket_count;
     vector bucket = index->buckets[bucket_index];
     pair p = new_pair();
-    init_pair(p, key, offset);
+    init_pairs(p, key, offset);
     bucket->push_back(bucket, p);
 }
 
