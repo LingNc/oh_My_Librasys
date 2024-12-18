@@ -25,6 +25,7 @@ Inputinfo* input_info(char* a, char* b, char* c, char* d);
 
 
 char* simplewin(char* question);
+char* s_simplewin(char* question);
 
 
 #endif

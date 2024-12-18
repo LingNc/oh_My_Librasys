@@ -186,12 +186,15 @@ void print_list(uiBook** books, WINDOW* pad, int i)
 
 //打印学生pad的每一项,到缓冲区
 void print_student_list(uiStudent** students, WINDOW* pad, int i)
-{ 
-    mvwprintw(pad, i, 0, "%d", students[i]->id);
+{
+    if (students[i]->id != 0)
+    {
+        mvwprintw(pad, i, 0, "%d", students[i]->id);
+        mvwprintw(pad, i, 100, "%d", students[i]->borrowedCount);
+    }
     mvwprintw(pad, i, 18, "%s", students[i]->name); 
     mvwprintw(pad, i, 40, "%s", students[i]->class); 
     mvwprintw(pad, i, 60, "%s", students[i]->department); 
-    mvwprintw(pad, i, 100, "%d", students[i]->borrowedCount); 
 }
 
 //提示高亮选中框

@@ -74,6 +74,6 @@ typedef struct {
 
 void book_list(uiBook** books);
 void stu_list(uiStudent** student);
-void stu_borrow_list(uiStudent* student);
+void stu_borrow_list();
 
 #endif

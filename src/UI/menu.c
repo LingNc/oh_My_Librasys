@@ -128,7 +128,7 @@ Screen main_menu()
     }
 }
 
-//用户菜单界面
+//管理员菜单界面
 Screen admin_menu()
 {
     char *admin_choices[] = {
@@ -165,6 +165,10 @@ Screen admin_menu()
     {
         switch (input_c)
         {
+        case 'q':
+                destroy_menu(menu,items, menu_win);
+                next_screen = BACK;
+                return next_screen;
         case KEY_DOWN:
             menu_driver(menu, REQ_DOWN_ITEM);
             break;
@@ -218,7 +222,7 @@ Screen admin_menu()
 Screen book_manage_info()
 { 
     uiBook**  mybook;
-    mybook =  load_books_from_file("text.txt");
+    mybook =  load_books_from_file("Book.txt");
     book_list(mybook);
     return BACK;
 }
@@ -226,7 +230,7 @@ Screen book_manage_info()
 //学生管理界面
 Screen stu_manage_info()
 {
-    uiStudent** mystudent = load_students_from_file("student.txt");
+    uiStudent** mystudent = load_students_from_file("Student.txt");
     stu_list(mystudent);  
     return BACK;
 }
@@ -284,6 +288,10 @@ Screen stu_menu()
         case KEY_DOWN:
             menu_driver(menu, REQ_DOWN_ITEM);
             break;
+        case 'q':
+            destroy_menu(menu, items, menu_win);
+            next_screen = BACK;
+            return next_screen;
         case KEY_UP:
             menu_driver(menu, REQ_UP_ITEM);
             break;
@@ -363,9 +371,9 @@ Screen return_book()
 //学生借阅列表  
 Screen view_records()
 {
-    uiStudent ** mystudent = load_books_from_file("student.txt");
+    //uiStudent ** mystudent = load_books_from_file("student.txt");
     // uiStudent* mystudent = {213213, "张佳玮", "计算机21-2", "计算机科学与技术", 21, "2021-03-22", "2032-10-21", {&pbook1, &pbook2}};
-    // stu_borrow_list(*mystudent);
+    stu_borrow_list();
     return BACK;
 }
 

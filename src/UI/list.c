@@ -203,18 +203,19 @@ REFRESH_BOOK_PAD:
                     }else if (strcmp(choice, "添加图书") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
-                        * 
-                        * uiBook* newBook = getbookinfo();//添加图书
-                        * func_addbook(newBook);
-                        *
-                        */
-                       new_book = input_info("ISBN", "书名", "作者", "出版社");
-                        if (new_book == NULL)
-                            break;
-                        show_message_box("已添加");
-                    
-
+                         *
+                         * uiBook* newBook = getbookinfo();//添加图书
+                         * func_addbook(newBook);
+                         *
+                         */
+                        char *ISBN = s_simplewin("请输入ISBN号: ");
+                        char *bookname = s_simplewin("请s_输入书名: ");
+                        char *author = s_simplewin("请输入作者: ");
+                        char *publisher = s_simplewin("请输入出版社: ");
                         
+
+                        //-----------------------------------------------------3
+                        show_message_box("已添加");
                     }else if(strcmp(choice, "查询图书") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
@@ -222,10 +223,12 @@ REFRESH_BOOK_PAD:
                         * func_findbook(searchBook);
                         *
                         */
-                       new_book = my_input_info("ISBN", "书名", "作者", "出版社");
-                        if (new_book == NULL)
-                            break;
-                      
+                        char *ISBN = s_simplewin("请输入ISBN号: ");
+                        char *bookname = s_simplewin("请输入书名: ");
+                        char *author = s_simplewin("请输入作者: ");
+                        char *publisher = s_simplewin("请输入出版社: ");
+
+
                     }else if(strcmp(choice, "批量导入") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
@@ -234,7 +237,9 @@ REFRESH_BOOK_PAD:
                         *
                         */
                         // create_input_window
-                    
+                        char *route = s_simplewin("请输入文件路径: ");
+                        
+
                     }
                 } else if (active_window == PAD) {
                     // 弹出确认窗口
@@ -323,7 +328,7 @@ void stu_list(uiStudent** student_set)
     int info_start_y = 0;
     int info_start_x = 1;
     WINDOW *info_win = creat_win(info_height, info_width, info_start_y, info_start_x);
-    mvwprintw(info_win, 0, (terminal.width - 2 - strlen("学生管理界面")) / 2, "学生管理界面");
+    mvwprintw(info_win, 1, (terminal.width - 2 - strlen("学生管理界面")) / 2, "学生管理界面");
     //当前学生信息打印
     MenuInfo info = {12, 56, "张三", "2024-12-17"};
     // strncpy(info.name, info.name, sizeof(info.name) - 1);
@@ -457,7 +462,7 @@ REFRESH_STU_PAD:
                     // 处理菜单选择
                     ITEM *cur = current_item(menu);
                     const char *choice = item_name(cur);
-                    Inputinfo* new_student;
+                
                     if (strcmp(choice, "退出") == 0) {
                         // 退出程序
                         unpost_menu(menu);
@@ -471,16 +476,26 @@ REFRESH_STU_PAD:
                         return;
                     }else if (strcmp(choice, "添加学生") == 0)
                     {
-                        new_student = input_info("学号", "姓名", "班级", "学院");
-                        if (new_student == NULL)
-                            break;
+                        char*id = s_simplewin("请输入学号: ");
+                        size_t id_int;
+                        sprintf(id, "%ld", id_int);
+                        char*name = s_simplewin("请输入姓名: ");
+                        char*class = s_simplewin("请输入班级: ");
+                        char*department = s_simplewin("请输入学院: ");
                         show_message_box("已添加");
+                    }else if (strcmp(choice, "批量导入") == 0)
+                    {
+                        char*route = s_simplewin("请输入文件路径: ");
+                        show_message_box("添加成功");
                     }
                     else if (strcmp(choice, "查询学生") == 0)
                     {
-                        new_student = input_info("学号", "姓名", "班级", "学院");
-                        if (new_student == NULL)
-                            break;
+                        char*id = s_simplewin("请输入学号: ");
+                        size_t id_int;
+                        sprintf(id, "%ld", id_int);
+                        char*name = s_simplewin("请输入姓名: ");
+                        char*class = s_simplewin("请输入班级: ");
+                        char*department = s_simplewin("请输入学院: ");
                     }
                     // 其他菜单项的处理逻辑
                 } else if (active_window == PAD) {
@@ -540,7 +555,7 @@ REFRESH_STU_PAD:
 
  
 //学生借阅列表
-void stu_borrow_list(uiStudent* stu)
+void stu_borrow_list()
 {
     Infoname infoname = {
         "姓名",
@@ -549,7 +564,7 @@ void stu_borrow_list(uiStudent* stu)
         "学号",
     };
     //uiStudent* thisStudent = stu[0];
-    uiBook** thisBook = stu->books;
+    // uiBook** thisBook = stu->books;
     
      char* menu_choices[] = {
         "借书",
@@ -576,11 +591,11 @@ void stu_borrow_list(uiStudent* stu)
     WINDOW *info_win = creat_win(info_height, info_width, info_start_y, info_start_x);
     mvwprintw(info_win, 0, (terminal.width - 2 - strlen("学生借阅界面")) / 2, "学生借阅界面");
     //当前书籍信息打印
-    mvwprintw(info_win, 1, 1, "%s: %s", infoname.field1, stu->name);
-    mvwprintw(info_win, 1, 20, "%s: %s", infoname.field2, stu->class);
-    mvwprintw(info_win, 1, 40, "%s: %s", infoname.field3, stu->department);
-    mvwprintw(info_win, 1, 60, "%s: %ld", infoname.field4, stu->id);
-    wrefresh(info_win);
+    // mvwprintw(info_win, 1, 1, "%s: %s", infoname.field1, stu->name);
+    // mvwprintw(info_win, 1, 20, "%s: %s", infoname.field2, stu->class);
+    // mvwprintw(info_win, 1, 40, "%s: %s", infoname.field3, stu->department);
+    // mvwprintw(info_win, 1, 60, "%s: %ld", infoname.field4, stu->id);
+    // wrefresh(info_win);
 
 
     // 创建 menu 窗口
@@ -624,16 +639,16 @@ void stu_borrow_list(uiStudent* stu)
     keypad(pad, TRUE);
 REFRESH_BOOK_PAD:
     // 绘制列表项到 pad 上
-    for (int i = 0; i < LIST_SIZE; i++) {
-        print_list(thisBook, pad, i);
-    }
+    // for (int i = 0; i < LIST_SIZE; i++) {
+    //     print_list(thisBook, pad, i);
+    // }
 
     int scroll_offset = 0;    // 滚动偏移量
     int current_row = 0;      // 当前选中的行
 
     // 高亮当前行
     wattron(pad, A_REVERSE);
-    print_list(thisBook, pad, current_row);
+    // print_list(thisBook, pad, current_row);
     wattroff(pad, A_REVERSE);
 
     // 打印表头
@@ -664,7 +679,7 @@ REFRESH_BOOK_PAD:
             case KEY_UP:
                 if (active_window == PAD && current_row > 0) {
                     // 去掉旧的高亮
-                    print_list(thisBook, pad, current_row);
+                    // print_list(thisBook, pad, current_row);
                     current_row--;
                     if (current_row < scroll_offset && scroll_offset > 0) {
                         scroll_offset--;
@@ -674,7 +689,7 @@ REFRESH_BOOK_PAD:
             case KEY_DOWN:
                 if (active_window == PAD && current_row < LIST_SIZE - 1) {
                     // 去掉旧的高亮
-                    print_list(thisBook, pad, current_row);
+                    // print_list(thisBook, pad, current_row);
                     current_row++;
                     if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height) {
                         scroll_offset++;
@@ -756,7 +771,7 @@ REFRESH_BOOK_PAD:
                     }
                 } else if (active_window == PAD) {
                     // 弹出确认窗口
-                    show_confirm_window(thisBook[current_row]);
+                    // show_confirm_window(thisBook[current_row]);
                     werase(pad);
                     goto REFRESH_BOOK_PAD;
                 
@@ -779,14 +794,14 @@ REFRESH_BOOK_PAD:
         if (active_window == PAD) 
         {
             wattron(pad, A_REVERSE);
-            print_list(thisBook, pad, current_row);
+            // print_list(thisBook, pad, current_row);
             wattroff(pad, A_REVERSE);
             set_menu_fore(menu, COLOR_PAIR(UNHEIGHT));
 	        set_menu_back(menu, COLOR_PAIR(UNHEIGHT));
 
         }else
         {
-            print_list(thisBook, pad, current_row);
+            // print_list(thisBook, pad, current_row);
             set_menu_fore(menu, COLOR_PAIR(HEIGHTLIGHT) | A_REVERSE);
 	        set_menu_back(menu, COLOR_PAIR(FONT));
         }

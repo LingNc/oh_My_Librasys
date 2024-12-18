@@ -267,20 +267,29 @@ void show_student_confirm_window(uiStudent* student)
                 const char *choice = item_name(cur);
                 if(strcmp(choice, "修改") == 0)
                 {
-                    new_info = my_input_info("学号", "姓名", "班级", "学院");
-                    if (new_info == NULL)
-                        return;
-                        char str[20];
-                        int id = atoi(new_info->info1);
-                    student->id = id;
-                    strcpy(student->name, new_info->info2);
-                    strcpy(student->class, new_info->info3);
-                    strcpy(student->department, new_info->info4);
+                    char *id = simplewin("请输入学号: ");
+                    size_t id_int;
+                    sprintf(id, "%ld", id_int);
+                    char *name = simplewin("请输入姓名: ");
+                    char *class = simplewin("请输入班级: ");
+                    char *department = simplewin("请输入学院: ");
+                    if (id_int == 1)
+                        student->id = 0;
+                    else
+                        student->id = id_int;
+                    
+                    strcpy(student->name, name);
+                    strcpy(student->class, class);
+                    strcpy(student->department, department);
                     // 需要所有其他信息, 可能要更新
                     return;
                 }
                 else if (strcmp(choice, "删除") == 0)
                 {
+                    student->id = 0;
+                    strcpy(student->name, "");
+                    strcpy(student->class, "");
+                    strcpy(student->department, "");
                     show_message_box("已删除!");
                 }
                 return;
@@ -488,6 +497,22 @@ char* simplewin(char* question)
     move(5,3);
     wrefresh(win);
     char *str  = malloc(sizeof(char)*100);
+    wgetstr(win, str);
+    wrefresh(win);
+    noecho();
+    return str;
+}
+
+char* s_simplewin(char* question)
+{
+    WINDOW* win = newwin(terminal.height / 4, terminal.width / 2, terminal.height / 4, terminal.width / 4);
+    box(win, 0, 0);
+    echo();
+    mvwprintw(win, 2,2,"%s",question);
+    move(5,3);
+    wrefresh(win);
+    char *str  = malloc(sizeof(char)*100);
+    mvprintw(2,2," ");
     wgetstr(win, str);
     wrefresh(win);
     noecho();
