@@ -25,6 +25,8 @@ struct Student {
     _init_default_func(student);
 };
 
+void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate);
+
 student new_student();
 
 #endif

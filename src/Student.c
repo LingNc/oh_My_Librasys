@@ -10,6 +10,7 @@ void borrow_book(student this, book b);
 void return_book(student this, book b);
 const char *_student_data(student this);
 int _student_in_data(student this, const char *data);
+void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate);
 
 // 初始化学生
 student new_student() {
@@ -102,4 +103,14 @@ int _student_in_data(student this, const char *data) {
     offset += this->returnDate->length(this->returnDate);
 
     return 1; // 表示成功
+}
+
+void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate) {
+    this->id = id;
+    this->name->assign_cstr(this->name, name);
+    this->class->assign_cstr(this->class, class);
+    this->department->assign_cstr(this->department, department);
+    this->borrowedCount = borrowedCount;
+    this->borrowedDate->assign_cstr(this->borrowedDate, borrowedDate);
+    this->returnDate->assign_cstr(this->returnDate, returnDate);
 }

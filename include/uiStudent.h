@@ -18,4 +18,6 @@ struct uiStudent {
     uibook *books;
 };
 
+void copy_from_student(uistudent this, student src);
+
 #endif

@@ -10,6 +10,7 @@ book _book_copy(book this, book other);
 int _book_cmp(book this, book other);
 void _book_free(book this);
 book new_book();
+void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status);
 
 // data获得序列化数据实现
 const char *_book_data(book this) {
@@ -114,4 +115,14 @@ book new_book() {
     this->cmp = _book_cmp;
     this->free = _book_free;
     return this;
+}
+
+void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status) {
+    this->id = id;
+    this->ISBN->assign_cstr(this->ISBN, ISBN);
+    this->name->assign_cstr(this->name, name);
+    this->author->assign_cstr(this->author, author);
+    this->publisher->assign_cstr(this->publisher, publisher);
+    this->time->assign_cstr(this->time, time);
+    this->status = status;
 }

@@ -20,6 +20,8 @@ struct Book {
     _init_default_func(book);
 };
 
+void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status);
+
 book new_book();
 
 #endif
