@@ -177,19 +177,21 @@ void print_list(uiBook** books, WINDOW* pad, int i)
     mvwprintw(pad, i, 56, "%s", books[i]->publisher);
     if(books[i]->status == 1) 
         mvwprintw(pad, i, 82, "可借阅"); 
-    else         
-        mvwprintw(pad, i, 82, "不可借阅"); 
+    else  if(books[i]->status == 0)       
+        mvwprintw(pad, i, 82, "不可借阅");
+    else
+         mvwprintw(pad, i, 82, "");
 
 }
 
 //打印学生pad的每一项,到缓冲区
 void print_student_list(uiStudent** students, WINDOW* pad, int i)
 { 
-    mvwprintw(pad, i, 0, "%s", students[i]->id);
-    mvwprintw(pad, i, 20, "%s", students[i]->name); 
+    mvwprintw(pad, i, 0, "%d", students[i]->id);
+    mvwprintw(pad, i, 18, "%s", students[i]->name); 
     mvwprintw(pad, i, 40, "%s", students[i]->class); 
     mvwprintw(pad, i, 60, "%s", students[i]->department); 
-    mvwprintw(pad, i, 80, "%d", students[i]->borrowedCount); 
+    mvwprintw(pad, i, 100, "%d", students[i]->borrowedCount); 
 }
 
 //提示高亮选中框
@@ -215,3 +217,5 @@ void print_info(WINDOW* info_win, Infoname* infoname, MenuInfo* info)
     mvwprintw(info_win, 1, 60, "%s: %s", infoname->field4,info->date);
     wrefresh(info_win);
 }
+
+

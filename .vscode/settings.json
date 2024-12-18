@@ -101,7 +101,12 @@
         "list.h": "c",
         "student.h": "c",
         "*.def": "c",
-        "menu.h": "c"
+        "menu.h": "c",
+        "book.h": "c",
+        "uibook.h": "c",
+        "function.h": "c",
+        "uistudent.h": "c",
+        "window.h": "c"
     },
     "makefile.launchConfigurations": [
         {

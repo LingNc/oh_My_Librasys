@@ -7,7 +7,8 @@
 #include "uiStudent.h"
 
 
-#define LIST_SIZE 150      // 列表项总数
+
+#define LIST_SIZE 99      // 列表项总数
 #define VISIBLE_ROWS 20   // 可见行数
 #define PAD_HEIGHT (LIST_SIZE + 1)  // pad高度
 #define PAD_WIDTH (ISBN_WIDTH + BOOKNAME_WIDTH + AUTHOR_WIDTH + PUBLISHER_WIDTH + NUM_WIDTH + 10)     // pad宽度
@@ -72,7 +73,7 @@ typedef struct {
 }Infoname;//菜单栏上的信息名
 
 void book_list(uiBook** books);
-void stu_list(uiStudent** books);
+void stu_list(uiStudent** student);
 void stu_borrow_list(uiStudent* student);
 
 #endif
