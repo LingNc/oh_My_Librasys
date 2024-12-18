@@ -6,6 +6,8 @@
 uibook new_uibook();
 uibook new_from_book(book src);
 void copy_from_book(uibook this, book src);
+uibook copy_uibook(uibook this, uibook other);
+void free_uibook(uibook this);
 
 uibook new_uibook() {
     uibook this = (uibook)malloc(sizeof(uiBook));
@@ -37,4 +39,31 @@ void copy_from_book(uibook this, book src) {
     this->publisher = strdup(src->publisher->c_str(src->publisher));
     this->time = strdup(src->time->c_str(src->time));
     this->status = src->status;
+}
+
+uibook copy_uibook(uibook this, uibook other) {
+    if (this == other) return this;
+    this->id = other->id;
+    free(this->ISBN);
+    this->ISBN = strdup(other->ISBN);
+    free(this->name);
+    this->name = strdup(other->name);
+    free(this->author);
+    this->author = strdup(other->author);
+    free(this->publisher);
+    this->publisher = strdup(other->publisher);
+    free(this->time);
+    this->time = strdup(other->time);
+    this->status = other->status;
+    return this;
+}
+
+void free_uibook(uibook this) {
+    if (!this) return;
+    free(this->ISBN);
+    free(this->name);
+    free(this->author);
+    free(this->publisher);
+    free(this->time);
+    free(this);
 }

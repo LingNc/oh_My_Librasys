@@ -20,5 +20,7 @@ struct uiBook {
 uibook new_uibook();
 uibook new_from_book(book src);
 void copy_from_book(uibook this, book src);
+uibook copy_uibook(uibook this, uibook other);
+void free_uibook(uibook this);
 
 #endif

@@ -7,6 +7,8 @@
 uistudent new_uistudent();
 uistudent new_from_student(student src);
 void copy_from_student(uistudent this, student src);
+uistudent copy_uistudent(uistudent this, uistudent other);
+void free_uistudent(uistudent this);
 
 uistudent new_uistudent() {
     uistudent this = (uistudent)malloc(sizeof(uiStudent));
@@ -41,4 +43,49 @@ void copy_from_student(uistudent this, student src) {
     this->returnDate = strdup(src->returnDate->c_str(src->returnDate));
     // 需要处理 books 数组的复制
     // ...
+}
+
+uistudent copy_uistudent(uistudent this, uistudent other) {
+    if (this == other) return this;
+    this->id = other->id;
+    free(this->name);
+    this->name = strdup(other->name);
+    free(this->class);
+    this->class = strdup(other->class);
+    free(this->department);
+    this->department = strdup(other->department);
+    this->borrowedCount = other->borrowedCount;
+    free(this->borrowedDate);
+    this->borrowedDate = strdup(other->borrowedDate);
+    free(this->returnDate);
+    this->returnDate = strdup(other->returnDate);
+    // 需要处理 books 数组的深拷贝
+    if (this->books) {
+        for (int i = 0; i < this->borrowedCount; i++) {
+            free_uibook(this->books[i]);
+        }
+        free(this->books);
+    }
+    this->books = (uibook *)malloc(other->borrowedCount * sizeof(uibook));
+    for (int i = 0; i < other->borrowedCount; i++) {
+        this->books[i] = new_uibook();
+        copy_uibook(this->books[i], other->books[i]);
+    }
+    return this;
+}
+
+void free_uistudent(uistudent this) {
+    if (!this) return;
+    free(this->name);
+    free(this->class);
+    free(this->department);
+    free(this->borrowedDate);
+    free(this->returnDate);
+    if (this->books) {
+        for (int i = 0; i < this->borrowedCount; i++) {
+            free_uibook(this->books[i]);
+        }
+        free(this->books);
+    }
+    free(this);
 }
