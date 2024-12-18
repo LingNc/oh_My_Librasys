@@ -9,6 +9,7 @@ uistudent new_from_student(student src);
 void copy_from_student(uistudent this, student src);
 uistudent copy_uistudent(uistudent this, uistudent other);
 void free_uistudent(uistudent this);
+student back_to_student(uistudent this);
 
 uistudent new_uistudent() {
     uistudent this = (uistudent)malloc(sizeof(uiStudent));
@@ -88,4 +89,18 @@ void free_uistudent(uistudent this) {
         free(this->books);
     }
     free(this);
+}
+
+student back_to_student(uistudent this) {
+    student student_new = new_student();
+    student_new->id = this->id;
+    student_new->name->assign(student_new->name, this->name);
+    student_new->class->assign(student_new->class, this->class);
+    student_new->department->assign(student_new->department, this->department);
+    student_new->borrowedCount = this->borrowedCount;
+    student_new->borrowedDate->assign(student_new->borrowedDate, this->borrowedDate);
+    student_new->returnDate->assign(student_new->returnDate, this->returnDate);
+    // 需要处理 books 数组的转换
+    // ...
+    return student_new;
 }

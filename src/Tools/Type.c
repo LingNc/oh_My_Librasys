@@ -24,27 +24,27 @@ int _default_cmp(const void *a,const void *b,size_t itemSize){
     }
 }
 
-void *new_item(const char *type) {
-    void *item = NULL;
-    if (strcmp(type, "int") == 0) {
-        item = malloc(sizeof(int));
-    } else if (strcmp(type, "float") == 0) {
-        item = malloc(sizeof(float));
-    } else if (strcmp(type, "double") == 0) {
-        item = malloc(sizeof(double));
-    } else if (strcmp(type, "long long") == 0) {
-        item = malloc(sizeof(long long));
-    } else if (strcmp(type, "long double") == 0) {
-        item = malloc(sizeof(long double));
-    } else if (strcmp(type, "char") == 0) {
-        item = malloc(sizeof(char));
-    } else {
-        _init_type_for_custom(Student)
-        else _init_type_for_custom(String)
-        else _init_type_for_custom(Book)
-        else {
-            assert(0 && "new_item 使用了不受支持的数据类型");
-        }
-    }
-    return item;
-}
+// void *new_item(const char *type) {
+//     void *item = NULL;
+//     if (strcmp(type, "int") == 0) {
+//         item = malloc(sizeof(int));
+//     } else if (strcmp(type, "float") == 0) {
+//         item = malloc(sizeof(float));
+//     } else if (strcmp(type, "double") == 0) {
+//         item = malloc(sizeof(double));
+//     } else if (strcmp(type, "long long") == 0) {
+//         item = malloc(sizeof(long long));
+//     } else if (strcmp(type, "long double") == 0) {
+//         item = malloc(sizeof(long double));
+//     } else if (strcmp(type, "char") == 0) {
+//         item = malloc(sizeof(char));
+//     } else {
+//         _init_type_for_custom(Student)
+//         else _init_type_for_custom(String)
+//         else _init_type_for_custom(Book)
+//         else {
+//             assert(0 && "new_item 使用了不受支持的数据类型");
+//         }
+//     }
+//     return item;
+// }

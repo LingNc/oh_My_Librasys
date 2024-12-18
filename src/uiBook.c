@@ -8,6 +8,7 @@ uibook new_from_book(book src);
 void copy_from_book(uibook this, book src);
 uibook copy_uibook(uibook this, uibook other);
 void free_uibook(uibook this);
+book back_to_book(uibook this);
 
 uibook new_uibook() {
     uibook this = (uibook)malloc(sizeof(uiBook));
@@ -66,4 +67,16 @@ void free_uibook(uibook this) {
     free(this->publisher);
     free(this->time);
     free(this);
+}
+
+book back_to_book(uibook this) {
+    book book_new = new_book();
+    book_new->id = this->id;
+    book_new->ISBN->assign(book_new->ISBN, this->ISBN);
+    book_new->name->assign(book_new->name, this->name);
+    book_new->author->assign(book_new->author, this->author);
+    book_new->publisher->assign(book_new->publisher, this->publisher);
+    book_new->time->assign(book_new->time, this->time);
+    book_new->status = this->status;
+    return book_new;
 }

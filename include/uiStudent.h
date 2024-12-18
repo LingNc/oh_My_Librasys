@@ -25,5 +25,6 @@ uistudent new_from_student(student src);
 void copy_from_student(uistudent this, student src);
 uistudent copy_uistudent(uistudent this, uistudent other);
 void free_uistudent(uistudent this);
+student back_to_student(uistudent this);
 
 #endif
