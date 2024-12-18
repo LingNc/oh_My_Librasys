@@ -1,5 +1,6 @@
 #include "uiBook.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 // 函数声明
@@ -72,11 +73,11 @@ void free_uibook(uibook this) {
 book back_to_book(uibook this) {
     book book_new = new_book();
     book_new->id = this->id;
-    book_new->ISBN->assign(book_new->ISBN, this->ISBN);
-    book_new->name->assign(book_new->name, this->name);
-    book_new->author->assign(book_new->author, this->author);
-    book_new->publisher->assign(book_new->publisher, this->publisher);
-    book_new->time->assign(book_new->time, this->time);
+    book_new->ISBN->assign_cstr(book_new->ISBN, this->ISBN);
+    book_new->name->assign_cstr(book_new->name, this->name);
+    book_new->author->assign_cstr(book_new->author, this->author);
+    book_new->publisher->assign_cstr(book_new->publisher, this->publisher);
+    book_new->time->assign_cstr(book_new->time, this->time);
     book_new->status = this->status;
     return book_new;
 }

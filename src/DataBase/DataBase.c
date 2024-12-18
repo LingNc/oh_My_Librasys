@@ -9,7 +9,7 @@ static void _init_all(dataBase this, const char *filePath);
 static void _database_add(dataBase this, void *data);
 static void _database_remove(dataBase this, size_t key);
 static void _database_save(dataBase this);
-static const vector *_database_find(dataBase this, const void *data);
+static vector _database_find(dataBase this, const void *data);
 static void *_database_find_key(dataBase this, size_t key);
 static void _init_func(dataBase this);
 void clean_database(dataBase this);
@@ -92,7 +92,7 @@ static void _database_save(dataBase this) {
     fwrite(&dataCount, sizeof(size_t), 1, file);
     for (size_t i = 0; i < dataCount; ++i) {
         void *data = this->_buffer->at(this->_buffer, i);
-        const char *serializedData = this->_buffer->_data_item(this->_buffer);
+        const char *serializedData = this->_buffer->_data_item(data);
         size_t dataSize = *(size_t *)serializedData; // 假设序列化数据的开头包含数据大小
         char isDeleted = 1;
         size_t offset = ftell(file);
@@ -109,7 +109,7 @@ static void _database_save(dataBase this) {
 }
 
 // 查找数据
-static const vector *_database_find(dataBase this, const void *data) {
+static vector _database_find(dataBase this, const void *data) {
     this->_find_buffer->clear(this->_find_buffer);
     FILE *file = fopen(this->filePath->c_str(this->filePath), "rb");
     if (!file) {

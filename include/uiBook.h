@@ -14,7 +14,7 @@ struct uiBook {
     char *author;
     char *publisher;
     char *time;
-    int status; // 0: 可借, 1: 已借出
+    int status; // 1: 可借, 0: 已借出
 };
 
 uibook new_uibook();
