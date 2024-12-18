@@ -6,6 +6,7 @@
 #include "Tools/List.h"
 #include "DataBase/DataBase.h"
 #include "DataBase/Index.h"
+#include "Tools/Pair.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>

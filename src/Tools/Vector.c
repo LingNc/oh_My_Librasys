@@ -1,7 +1,8 @@
 #include "Tools/Vector.h"
+#include "Tools/Pair.h"
 #include "Book.h"
 #include "Student.h"
-#include<stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -9,17 +10,17 @@
 
 // 函数声明
 static void _grow(vector this);
-static void _init_all(vector this, const char type[]);
+static void _init_all(vector this,const char type[]);
 static void _vector_push_back(vector this,const void *item);
-static void _vector_remove(vector this, size_t position);
+static void _vector_remove(vector this,size_t position);
 static void _vector_clear(vector this);
-static void *_vector_at(vector this, size_t position);
+static void *_vector_at(vector this,size_t position);
 static size_t _vector_size(vector this);
-static size_t _vector_find(vector this, const void *key, size_t startIndex);
+static size_t _vector_find(vector this,const void *key,size_t startIndex);
 static void _vector_delete(vector this);
 static const char *_vector_data(vector this);
-static bool _vector_in_data(vector this, const char *data);
-static void _vector_resize(vector this, size_t newSize);
+static bool _vector_in_data(vector this,const char *data);
+static void _vector_resize(vector this,size_t newSize);
 static vector _vector_init_func(vector this);
 
 
@@ -27,7 +28,7 @@ static vector _vector_init_func(vector this);
 static void _grow(vector this){
     this->_allocatedSize*=2;
     this->_data=realloc(this->_data,this->_itemSize*this->_allocatedSize);
-    if (!this->_data) {
+    if(!this->_data){
         perror("Vector: _data 指针分配失败");
         exit(EXIT_FAILURE);
     }
@@ -50,20 +51,20 @@ static void _vector_push_back(vector this,const void *item){
 }
 
 // 删除指定位置的元素
-static void _vector_remove(vector this, size_t position) {
-    assert(position < this->_size);
-    void *dest = (char *)this->_data + position * this->_itemSize;
-    if (this->_free_item) {
+static void _vector_remove(vector this,size_t position){
+    assert(position<this->_size);
+    void *dest=(char *)this->_data+position*this->_itemSize;
+    if(this->_free_item){
         this->_free_item(dest);
     }
-    memmove(dest, (char *)dest + this->_itemSize, (this->_size - position - 1) * this->_itemSize);
+    memmove(dest,(char *)dest+this->_itemSize,(this->_size-position-1)*this->_itemSize);
     this->_size--;
 }
 
 // 清空向量
-static void _vector_clear(vector this) {
+static void _vector_clear(vector this){
     _vector_delete(this);
-    _init_all(this, this->_typename->c_str(this->_typename));
+    _init_all(this,this->_typename->c_str(this->_typename));
 }
 
 // 获取指定位置的元素
@@ -107,36 +108,36 @@ static void _vector_delete(vector this){
 }
 
 // 序列化向量数据
-static const char *_vector_data(vector this) {
+static const char *_vector_data(vector this){
     this->_serialize->clear(this->_serialize);
-    size_t totalSize = sizeof(size_t) + this->_size * this->_itemSize;
-    this->_serialize->append_n(this->_serialize, (const char *)&totalSize, sizeof(totalSize));
+    size_t totalSize=sizeof(size_t)+this->_size*this->_itemSize;
+    this->_serialize->append_n(this->_serialize,(const char *)&totalSize,sizeof(totalSize));
 
-    for (size_t i = 0; i < this->_size; ++i) {
-        void *item = (char *)this->_data + i * this->_itemSize;
-        this->_serialize->append_n(this->_serialize, (const char *)item, this->_itemSize);
+    for(size_t i=0; i<this->_size; ++i){
+        void *item=(char *)this->_data+i*this->_itemSize;
+        this->_serialize->append_n(this->_serialize,(const char *)item,this->_itemSize);
     }
 
     return this->_serialize->c_str(this->_serialize);
 }
 
 // 反序列化向量数据
-static bool _vector_in_data(vector this, const char *data) {
-    size_t offset = 0;
-    size_t totalSize = 0;
-    memcpy(&totalSize, data + offset, sizeof(totalSize));
-    offset += sizeof(totalSize);
+static bool _vector_in_data(vector this,const char *data){
+    size_t offset=0;
+    size_t totalSize=0;
+    memcpy(&totalSize,data+offset,sizeof(totalSize));
+    offset+=sizeof(totalSize);
 
-    size_t newSize = (totalSize - sizeof(size_t)) / this->_itemSize;
-    _vector_resize(this, newSize);
+    size_t newSize=(totalSize-sizeof(size_t))/this->_itemSize;
+    _vector_resize(this,newSize);
 
-    for (size_t i = 0; i < newSize; ++i) {
-        void *item = (char *)this->_data + i * this->_itemSize;
-        memcpy(item, data + offset, this->_itemSize);
-        offset += this->_itemSize;
+    for(size_t i=0; i<newSize; ++i){
+        void *item=(char *)this->_data+i*this->_itemSize;
+        memcpy(item,data+offset,this->_itemSize);
+        offset+=this->_itemSize;
     }
 
-    this->_size = newSize;
+    this->_size=newSize;
     return true;
 }
 
@@ -144,7 +145,7 @@ static bool _vector_in_data(vector this, const char *data) {
 static void _vector_resize(vector this,size_t newSize){
     this->_allocatedSize=newSize;
     this->_data=realloc(this->_data,this->_itemSize*this->_allocatedSize);
-    if (!this->_data) {
+    if(!this->_data){
         perror("Vector: _data 指针分配失败");
         exit(EXIT_FAILURE);
     }
@@ -152,16 +153,16 @@ static void _vector_resize(vector this,size_t newSize){
 }
 
 static vector _vector_init_func(vector this){
-    this->push_back = _vector_push_back;
-    this->remove = _vector_remove;
-    this->at = _vector_at;
-    this->size = _vector_size;
-    this->find = _vector_find;
-    this->free = _vector_delete;
-    this->clear = _vector_clear;
-    this->data = _vector_data;
-    this->in_data = _vector_in_data;
-    this->resize = _vector_resize;
+    this->push_back=_vector_push_back;
+    this->remove=_vector_remove;
+    this->at=_vector_at;
+    this->size=_vector_size;
+    this->find=_vector_find;
+    this->free=_vector_delete;
+    this->clear=_vector_clear;
+    this->data=_vector_data;
+    this->in_data=_vector_in_data;
+    this->resize=_vector_resize;
     return this;
 }
 
@@ -178,7 +179,7 @@ static void _init_all(vector this,const char type[]){
     this->_serialize=new_string();
     this->_typename=new_string();
     this->_data=malloc(this->_itemSize*this->_allocatedSize);
-    if (!this->_data) {
+    if(!this->_data){
         perror("Vector: _data 指针分配失败");
         exit(EXIT_FAILURE);
     }
@@ -189,7 +190,7 @@ static void _init_all(vector this,const char type[]){
 // 创建新的向量
 vector new_vector(const char *type){
     vector this=malloc(sizeof(Vector));
-    if (!this) {
+    if(!this){
         perror("Vector: this 指针分配失败");
         exit(EXIT_FAILURE);
     }

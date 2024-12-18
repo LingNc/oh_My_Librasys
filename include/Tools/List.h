@@ -16,7 +16,9 @@ typedef struct list_node
 } List_node;
 
 // List结构体: 动态数组，支持多类型数据
-typedef struct List
+typedef struct List List;
+typedef List *list;
+struct List
 {
   // 链表的头节点指针
   List_node *head;
@@ -74,7 +76,7 @@ typedef struct List
 
   // 创建新节点，存储值val的函数指针
   List_node *(*list_node_new)(const char *data);
-} List;
+} ;
 
 
 

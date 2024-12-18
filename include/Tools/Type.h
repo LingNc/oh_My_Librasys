@@ -106,6 +106,7 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
         _init_type_for(String) \
         _init_type_for(Book) \
         _init_type_for(Student) \
+        _init_type_for(Pair) \
         else{ \
             this->_copy_item=NULL; \
             this->_free_item=NULL; \

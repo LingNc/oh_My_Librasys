@@ -46,8 +46,8 @@ size_t find_index(database_index index, size_t key) {
     vector bucket = index->buckets[bucket_index];
     for (size_t i = 0; i < bucket->size(bucket); ++i) {
         pair p = (pair)bucket->at(bucket, i);
-        if (*(size_t *)p->key->data == key) {
-            return *(size_t *)p->value->data;
+        if (p->key == key) {
+            return p->value;
         }
     }
     return 0; // 未找到返回0
@@ -58,8 +58,7 @@ void add_index(database_index index, size_t key, size_t offset) {
     size_t hash = index->hash(key);
     size_t bucket_index = hash % index->bucket_count;
     vector bucket = index->buckets[bucket_index];
-    pair p = new_pair(&key, "size_t");
-    p->value->_in_data_item(p->value, &offset);
+    pair p = new_pair(key, offset);
     bucket->push_back(bucket, p);
 }
 
@@ -70,7 +69,7 @@ void remove_index(database_index index, size_t key) {
     vector bucket = index->buckets[bucket_index];
     for (size_t i = 0; i < bucket->size(bucket); ++i) {
         pair p = (pair)bucket->at(bucket, i);
-        if (*(size_t *)p->key->data == key) {
+        if (p->key == key) {
             bucket->remove(bucket, i);
             delete_pair(p);
             return;
@@ -117,8 +116,8 @@ void save_index(database_index index) {
         vector bucket = index->buckets[i];
         for (size_t j = 0; j < bucket->size(bucket); ++j) {
             pair p = (pair)bucket->at(bucket, j);
-            size_t key = *(size_t *)p->key->data;
-            size_t offset = *(size_t *)p->value->data;
+            size_t key = p->key;
+            size_t offset = p->value;
             fwrite(&key, sizeof(size_t), 1, indexFile);
             fwrite(&offset, sizeof(size_t), 1, indexFile);
         }
