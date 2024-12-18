@@ -99,7 +99,9 @@
         "type.h": "c",
         "assert.h": "c",
         "list.h": "c",
-        "student.h": "c"
+        "student.h": "c",
+        "*.def": "c",
+        "menu.h": "c"
     },
     "makefile.launchConfigurations": [
         {
@@ -115,6 +117,11 @@
         {
             "cwd": "/home/lingnc/oh_My_Librasys",
             "binaryPath": "/home/lingnc/oh_My_Librasys/main",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lea/oh_My_Librasys",
+            "binaryPath": "/home/lea/oh_My_Librasys/main",
             "binaryArgs": []
         }
     ]

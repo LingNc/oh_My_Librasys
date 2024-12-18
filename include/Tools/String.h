@@ -36,7 +36,7 @@ struct String{
     string(*assign_cstr)(string, const char *);
 
     // 写入 String 对象
-    // 返回写入���的字符串
+    // 返回写String的字符串
     string(*assign)(string, string);
 
     // 删除指定位置的字符
@@ -77,15 +77,15 @@ struct String{
 
     // 查找字符
     // 返回字符位置，未找到返回 npos
-    size_t(*find_char)(string,size_t,char);
+    size_t(*find_char)(string, char, size_t);
 
     // 查找 C 风格字符串
     // 返回字符串位置，未找到返回 npos
-    size_t(*find_cstr)(string,size_t,const char *);
+    size_t(*find_cstr)(string, const char *, size_t);
 
     // 查找 String 对象
     // 返回字符串位置，未找到返回 npos
-    size_t(*find)(string,size_t,string);
+    size_t(*find)(string, string, size_t);
 
     // 反向查找字符
     // 返回字符位置，未找到返回 npos
