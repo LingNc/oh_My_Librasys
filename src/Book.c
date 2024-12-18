@@ -10,6 +10,7 @@ void _book_in_data(book this, const char *data);
 book _book_copy(book this, book other);
 int _book_cmp(book this, book other);
 void _book_free(book this);
+book _book_init(book this);
 book new_book();
 void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status);
 
@@ -19,7 +20,7 @@ const char *_book_data(book this) {
     size_t len = sizeof(size_t) + this->ISBN->length(this->ISBN) + this->name->length(this->name) +
                  this->author->length(this->author) + this->publisher->length(this->publisher) +
                  this->time->length(this->time) + sizeof(this->status);
-    this->_serialize->append_n(this->_serialize, (const char *)&len, sizeof(len));
+    this->_serialize->append_n(this->_serialize, &len, sizeof(len));
 
     this->_serialize->append_n(this->_serialize, this->ISBN->c_str(this->ISBN), this->ISBN->length(this->ISBN));
     this->_serialize->append_n(this->_serialize, this->name->c_str(this->name), this->name->length(this->name));
@@ -99,7 +100,23 @@ void _book_free(book this) {
     if (this->_serialize) this->_serialize->free(this->_serialize);
     free(this);
 }
-
+// 初始化
+book _book_init(book this) {
+    this->ISBN = new_string();
+    this->name = new_string();
+    this->author = new_string();
+    this->publisher = new_string();
+    this->time = new_string();
+    this->_serialize = new_string();
+    this->status = 0;
+    this->init = _book_init;
+    this->data = _book_data;
+    this->in_data = _book_in_data;
+    this->copy = _book_copy;
+    this->cmp = _book_cmp;
+    this->free = _book_free;
+    return this;
+}
 // 初始化图书
 book new_book() {
     book this = (book)malloc(sizeof(Book));
@@ -107,19 +124,7 @@ book new_book() {
         perror("Book: this 指针分配失败");
         exit(EXIT_FAILURE);
     }
-    this->ISBN = new_string();
-    this->name = new_string();
-    this->author = new_string();
-    this->publisher = new_string();
-    this->time = new_string();
-    this->_serialize= new_string();
-    this->status = 0;
-    this->data = _book_data;
-    this->in_data = _book_in_data;
-    this->copy = _book_copy;
-    this->cmp = _book_cmp;
-    this->free = _book_free;
-    return this;
+    return _book_init(this);
 }
 
 void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status) {

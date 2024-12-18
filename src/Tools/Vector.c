@@ -41,6 +41,7 @@ static void _vector_push_back(vector this,const void *item){
         _grow(this);
     }
     void *dest=(char *)this->_data+this->_size*this->_itemSize;
+    this->_init_item(dest);
     if(this->_copy_item){
         this->_copy_item(dest,(void *)item);
     }
@@ -172,106 +173,94 @@ static void _init_all(vector this,const char *type){
     // 初始化成员函数
     _vector_init_func(this);
     // 初始化基本元素类型以及元素函数
-    this->_itemSize= _init_type(this,type);
-//     this->_itemSize=this->_itemSize = ({
-//     size_t result = 0;
-//     if (strcmp(type, "String") == 0) {
-//         result = ({
-//             this->_base = malloc(sizeof(String));
-//             ((String*)this->_base)->init((String *)this->_base);
-//             if (!this->_base) {
-//                 perror("Type: _base 指针分配失败");
-//                 exit(1);
-//             }
-//             this->_init_item = (void *(*)(void *))((String *)this->_base)->init;
-//             this->_copy_item = (void *(*)(void *, const void *))((String *)this->_base)->copy;
-//             this->_free_item = (void (*)(void *))((String *)this->_base)->free;
-//             this->_cmp_item = (int (*)(const void *, const void *))((String *)this->_base)->cmp;
-//             this->_data_item = (const char *(*)(void *))((String *)this->_base)->data;
-//             this->_in_data_item = (void (*)(void *, const char *))((String *)this->_base)->in_data;
-//             sizeof(String);
-//         });
-//     }
-//     if (strcmp(type, "Book") == 0) {
-//         result = ({
-//             this->_base = malloc(sizeof(Book));
-//             ((Book*)this->_base)->init((Book *)this->_base);
-//             if (!this->_base) {
-//                 perror("Type: _base 指针分配失败");
-//                 exit(1);
-//             }
-//             this->_init_item = (void *(*)(void *))((Book *)this->_base)->init;
-//             this->_copy_item = (void *(*)(void *, const void *))((Book *)this->_base)->copy;
-//             this->_free_item = (void (*)(void *))((Book *)this->_base)->free;
-//             this->_cmp_item = (int (*)(const void *, const void *))((Book *)this->_base)->cmp;
-//             this->_data_item = (const char *(*)(void *))((Book *)this->_base)->data;
-//             this->_in_data_item = (void (*)(void *, const char *))((Book *)this->_base)->in_data;
-//             sizeof(Book);
-//         });
-//     }
-//     if (strcmp(type, "Student") == 0) {
-//         result = ({
-//             this->_base = malloc(sizeof(Student));
-//             ((Student*)this->_base)->init((Student *)this->_base);
-//             if (!this->_base) {
-//                 perror("Type: _base 指针分配失败");
-//                 exit(1);
-//             }
-//             this->_init_item = (void *(*)(void *))((Student *)this->_base)->init;
-//             this->_copy_item = (void *(*)(void *, const void *))((Student *)this->_base)->copy;
-//             this->_free_item = (void (*)(void *))((Student *)this->_base)->free;
-//             this->_cmp_item = (int (*)(const void *, const void *))((Student *)this->_base)->cmp;
-//             this->_data_item = (const char *(*)(void *))((Student *)this->_base)->data;
-//             this->_in_data_item = (void (*)(void *, const char *))((Student *)this->_base)->in_data;
-//             sizeof(Student);
-//         });
-//     }
-//     if (strcmp(type, "Pair") == 0) {
-//         result = ({
-//             this->_base = malloc(sizeof(Pair));
-//             ((Pair*)this->_base)->init((Pair *)this->_base);
-//             if (!this->_base) {
-//                 perror("Type: _base 指针分配失败");
-//                 exit(1);
-//             }
-//             this->_init_item = (void *(*)(void *))((Pair *)this->_base)->init;
-//             this->_copy_item = (void *(*)(void *, const void *))((Pair *)this->_base)->copy;
-//             this->_free_item = (void (*)(void *))((Pair *)this->_base)->free;
-//             this->_cmp_item = (int (*)(const void *, const void *))((Pair *)this->_base)->cmp;
-//             this->_data_item = (const char *(*)(void *))((Pair *)this->_base)->data;
-//             this->_in_data_item = (void (*)(void *, const char *))((Pair *)this->_base)->in_data;
-//             sizeof(Pair);
-//         });
-//     } else {
-//         this->_copy_item = ((void *)0);
-//         this->_free_item = ((void *)0);
-//         this->_cmp_item = ((void *)0);
-//         if (strcmp(type, "int") == 0) {
-//             this->_dcmp_item = _default_cmp;
-//             result = sizeof(int);
-//         }
-//         if (strcmp(type, "float") == 0) {
-//             this->_dcmp_item = _default_cmp;
-//             result = sizeof(float);
-//         }
-//         if (strcmp(type, "double") == 0) {
-//             this->_dcmp_item = _default_cmp;
-//             result = sizeof(double);
-//         }
-//         if (strcmp(type, "size_t") == 0) {
-//             this->_dcmp_item = _default_cmp;
-//             result = sizeof(size_t);
-//         }
-//         if (strcmp(type, "char") == 0) {
-//             this->_dcmp_item = _default_cmp;
-//             result = sizeof(char);
-//         } else {
-//             assert(0&&"_init_type 使用了不受支持的数据类型"); 
-//             result = 0;
-//         }
-//     }
-//     result;
-// });
+    // this->_itemSize= _init_type(this,type);
+this->_itemSize = ({
+    size_t result = 0;
+    if (strcmp(type, "String") == 0) {
+        result = ({
+            this->_base = __init_String();
+            if (!this->_base) {
+                perror("Type: _base 指针分配失败");
+                exit(1);
+            }
+            this->_init_item = (void *(*)(void *))((String *)this->_base)->init;
+            this->_copy_item = (void *(*)(void *, const void *))((String *)this->_base)->copy;
+            this->_free_item = (void (*)(void *))((String *)this->_base)->free;
+            this->_cmp_item = (int (*)(const void *, const void *))((String *)this->_base)->cmp;
+            this->_data_item = (const char *(*)(void *))((String *)this->_base)->data;
+            this->_in_data_item = (void (*)(void *, const char *))((String *)this->_base)->in_data;
+            sizeof(String);
+        });
+    } else if (strcmp(type, "Book") == 0) {
+        result = ({
+            this->_base = __init_Book();
+            if (!this->_base) {
+                perror("Type: _base 指针分配失败");
+                exit(1);
+            }
+            this->_init_item = (void *(*)(void *))((Book *)this->_base)->init;
+            this->_copy_item = (void *(*)(void *, const void *))((Book *)this->_base)->copy;
+            this->_free_item = (void (*)(void *))((Book *)this->_base)->free;
+            this->_cmp_item = (int (*)(const void *, const void *))((Book *)this->_base)->cmp;
+            this->_data_item = (const char *(*)(void *))((Book *)this->_base)->data;
+            this->_in_data_item = (void (*)(void *, const char *))((Book *)this->_base)->in_data;
+            sizeof(Book);
+        });
+    } else if (strcmp(type, "Student") == 0) {
+        result = ({
+            this->_base = __init_Student();
+            if (!this->_base) {
+                perror("Type: _base 指针分配失败");
+                exit(1);
+            }
+            this->_init_item = (void *(*)(void *))((Student *)this->_base)->init;
+            this->_copy_item = (void *(*)(void *, const void *))((Student *)this->_base)->copy;
+            this->_free_item = (void (*)(void *))((Student *)this->_base)->free;
+            this->_cmp_item = (int (*)(const void *, const void *))((Student *)this->_base)->cmp;
+            this->_data_item = (const char *(*)(void *))((Student *)this->_base)->data;
+            this->_in_data_item = (void (*)(void *, const char *))((Student *)this->_base)->in_data;
+            sizeof(Student);
+        });
+    } else if (strcmp(type, "Pair") == 0) {
+        result = ({
+            this->_base = __init_Pair();
+            if (!this->_base) {
+                perror("Type: _base 指针分配失败");
+                exit(1);
+            }
+            this->_init_item = (void *(*)(void *))((Pair *)this->_base)->init;
+            this->_copy_item = (void *(*)(void *, const void *))((Pair *)this->_base)->copy;
+            this->_free_item = (void (*)(void *))((Pair *)this->_base)->free;
+            this->_cmp_item = (int (*)(const void *, const void *))((Pair *)this->_base)->cmp;
+            this->_data_item = (const char *(*)(void *))((Pair *)this->_base)->data;
+            this->_in_data_item = (void (*)(void *, const char *))((Pair *)this->_base)->in_data;
+            sizeof(Pair);
+        });
+    } else {
+        this->_copy_item = NULL;
+        this->_free_item = NULL;
+        this->_cmp_item = NULL;
+        if (strcmp(type, "int") == 0) {
+            this->_dcmp_item = _default_cmp;
+            result = sizeof(int);
+        } else if (strcmp(type, "float") == 0) {
+            this->_dcmp_item = _default_cmp;
+            result = sizeof(float);
+        } else if (strcmp(type, "double") == 0) {
+            this->_dcmp_item = _default_cmp;
+            result = sizeof(double);
+        } else if (strcmp(type, "size_t") == 0) {
+            this->_dcmp_item = _default_cmp;
+            result = sizeof(size_t);
+        } else if (strcmp(type, "char") == 0) {
+            this->_dcmp_item = _default_cmp;
+            result = sizeof(char);
+        } else {
+            result = 0;
+        }
+    }
+    result;
+});
     // 初始化自身变量
     this->npos=(size_t)-1;
     this->_allocatedSize=10;
