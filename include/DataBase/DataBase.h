@@ -27,11 +27,11 @@ struct DataBase {
     // 添加数据
     void (*add)(dataBase, void *);
     // 删除数据
-    void (*rm)(dataBase, void *);
+    void (*rm)(dataBase, size_t);
     // 保存数据库到文件
     void (*save)(dataBase);
     // 查找数据
-    const vector *(*find)(dataBase, const void *);
+    Vector* (*find)(dataBase, const void *);
     // 通过键查找数据
     void *(*find_key)(dataBase, size_t);
     // 清理数据库

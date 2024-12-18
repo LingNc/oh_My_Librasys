@@ -7,7 +7,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g -I include
 
 # 链接选项
-LDFLAGS = -lncursesw -lmenuw -lform 
+LDFLAGS = -lncursesw -lmenuw -lform
 
 # 目标文件
 TARGET = main
@@ -31,17 +31,15 @@ $(OBJDIR):
 	mkdir -p $(OBJDIR) $(dir $(OBJS))
 
 # 编译目标
-$(TARGET): $(OBJDIR) $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-# 编译规则
+# 编译源文件为对象文件
 $(OBJDIR)/%.o: src/%.c | $(OBJDIR)
-	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# 编译测试文件
+# 编译测试文件为对象文件
 $(OBJDIR)/test_%.o: test/%.c | $(OBJDIR)
-	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # 链接测试文件
@@ -53,7 +51,15 @@ $(OBJDIR)/test_%: $(OBJDIR)/test_%.o $(filter-out $(OBJDIR)/main.o, $(OBJS))
 test: $(TEST_TARGETS)
 	for test in $(TEST_TARGETS); do ./$$test; done
 
-# 清理
+# 清理生成的文件
 .PHONY: clean
 clean:
 	rm -rf $(OBJDIR) $(TARGET) $(TEST_TARGETS)
+
+# 预处理器输出
+.PHONY: preprocess
+preprocess: $(SRCS)
+	@mkdir -p preprocess
+	@for src in $^; do \
+		$(CC) $(CFLAGS) -E $$src -o preprocess/`basename $$src .c`.i; \
+	done

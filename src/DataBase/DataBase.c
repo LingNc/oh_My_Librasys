@@ -9,7 +9,7 @@ static void _init_all(dataBase this, const char *filePath);
 static void _database_add(dataBase this, void *data);
 static void _database_remove(dataBase this, size_t key);
 static void _database_save(dataBase this);
-static const vector *_database_find(dataBase this, const void *data);
+static vector _database_find(dataBase this, const void *data);
 static void *_database_find_key(dataBase this, size_t key);
 static void _init_func(dataBase this);
 void clean_database(dataBase this);
@@ -109,7 +109,7 @@ static void _database_save(dataBase this) {
 }
 
 // 查找数据
-static const vector *_database_find(dataBase this, const void *data) {
+static vector _database_find(dataBase this, const void *data) {
     this->_find_buffer->clear(this->_find_buffer);
     FILE *file = fopen(this->filePath->c_str(this->filePath), "rb");
     if (!file) {

@@ -167,12 +167,12 @@ static vector _vector_init_func(vector this){
 }
 
 // 全部初始化
-static void _init_all(vector this,const char type[]){
+static void _init_all(vector this,const char *type){
     this->init=_init_all;
     // 初始化成员函数
     _vector_init_func(this);
     // 初始化基本元素类型以及元素函数
-    // this->_itemSize=_init_type(this,type);
+    // this->_itemSize=(size_t)_init_type(this,type);
     this->_itemSize=this->_itemSize=({
         size_t result=0;
     if(strcmp(type,"String")==0){

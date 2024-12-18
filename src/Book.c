@@ -1,11 +1,12 @@
 #include "Book.h"
 #include "Tools/String.h"
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 // 函数声明
 const char *_book_data(book this);
-int _book_in_data(book this, const char *data);
+void _book_in_data(book this, const char *data);
 book _book_copy(book this, book other);
 int _book_cmp(book this, book other);
 void _book_free(book this);
@@ -31,7 +32,7 @@ const char *_book_data(book this) {
 }
 
 // 反序列化数据实现
-int _book_in_data(book this, const char *data) {
+void _book_in_data(book this, const char *data) {
     size_t ptr = 0;
     size_t len = 0;
     memcpy(&len, data + ptr, sizeof(len));
@@ -55,7 +56,6 @@ int _book_in_data(book this, const char *data) {
     memcpy(&this->status, data + ptr, sizeof(this->status));
     ptr += sizeof(this->status);
 
-    return 1; // 表示成功
 }
 
 // 复制图书数据实现
@@ -91,8 +91,13 @@ int _book_cmp(book this, book other) {
 
 // 释放图书数据实现
 void _book_free(book this) {
-    // 如果有动态分配的内存，在这里释放
-    // 目前没有动态分配的内存，所以不需要做任何事情
+    if (this->ISBN) this->ISBN->free(this->ISBN);
+    if (this->name) this->name->free(this->name);
+    if (this->author) this->author->free(this->author);
+    if (this->publisher) this->publisher->free(this->publisher);
+    if (this->time) this->time->free(this->time);
+    if (this->_serialize) this->_serialize->free(this->_serialize);
+    free(this);
 }
 
 // 初始化图书

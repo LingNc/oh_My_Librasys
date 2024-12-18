@@ -1,5 +1,6 @@
 #include "uiStudent.h"
 #include "Student.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -94,12 +95,12 @@ void free_uistudent(uistudent this) {
 student back_to_student(uistudent this) {
     student student_new = new_student();
     student_new->id = this->id;
-    student_new->name->assign(student_new->name, this->name);
-    student_new->class->assign(student_new->class, this->class);
-    student_new->department->assign(student_new->department, this->department);
+    student_new->name->assign_cstr(student_new->name, this->name);
+    student_new->class->assign_cstr(student_new->class, this->class);
+    student_new->department->assign_cstr(student_new->department, this->department);
     student_new->borrowedCount = this->borrowedCount;
-    student_new->borrowedDate->assign(student_new->borrowedDate, this->borrowedDate);
-    student_new->returnDate->assign(student_new->returnDate, this->returnDate);
+    student_new->borrowedDate->assign_cstr(student_new->borrowedDate, this->borrowedDate);
+    student_new->returnDate->assign_cstr(student_new->returnDate, this->returnDate);
     // 需要处理 books 数组的转换
     // ...
     return student_new;
