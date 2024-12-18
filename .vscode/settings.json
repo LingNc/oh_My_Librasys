@@ -101,7 +101,8 @@
         "list.h": "c",
         "student.h": "c",
         "*.def": "c",
-        "menu.h": "c"
+        "menu.h": "c",
+        "screen.h": "c"
     },
     "makefile.launchConfigurations": [
         {

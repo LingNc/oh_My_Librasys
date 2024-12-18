@@ -50,9 +50,6 @@ static void _print(const List *self);
 // 获取链表中元素的数量
 static size_t _size(List *self);
 
-// 获取链表的容量
-static size_t _capacity(List *self);
-
 // 查找链表中的数据
 static int _find(const List *self, const char *target);
 
