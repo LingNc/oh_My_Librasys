@@ -93,7 +93,7 @@ static void _database_save(dataBase this) {
     for (size_t i = 0; i < dataCount; ++i) {
         void *data = this->_buffer->at(this->_buffer, i);
         const char *serializedData = this->_buffer->_data_item(data);
-        size_t dataSize = *(size_t *)serializedData; // 假设序列化数据的开头包含数据大小
+        size_t dataSize = *(size_t*)serializedData; // 假设序列化数据的开头包含数据大小
         char isDeleted = 1;
         size_t offset = ftell(file);
         fwrite(&isDeleted, sizeof(char), 1, file);

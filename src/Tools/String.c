@@ -104,7 +104,8 @@ static string _string_append_string(string this,string other){
 
 // append_n 函数实现
 static string _string_append_n(string this, const char *s, size_t n) {
-    size_t len = strnlen(s, n);
+    // size_t len = strnlen(s, n);
+    size_t len=n;
     _grow(this, this->_length + len + 1);
     memcpy(this->_data + this->_length, s, len);
     this->_length += len;

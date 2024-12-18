@@ -20,7 +20,7 @@ const char *_book_data(book this) {
     size_t len = sizeof(size_t) + this->ISBN->length(this->ISBN) + this->name->length(this->name) +
                  this->author->length(this->author) + this->publisher->length(this->publisher) +
                  this->time->length(this->time) + sizeof(this->status);
-    this->_serialize->append_n(this->_serialize, &len, sizeof(len));
+    this->_serialize->append_n(this->_serialize, (const char*)&len, sizeof(len));
 
     this->_serialize->append_n(this->_serialize, this->ISBN->c_str(this->ISBN), this->ISBN->length(this->ISBN));
     this->_serialize->append_n(this->_serialize, this->name->c_str(this->name), this->name->length(this->name));
