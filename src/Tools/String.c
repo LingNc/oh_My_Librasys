@@ -395,6 +395,10 @@ string new_string(){
     return this;
 }
 
+string __init_String(){
+    return new_string();
+}
+
 void init_string(string this){
     _init_all(this);
 }

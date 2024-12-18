@@ -123,6 +123,11 @@
             "cwd": "/home/lea/oh_My_Librasys",
             "binaryPath": "/home/lea/oh_My_Librasys/main",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/LingNc/oh_My_Librasys",
+            "binaryPath": "/home/LingNc/oh_My_Librasys/main",
+            "binaryArgs": []
         }
     ]
 }

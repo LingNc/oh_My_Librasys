@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <Tools/String.h>
+#include "Type.h"
 // #include <Book.h>
 // #include <Student.h>
 
@@ -39,7 +40,7 @@ struct Vector
     // 无返回值
     void (*free)(vector this);
 
-    // 清空向��
+    // 清空向量
     // 无返回值
     void (*clear)(vector this);
 
@@ -74,7 +75,7 @@ struct Vector
     // 序列化字符串
     string _serialize;
 
-    // ��个元素大小
+    // 单个元素大小
     size_t _itemSize;
 
     // 已分配的内存大小
@@ -88,16 +89,14 @@ struct Vector
 };
 
 // 创建新的向量
-// 返回向量指针
 vector new_vector(const char *type);
 
 // 对已有的 Vector 初始化
 void init_vector(vector this, const char *type);
 
 // 释放向量
-// 返回空向量指针
 void delete_vector(vector this);
 
 #define vector(TYPE) new_vector(#TYPE)
-// #define new_vector(TYPE) new_vector(#TYPE)
+
 #endif

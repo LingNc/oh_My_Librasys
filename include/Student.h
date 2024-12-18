@@ -27,6 +27,7 @@ struct Student {
 
 void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate);
 
-student new_student();
+// 初始化 Student 对象
+student __init_Student();
 
 #endif

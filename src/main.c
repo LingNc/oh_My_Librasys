@@ -13,6 +13,8 @@ int main(){
     dataBase test=database("db/test.bin",Book);
     book b=new_book();
     load_book(b,1234567,"918904271092","高数","李四","人民日报","",1);
+    test->add(test,b);
+    test->save(test);
     uibook c=new_from_book(b);
     uiBook bop[20];
 
