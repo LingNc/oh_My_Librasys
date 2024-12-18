@@ -2,16 +2,16 @@
 CC = gcc
 
 # 编译选项
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -I UI_include -I ../../include
 
 # 链接选项
-LDFLAGS = -lncursesw -lmenuw
+LDFLAGS = -lncursesw -lmenuw -lform
 
 # 目标文件
 TARGET = main
 
 # 源文件
-SRCS = menu.c utils.c screen.c main.c terminal.c list.c
+SRCS = menu.c utils.c screen.c main.c list.c window.c
 
 # 生成的对象文件
 OBJS = $(SRCS:.c=.o)
