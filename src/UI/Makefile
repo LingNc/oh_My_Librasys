@@ -5,13 +5,13 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g -I UI_include -I ../../include
 
 # 链接选项
-LDFLAGS = -lncursesw -lmenuw -lform
+LDFLAGS = -lncursesw -lmenuw -lform 
 
 # 目标文件
 TARGET = main
 
 # 源文件
-SRCS = menu.c utils.c screen.c main.c list.c window.c
+SRCS = $(wildcard ../../src/Tools/*.c ../../src/DataBase/*.c ../../src/*.c *.c ../../src/Book.c)
 
 # 生成的对象文件
 OBJS = $(SRCS:.c=.o)

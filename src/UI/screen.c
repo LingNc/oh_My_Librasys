@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "screen.h"
-#include "menu.h"
+#include "UI/screen.h"
+#include "UI/menu.h"
 
 void push_screen(Stack *stack, Screen screen)
 {

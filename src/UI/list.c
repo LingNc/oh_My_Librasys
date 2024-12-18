@@ -1,25 +1,25 @@
-#include "utils.h"
-#include "list.h"
+#include "UI/utils.h"
+#include "UI/list.h"
 #include <string.h>
 
-uiBook book_set[LIST_SIZE] = {
-    {8479248713,"9787547008592", "数学之美", "李明", "人民教育出版社","2022-10-10", 0},
-    {8479248713,"9787547008593", "物理世界", "张伟", "科学出版社","2022-10-10",1},
-    {8479248713,"9787547008594", "化学基础", "王芳", "高等教育出版社","2022-10-10", 0},
-    {8479248713,"9787547008595", "生物学概论", "陈强", "清华大学出版社","2022-10-10", 1},
-    {8479248713,"9787547008596", "地理探索", "赵敏", "北京大学出版社","2022-10-10", 0},
-    {8479248713,"9787547008597", "历史长河", "孙丽", "复旦大学出版社","2022-10-10", 1},
-    {8479248713,"9787547008598", "文学欣赏", "周勇", "上海交通大学出版社","2022-10-10", 1},
-    {8479248713,"9787547008599", "艺术概论", "吴静", "浙江大学出版社", "2022-10-10",1},
-    {8479248713,"9787547008600", "经济学原理", "郑刚", "南京大学出版社", "2022-10-10",1},
-    {8479248713,"9787547008601", "管理学基础", "林霞", "武汉大学出版社","2022-10-10", 1},
-    {8479248713,"9787547008602", "法学导论", "黄磊", "中山大学出版社", "2022-10-10",0},
-    {8479248713,"9787547008603", "教育心理学", "徐娟", "厦门大学出版社", "2022-10-10",0},
-    {8479248713,"9787547008604", "计算机科学", "高明", "哈尔滨工业大学出版社", "2022-10-10",1},
-    {8479248713,"9787547008605", "机械工程", "杨洋", "西安交通大学出版社", "2022-10-10",1},
-};
+// uiBook book_set[LIST_SIZE] = {
+//     {8479248713,"9787547008592", "数学之美", "李明", "人民教育出版社","2022-10-10", 0},
+//     {8479248713,"9787547008593", "物理世界", "张伟", "科学出版社","2022-10-10",1},
+//     {8479248713,"9787547008594", "化学基础", "王芳", "高等教育出版社","2022-10-10", 0},
+//     {8479248713,"9787547008595", "生物学概论", "陈强", "清华大学出版社","2022-10-10", 1},
+//     {8479248713,"9787547008596", "地理探索", "赵敏", "北京大学出版社","2022-10-10", 0},
+//     {8479248713,"9787547008597", "历史长河", "孙丽", "复旦大学出版社","2022-10-10", 1},
+//     {8479248713,"9787547008598", "文学欣赏", "周勇", "上海交通大学出版社","2022-10-10", 1},
+//     {8479248713,"9787547008599", "艺术概论", "吴静", "浙江大学出版社", "2022-10-10",1},
+//     {8479248713,"9787547008600", "经济学原理", "郑刚", "南京大学出版社", "2022-10-10",1},
+//     {8479248713,"9787547008601", "管理学基础", "林霞", "武汉大学出版社","2022-10-10", 1},
+//     {8479248713,"9787547008602", "法学导论", "黄磊", "中山大学出版社", "2022-10-10",0},
+//     {8479248713,"9787547008603", "教育心理学", "徐娟", "厦门大学出版社", "2022-10-10",0},
+//     {8479248713,"9787547008604", "计算机科学", "高明", "哈尔滨工业大学出版社", "2022-10-10",1},
+//     {8479248713,"9787547008605", "机械工程", "杨洋", "西安交通大学出版社", "2022-10-10",1},
+// };
 
-void book_list(uiBook* book_set)
+void book_list(uiBook** book_set)
 {
 
     char* menu_choices[] = {
@@ -35,7 +35,6 @@ void book_list(uiBook* book_set)
         "管理员",
         "时间",
     };
-    uiBook* books = book_set;
     
     // 更新终端尺寸
     update_terminal_size();
@@ -100,7 +99,7 @@ void book_list(uiBook* book_set)
 REFRESH_BOOK_PAD:
     // 绘制列表项到 pad 上
     for (int i = 0; i < LIST_SIZE; i++) {
-        print_list(books, pad, i);
+        print_list(book_set, pad, i);
     }
 
     int scroll_offset = 0;    // 滚动偏移量
@@ -108,7 +107,7 @@ REFRESH_BOOK_PAD:
 
     // 高亮当前行
     wattron(pad, A_REVERSE);
-    print_list(books, pad, current_row);
+    print_list(book_set, pad, current_row);
     wattroff(pad, A_REVERSE);
 
     // 打印表头
@@ -138,7 +137,7 @@ REFRESH_BOOK_PAD:
             case KEY_UP:
                 if (active_window == PAD && current_row > 0) {
                     // 去掉旧的高亮
-                    print_list(books, pad, current_row);
+                    print_list(book_set, pad, current_row);
                     current_row--;
                     if (current_row < scroll_offset && scroll_offset > 0) {
                         scroll_offset--;
@@ -148,7 +147,7 @@ REFRESH_BOOK_PAD:
             case KEY_DOWN:
                 if (active_window == PAD && current_row < LIST_SIZE - 1) {
                     // 去掉旧的高亮
-                    print_list(books, pad, current_row);
+                    print_list(book_set, pad, current_row);
                     current_row++;
                     if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height) {
                         scroll_offset++;
@@ -225,7 +224,7 @@ REFRESH_BOOK_PAD:
                     }
                 } else if (active_window == PAD) {
                     // 弹出确认窗口
-                    show_confirm_window(&books[current_row]);
+                    show_confirm_window(book_set[current_row]);
                     werase(pad);
                     goto REFRESH_BOOK_PAD;
                 
@@ -248,14 +247,14 @@ REFRESH_BOOK_PAD:
         if (active_window == PAD) 
         {
             wattron(pad, A_REVERSE);
-            print_list(books, pad, current_row);
+            print_list(book_set, pad, current_row);
             wattroff(pad, A_REVERSE);
             set_menu_fore(menu, COLOR_PAIR(UNHEIGHT));
 	        set_menu_back(menu, COLOR_PAIR(UNHEIGHT));
 
         }else
         {
-            print_list(books, pad, current_row);
+            print_list(book_set, pad, current_row);
             set_menu_fore(menu, COLOR_PAIR(HEIGHTLIGHT) | A_REVERSE);
 	        set_menu_back(menu, COLOR_PAIR(FONT));
         }
@@ -273,7 +272,7 @@ REFRESH_BOOK_PAD:
     }
 }
 
-void stu_list(Student* student_set)
+void stu_list(uiStudent** student_set)
 {
     char* menu_choices[] = {
         "添加学生",
@@ -284,7 +283,7 @@ void stu_list(Student* student_set)
     uiBook mybook[] = {{21378783974, "9787547008603", "教育心理学", "徐娟", "厦门大学出版社",  "2020-01-27", 1},
         {21378783974, "9787547008604", "计算机科学", "高明", "哈尔滨工业大学出版社",  "2020-01-27", 0},
         {21378783974, "9787547008605", "机械工程", "杨洋", "西安交通大学出版社",  "2020-01-27", 0},};
-    Student cur_student = {
+    uiStudent cur_student = {
     "54326173883", "张佳玮", "计算机21-2", "计算机科学与技术", 21,"2021-03-22", "2032-10-21",{&mybook[0],&mybook[1],&mybook[2],NULL }};
 
     Infoname infoname = {
@@ -294,7 +293,7 @@ void stu_list(Student* student_set)
         "时间",
     };
     
-    Student* student = student_set;
+    // uiStudent* student = student_set;
     // 更新终端尺寸
     update_terminal_size();
 
@@ -313,9 +312,9 @@ void stu_list(Student* student_set)
     WINDOW *info_win = creat_win(info_height, info_width, info_start_y, info_start_x);
     mvwprintw(info_win, 0, (terminal.width - 2 - strlen("学生管理界面")) / 2, "学生管理界面");
     //当前学生信息打印
-    MenuInfo info = {cur_student.Borrowed_Count, 60-cur_student.Borrowed_Count, "", ""};
+    MenuInfo info = {cur_student.borrowedCount, 60-cur_student.borrowedCount, "", ""};
     strncpy(info.name, cur_student.name, sizeof(info.name) - 1);
-    strncpy(info.date, cur_student.borrowed_date, sizeof(info.date) - 1);
+    strncpy(info.date, cur_student.borrowedDate, sizeof(info.date) - 1);
     print_info(info_win,&infoname, &info);
     wrefresh(info_win);
 
@@ -371,7 +370,7 @@ void stu_list(Student* student_set)
 REFRESH_STU_PAD:
     // 绘制列表项到 pad 上
     for (int i = 0; i < LIST_SIZE; i++) {      //长度需要获得
-        print_student_list(student, pad, i);
+        print_student_list(student_set, pad, i);
     }
 
 
@@ -526,7 +525,7 @@ REFRESH_STU_PAD:
 
 
 
-void stu_borrow_list(Student* stu)
+void stu_borrow_list(uiStudent* stu)
 {
 
     Infoname infoname = {
@@ -535,7 +534,7 @@ void stu_borrow_list(Student* stu)
         "学院",
         "可借数量",
     };
-    Student* student = stu;
+    //uiStudent* student = stu;
     
     // 更新终端尺寸
     update_terminal_size();
@@ -568,7 +567,7 @@ void stu_borrow_list(Student* stu)
 REFRESH_PAD:
     // 绘制列表项到 pad 上
     for (int i = 0; i < LIST_SIZE; i++) {
-        print_list(*student->books, pad, i);
+        print_list(stu->books, pad, i);
     }
 
     int scroll_offset = 0;    // 滚动偏移量
@@ -576,7 +575,7 @@ REFRESH_PAD:
 
     // 高亮当前行
     wattron(pad, A_REVERSE);
-    print_list(*student->books, pad, current_row);
+    print_list(stu->books, pad, current_row);
     wattroff(pad, A_REVERSE);
 
     // 打印表头
@@ -605,7 +604,7 @@ REFRESH_PAD:
             case KEY_UP:
                 if ( current_row > 0) {
                     // 去掉旧的高亮
-                    print_list(*student->books, pad, current_row);
+                    print_list(stu->books, pad, current_row);
                     current_row--;
                     if (current_row < scroll_offset && scroll_offset > 0) {
                         scroll_offset--;
@@ -615,7 +614,7 @@ REFRESH_PAD:
             case KEY_DOWN:
                 if (current_row < LIST_SIZE - 1) {
                     // 去掉旧的高亮
-                    print_list(*student->books, pad, current_row);
+                    print_list(stu->books, pad, current_row);
                     current_row++;
                     if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height) {
                         scroll_offset++;
@@ -624,7 +623,7 @@ REFRESH_PAD:
                 break;
             case 10: // 回车键
                     // 弹出确认窗口
-                    show_confirm_window(student->books[current_row]);
+                    show_confirm_window(stu->books[current_row]);
                     werase(pad);
                     goto REFRESH_PAD;
                 break;
@@ -636,7 +635,7 @@ REFRESH_PAD:
 
         // 设置新的高亮
             wattron(pad, A_REVERSE);
-            print_list(*student->books, pad, current_row);
+            print_list(stu->books, pad, current_row);
             wattroff(pad, A_REVERSE);
         // 刷新 pad 的视图
         prefresh(pad, scroll_offset, 0, main_win_start_y + 1, main_win_start_x + 1, main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);

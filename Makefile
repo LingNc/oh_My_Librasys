@@ -4,13 +4,16 @@
 CC = gcc
 
 # 编译器选项
-CFLAGS = -Wall -g -I include
+CFLAGS = -Wall -Wextra -g -I include
+
+# 链接选项
+LDFLAGS = -lncursesw -lmenuw -lform 
 
 # 目标文件
 TARGET = main
 
 # 查找所有源文件
-SRCS = $(wildcard src/Tools/*.c src/DataBase/*.c src/*.c)
+SRCS = $(wildcard src/Tools/*.c src/DataBase/*.c src/*.c src/UI/*.c)
 
 # 对象文件目录
 OBJDIR = build
@@ -29,7 +32,7 @@ $(OBJDIR):
 
 # 编译目标
 $(TARGET): $(OBJDIR) $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
 
 # 编译规则
 $(OBJDIR)/%.o: src/%.c | $(OBJDIR)
@@ -43,7 +46,7 @@ $(OBJDIR)/test_%.o: test/%.c | $(OBJDIR)
 
 # 链接测试文件
 $(OBJDIR)/test_%: $(OBJDIR)/test_%.o $(filter-out $(OBJDIR)/main.o, $(OBJS))
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 # 运行所有测试
 .PHONY: test

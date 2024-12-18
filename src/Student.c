@@ -6,10 +6,10 @@
 
 // 函数声明
 student new_student();
-void borrow_book(student this, book b);
-void return_book(student this, book b);
-const char *_student_data(student this);
-int _student_in_data(student this, const char *data);
+static void borrow_book(student this, book b);
+static void return_book(student this, book b);
+static const char *_student_data(student this);
+static int _student_in_data(student this, const char *data);
 void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate);
 
 // 初始化学生

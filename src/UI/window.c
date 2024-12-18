@@ -1,5 +1,5 @@
-#include "window.h"
-#include "list.h"
+#include "UI/window.h"
+#include "UI/list.h"
 #include <string.h>
 #include <ctype.h>
 #include <locale.h>
@@ -33,7 +33,7 @@ void show_confirm_window(uiBook* book)
     keypad(win, TRUE);
 
     mvwprintw(win, 1, 1, "选择了《%s》, 请输入你你想要的操作!", book->name);
-    mvwprintw(win, 3, 1, "ISBN: %s", book->isbn);
+    mvwprintw(win, 3, 1, "ISBN: %s", book->ISBN);
     mvwprintw(win, 4, 1, "书名: %s", book->name);
     mvwprintw(win, 5, 1, "作者: %s", book->author);
     mvwprintw(win, 6, 1, "出版社: %s", book->publisher);
@@ -76,7 +76,7 @@ void show_confirm_window(uiBook* book)
                     new_info = input_info("ISBN", "书名", "作者", "出版社");
                     if (new_info == NULL)
                         return;
-                    strcpy(book->isbn, new_info->info1);
+                    strcpy(book->ISBN, new_info->info1);
                     strcpy(book->name, new_info->info2);
                     strcpy(book->author, new_info->info3);
                     strcpy(book->publisher, new_info->info4);
@@ -93,7 +93,7 @@ void show_confirm_window(uiBook* book)
     }
 }
 
-void show_student_confirm_window(Student* student)
+void show_student_confirm_window(uiStudent* student)
 {
     WINDOW* win = newwin(terminal.height / 2, terminal.width / 2, terminal.height / 4, terminal.width / 4);
     box(win, 0, 0);

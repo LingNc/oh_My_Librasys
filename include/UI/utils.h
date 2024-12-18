@@ -46,9 +46,9 @@ void resize_menu(MENU *menu, WINDOW **win);
 
 void refresh_win(WINDOW** win);
 
-void print_list(uiBook* books, WINDOW* pad, int i);
+void print_list(uiBook** books, WINDOW* pad, int i);
 
-void print_student_list(Student* students, WINDOW* pad, int i);
+void print_student_list(uiStudent** students, WINDOW* pad, int i);
 
 void update_window_focus(WINDOW *win, bool focused);
 

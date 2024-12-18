@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "uiBook.h"
+#include "uiStudent.h"
 
 
 #define LIST_SIZE 150      // 列表项总数
@@ -14,11 +16,11 @@
 #define AUTHOR_WIDTH 20  // 作者
 #define PUBLISHER_WIDTH 40  // 出版社
 #define NUM_WIDTH 4   // 总数量
-#define MAX_AVAILABLE 60   // 最大可接阅数
+//#define MAX_AVAILABLE 60   // 最大可接阅数
 
 // 图书列表项结构体
 // typedef struct {
-//     char isbn[ISBN_WIDTH];
+//     char ISBN[ISBN_WIDTH];
 //     char name[BOOKNAME_WIDTH];
 //     char author[AUTHOR_WIDTH];
 //     char publisher[PUBLISHER_WIDTH];
@@ -26,27 +28,27 @@
 // } uiBook;
 
 // 图书列表项结构体
-typedef struct {
-    size_t id;
-    char isbn[ISBN_WIDTH];
-    char name[BOOKNAME_WIDTH];
-    char author[AUTHOR_WIDTH];
-    char publisher[PUBLISHER_WIDTH];
-    char time[20];
-    int status;
-} uiBook;
+// typedef struct {
+//     size_t id;
+//     char ISBN[ISBN_WIDTH];
+//     char name[BOOKNAME_WIDTH];
+//     char author[AUTHOR_WIDTH];
+//     char publisher[PUBLISHER_WIDTH];
+//     char time[20];
+//     int status;
+// } uiBook;
 
-// 学生列表项结构体
-typedef struct {
-    char id[30];          // 学生ID
-    char name[20];        // 学生姓名
-    char class[20];  // 班级
-    char department[40];  // 学院
-    int Borrowed_Count;     //以借阅数量
-    char borrowed_date[20];          // 借阅日期
-    char return_date[20];            // 归还日期
-    uiBook *books[MAX_AVAILABLE];  // 借阅图书的信息
-} Student;
+// // 学生列表项结构体
+// typedef struct {
+//     char id[30];          // 学生ID
+//     char name[20];        // 学生姓名
+//     char class[20];  // 班级
+//     char department[40];  // 学院
+//     int borrowedCount;     //以借阅数量
+//     char borrowedDate[20];          // 借阅日期
+//     char return_date[20];            // 归还日期
+//     uiBook *books[MAX_AVAILABLE];  // 借阅图书的信息
+// } uiStudent;
 
 typedef struct {
     char info1[30];
@@ -69,8 +71,8 @@ typedef struct {
     char field4[20];
 }Infoname;//菜单栏上的信息名
 
-void book_list(uiBook* books);
-void stu_list(Student* books);
-void stu_borrow_list(Student* student);
+void book_list(uiBook** books);
+void stu_list(uiStudent** books);
+void stu_borrow_list(uiStudent* student);
 
 #endif

@@ -5,7 +5,7 @@
 
 void show_confirm_window(uiBook* book);
 
-void show_student_confirm_window(Student* student);
+void show_student_confirm_window(uiStudent* student);
 
 Inputinfo* input_info(char* a, char* b, char *c, char*d);
 
