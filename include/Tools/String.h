@@ -144,9 +144,8 @@ struct String{
 };
 
 // 新建 String 对象
-// 无返回值
 string new_string();
-
+string __init_String();
 // 初始化 String 对象
 void init_string(string this);
 

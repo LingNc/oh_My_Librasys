@@ -112,3 +112,8 @@ void load_student(student this, size_t id, const char *name, const char *class, 
     this->borrowedDate->assign_cstr(this->borrowedDate, borrowedDate);
     this->returnDate->assign_cstr(this->returnDate, returnDate);
 }
+
+// 初始化 Student 对象的函数
+student __init_Student() {
+    return new_student();
+}

@@ -223,3 +223,4 @@ void clean_database(dataBase this) {
     rebuild_index(this->_index, this->filePath->c_str(this->filePath));
 }
 
+

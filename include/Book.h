@@ -19,9 +19,11 @@ struct Book {
     string _serialize;
     _init_default_func(book);
 };
+book new_book();
+
+// 初始化 Book 对象
+book __init_Book();
 
 void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status);
-
-book new_book();
 
 #endif

@@ -131,3 +131,8 @@ void load_book(book this, size_t id, const char *ISBN, const char *name, const c
     this->time->assign_cstr(this->time, time);
     this->status = status;
 }
+
+// 初始化 Book 对象的函数
+book __init_Book() {
+    return new_book();
+}
