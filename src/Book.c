@@ -1,4 +1,5 @@
 #include "Book.h"
+#include "Tools/String.h"
 #include <string.h>
 #include <stdlib.h>
 
