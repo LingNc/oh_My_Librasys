@@ -57,11 +57,11 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
             perror("Type: _base 指针分配失败"); \
             exit(EXIT_FAILURE); \
         } \
-        this->_init_item = (void (*)(void *))((TYPE *)this->_base)->init; \
-        this->_copy_item = (void *(*)(void *, const void *))((TYPE *)this->_base)->copy; \
+        this->_init_item = (void *(*)(void *))((TYPE *)this->_base)->init; \
+        this->_copy_item = (void *(*)(void *,  const void *))((TYPE *)this->_base)->copy; \
         this->_free_item = (void (*)(void *))((TYPE *)this->_base)->free; \
         this->_cmp_item = (int (*)(const void *, const void *))((TYPE *)this->_base)->cmp; \
-        this->_data_item = (const char *(*)(const void *))((TYPE *)this->_base)->data; \
+        this->_data_item = (const char *(*)(void *))((TYPE *)this->_base)->data; \
         this->_in_data_item = (void (*)(void *, const char *))((TYPE *)this->_base)->in_data; \
         sizeof(TYPE); \
     })
@@ -88,7 +88,7 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
 */
 #define _init_type_for_basic_with_cmp(TYPE) \
     if (strcmp(type, #TYPE) == 0) { \
-        this->_cmp_item = _default_cmp; \
+        this->_dcmp_item = _default_cmp; \
         result=sizeof(TYPE); \
     }
 
@@ -136,10 +136,12 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     /* 构造函数 */ \
     type (*init)(type this); \
     /* 拷贝构造函数 */ \
-    type (*copy)(type this,type other); \
+    type (*copy)(type this,const type other); \
     /* 比较函数 */ \
-    int (*cmp)(type this,type other); \
-    /* 析构函数 */ \
+    int (*cmp)(const type this,const type other); \
+    /* 标准比较函数*/ \
+    int (*dcmp)(const type this,const type other,size_t itemSize); \
+/* 析构函数 */ \
     void (*free)(type this); \
     /* 获取图书的序列化数据 */ \
     const char *(*data)(type this); \
@@ -158,9 +160,11 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     /* item构造函数 */ \
     type (*_init_##item)(type this); \
     /* item拷贝构造函数 */ \
-    type (*_copy_##item)(type this,type other); \
+    type (*_copy_##item)(type this,const type other); \
+    /* item标准比较函数 */ \
+    int (*_dcmp_##item)(const type this,const type other,size_t itemSize); \
     /* item比较函数 */ \
-    int (*_cmp_##item)(type this,type other); \
+    int (*_cmp_##item)(const type this,const type other); \
     /* item析构函数 */ \
     void (*_free_##item)(type this); \
     /* item获取图书的序列化数据 */ \

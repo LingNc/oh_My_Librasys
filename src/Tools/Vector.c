@@ -68,8 +68,8 @@ static void _vector_clear(vector this) {
 
 // 获取指定位置的元素
 static void *_vector_at(vector this,size_t position){
-    if(position>this->size) return NULL;
-    return (char *)this->_data+position*this->_itemSize;
+    if(position>this->size(this)) return NULL;
+    return this->_data+position*this->_itemSize;
 }
 
 // 返回当前元素数量

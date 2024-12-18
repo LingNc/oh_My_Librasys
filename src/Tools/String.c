@@ -29,7 +29,7 @@ static int _string_empty(string this);
 static const char *_string_data(string this);
 static void _string_in_data(string this, const char *data);
 static void _string_free(string this);
-static string _string_copy(string this, string other);
+static string _string_copy(string this, const string other);
 static void _init_all(string this);
 static size_t _string_rfind_char(string this, size_t pos, char c);
 static size_t _string_rfind_cstr(string this, size_t pos, const char *s);
@@ -301,7 +301,7 @@ static void _string_free(string this){
 }
 
 // copy 函数实现
-static string _string_copy(string this,string other){
+static string _string_copy(string this,const string other){
     if(this==other) return this;
     _grow(this, other->_length + 1);
     memcpy(this->_data,other->_data,other->_length+1);
