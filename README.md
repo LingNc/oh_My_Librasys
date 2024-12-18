@@ -1,26 +1,261 @@
-## 图书管理系统
 
-#### 框架简述
-本项目是一个简单的图书管理系统，使用 C 语言编写，包含基本的图书信息管理功能。
+## **项目结构**
 
-#### 文件结构
-- `Makefile` 编译整个代码的文件
-- `README.md` 自述文件
-- `.gitignore` 白名单文件
-- `src/` 源码目录
-- `include/` 头文件定义目录
-- `db/` 数据存放目录
-- `build/` 动态链接文件目录
+```
+project-root/
+├── include
+│   ├── DataBase
+│   │   ├── DataBase.h
+│   │   └── Index.h
+│   ├── Tools
+│   │   ├── List.h
+│   │   ├── Pair.h
+│   │   ├── String.h
+│   │   ├── Type.h
+│   │   └── Vector.h
+│   └── UI
+│       ├── list.h
+│       ├── menu.h
+│       ├── screen.h
+│       ├── utils.h
+│       └── window.h
+│├── Book.h
+│├── Student.h
+│├── function.h
+│├── uiBook.h
+│└── uistudent.h
+├── src
+│   ├── DataBase.c
+│   ├── Index.c
+│   ├── Tools
+│   │   ├── List.c
+│   │   ├── Pair.c
+│   │   ├── String.c
+│   │   ├── Type.c
+│   │   └── Vector.c
+│   ├── UI
+│       ├── list.c
+│       ├── Makefile
+│       ├── menu.c
+│       ├── screen.c
+│       ├── utils.c
+│       └── window.c
+│├── Book.c
+│├── function.c
+│├── main.c
+│├── Student.c
+│├── uiBook.c
+│└── uiStudent.c
+├── test
+│   ├── Makefile
+│   ├── test_string.c
+│   └── test_vector.c
+└── .gitignore
+```
 
-#### 数据接口
-- `main.c`: 主程序入口，包含图书管理系统的主要逻辑。
-- `String.c` 和 `String.h`: 提供字符串处理的功能函数。
+## 运行环境
 
-#### 函数接口
-1. `TYPE` 通用结构体类型
-- `char* TYPE::data(TYPE *this)` 每个数据结构体，都需要指定一个序列化函数，用于数据存储的使用。
-  1. 返回的序列化数据，第一段地址是 `size_t` 类型，长度 `sizeof(size_t)` ,用于指定整个结构体要占用多少字节
-  2. 接着是自己指定一个顺序来以`char*`字节流方式输出数据，返回。
-- `bool TYPE::in_data(TYPE *this , char* data)` 每个数据结构体，都需要指定一个反序列化函数，用于数据读取的使用。
-  1. 对读入的数据进行反序列化，第一段地址是 `size_t` 类型，长度 `sizeof(size_t)` ,用于指定整个结构体要占用多少字节
-  2. 接着data怎么写入的就怎么从`char*`字节流方式读取数据，返回值`bool`表示是否完成读取。
+### 1.**Linux**（Ubuntu24.04）
+
+### 2.ncurses（UI实现由C语言的库）
+
+### 3.gcc
+
+---
+
+## **模块划分**
+
+### 1. **主程序模块**
+
+* **文件**: `main.c`
+* **职责**: 程序入口，负责初始化系统、处理用户输入和调用其他模块的功能。
+
+### 2. **数据模型模块（POJO层）**
+
+* **文件**:
+  * `book.h` 和 `book.c`
+  * `student.h` 和 `student.c`
+* **职责**: 定义数据结构和操作数据的函数。
+
+### 3. **数据库模块（DAO层）**
+
+* **文件**: `database.h` 和 `database.c`
+* **职责**: 提供与文件或数据库交互的函数，负责数据的持久化。
+
+```
+├── DataBase
+│   ├── DataBase.h
+│   └── Index.h
+```
+
+```
+├── DataBase.c
+```
+
+### 4. **工具模块（tools层）**
+
+* **文件**: `tools.h` 和 `tools.c`
+* **职责**: 提供通用的工具函数，如字符串处理、时间处理等。
+
+```
+├── Tools
+│   ├── List.h
+│   ├── Pair.h
+│   ├── String.h
+│   ├── Type.h
+│   └── Vector.h
+```
+
+```
+├── Tools
+│   ├── List.c
+│   ├── Pair.c
+│   ├── String.c
+│   ├── Type.c
+│   └── Vector.c
+```
+
+### 7. **配置文件**
+
+* **文件**: `config.h`
+* **职责**: 定义常量和配置项。
+
+### 8. **数据文件**
+
+* **目录**: `data/`
+* **职责**: 存储持久化数据。
+
+### 9. **测试模块**
+
+* **目录**: `test/`
+* **职责**: 包含单元测试代码。
+
+### 10. **构建工具**
+
+* **文件**: `Makefile`
+* **职责**: 定义编译规则，简化构建过程。
+
+---
+
+## **功能实现**
+
+### 1. **主程序模块**
+
+* **文件**: `main.c`
+* **功能**:
+  * **初始化系统。**
+  * **显示菜单并处理用户输入。**
+  * **调用其他模块的功能。**
+
+### 2. **数据模型模块**
+
+#### 2.1 书籍管理
+
+* **文件**: `book.h` 和 `book.c`
+* **功能**:
+
+  * **定义** `Book`结构体。
+  * **实现书籍的增删改查功能。**
+
+  ![image-20241218221208913](file:///C:/Users/Lenovo/Desktop/assets/image-20241218221208913.png?lastModify=1734532465)
+
+#### 2.2 学生管理
+
+* **文件**: `student.h` 和 `student.c`
+* **功能**:
+
+  * **定义** `Student`结构体。
+  * **实现学生的增删改查功能。**
+
+  ![image-20241218221123350](file:///C:/Users/Lenovo/Desktop/assets/image-20241218221123350.png?lastModify=1734532465)
+
+### 3. **数据库模块**
+
+* **文件**: `database.h` 和 `database.c`
+* **功能**:
+  * **提供文件读写接口。**
+  * **实现数据的持久化。**
+
+### 4. **工具模块**
+
+* **文件**: `tools.h` 和 `tools.c`
+* **功能**:
+  * **用C语言实现了C++中vector， string与 list的绝大部分功能与实现 ****键->值**pair的基本功能。
+
+#### vector功能
+
+![image-20241218221756804](file:///C:/Users/Lenovo/Desktop/assets/image-20241218221756804.png?lastModify=1734532465)
+
+#### string功能
+
+![image-20241218221730901](file:///C:/Users/Lenovo/Desktop/assets/image-20241218221730901.png?lastModify=1734532465)
+
+#### list功能
+
+![image-20241218221654935](file:///C:/Users/Lenovo/Desktop/assets/image-20241218221654935.png?lastModify=1734532465)
+
+#### pair功能
+
+![image-20241218223327482](file:///C:/Users/Lenovo/Desktop/assets/image-20241218223327482.png?lastModify=1734532465)
+
+### 6. **命令行界面（UI）**
+
+* **文件**: `main.c`
+* **功能**:
+  * **实现菜单显示和用户输入处理。**
+
+---
+
+## **测试计划**
+
+### 1. **单元测试**
+
+* **文件**: `test/test_book.c`, `test/test_student.c`, `test/test_borrowing.c`
+* **功能**:
+  * **测试书籍、学生和借书记录的增删改查功能。**
+  * **测试哈希表和动态数组的正确性。**
+
+### 2. **集成测试**
+
+* **文件**: `test/test_integration.c`
+* **功能**:
+  * **测试模块之间的交互。**
+  * **测试借书、还书流程的正确性。**
+
+### 3. **性能测试**
+
+* **文件**: `test/test_performance.c`
+* **功能**:
+  * **测试哈希表的查找效率。**
+  * **测试动态数组的扩容性能。**
+
+---
+
+## **部署和运行**
+
+### 1. **编译项目**
+
+* **使用** `Makefile`编译项目：
+  ```
+  make
+  ```
+
+### 2. **运行程序**
+
+* **运行生成的可执行文件：**
+  ```
+  ./library-management-system
+  ```
+
+### 3. **测试功能**
+
+* **运行测试代码：**
+  ```
+  make test
+  ```
+
+---
+
+## **总结**
+
+**通过以上项目安排，可以实现一个功能完善、结构清晰的图书馆管理系统。需要造的轮子包括动态数组、哈希表、文件操作封装、字符串处理、时间处理、命令行界面、错误处理、内存管理和测试框架。这些轮子将帮助你构建一个高效、易维护的系统。**
