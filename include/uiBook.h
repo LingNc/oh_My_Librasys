@@ -17,6 +17,8 @@ struct uiBook {
     int status; // 0: 可借, 1: 已借出
 };
 
+uibook new_uibook();
+uibook new_from_book(book src);
 void copy_from_book(uibook this, book src);
 
 #endif

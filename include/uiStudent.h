@@ -2,10 +2,12 @@
 #define _uistudent_lib
 
 #include <stddef.h>
-#include"uiBook.h"
+#include "uiBook.h"
+#include "Student.h"
 
 typedef struct uiStudent uiStudent;
 typedef uiStudent *uistudent;
+
 struct uiStudent {
     size_t id;
     char *name;
@@ -18,6 +20,8 @@ struct uiStudent {
     uibook *books;
 };
 
+uistudent new_uistudent();
+uistudent new_from_student(student src);
 void copy_from_student(uistudent this, student src);
 
 #endif
