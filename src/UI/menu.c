@@ -18,7 +18,7 @@ void display_title()
     update_terminal_size();
     int width = (terminal.width - 87) / 2;
 
-    // init_pair(8, COLOR_RED, COLOR_BLACK);
+      // init_pair(8, COLOR_RED, COLOR_BLACK);
     // init_pair(9, COLOR_YELLOW, COLOR_BLACK);
     // init_pair(10, COLOR_GREEN, COLOR_BLACK);
     // init_pair(11, COLOR_CYAN, COLOR_BLACK);
@@ -45,6 +45,7 @@ void display_title()
     //     mvprintw(start_row + i, start_col, "%s", text[i]);
     //     attroff(COLOR_PAIR((i % 6) + 1));
     // }
+
     mvprintw(LINES - 3, 0, "按 <ENTER> 选择");
     mvprintw(LINES - 2, 0, "上下选择, 退格键退出");
     refresh();
