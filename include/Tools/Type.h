@@ -53,6 +53,7 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
 #define _init_define_type(this,TYPE) \
     ({ \
         this->_base = malloc(sizeof(TYPE)); \
+        ((TYPE*)this->_base)->init((TYPE *)this->_base); \
         if (!this->_base) { \
             perror("Type: _base 指针分配失败"); \
             exit(EXIT_FAILURE); \
