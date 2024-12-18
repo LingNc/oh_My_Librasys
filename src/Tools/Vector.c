@@ -63,9 +63,13 @@ static void _vector_remove(vector this,size_t position){
 }
 
 // 清空向量
-static void _vector_clear(vector this){
-    _vector_delete(this);
-    _init_all(this,this->_typename->c_str(this->_typename));
+static void _vector_clear(vector this) {
+    if (this->_free_item) {
+        for (size_t i = 0; i < this->_size; i++) {
+            this->_free_item((char *)this->_data + i * this->_itemSize);
+        }
+    }
+    this->_size = 0;
 }
 
 // 获取指定位置的元素
@@ -97,12 +101,8 @@ static size_t _vector_find(vector this,const void *key,size_t startIndex){
 }
 
 // 释放向量
-static void _vector_delete(vector this){
-    if(this->_free_item){
-        for(size_t i=0; i<this->_size; i++){
-            this->_free_item((char *)this->_data+i*this->_itemSize);
-        }
-    }
+static void _vector_delete(vector this) {
+    _vector_clear(this); // 先清空向量
     free(this->_data);
     free(this->_base);
     free(this);
