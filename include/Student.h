@@ -3,7 +3,7 @@
 
 #include "Tools/String.h"
 #include "Tools/Vector.h"
-// #include "Book.h"
+#include "Book.h" // 添加对 Book.h 的引用
 
 #define MAX_AVAILABLE 10
 

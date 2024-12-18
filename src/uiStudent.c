@@ -34,7 +34,7 @@ uistudent new_from_student(student src) {
     return this;
 }
 
-void copy_from_student(uistudent this, student src) {
+void copy_from_student(uistudent this, student src){
     this->id = src->id;
     this->name = strdup(src->name->c_str(src->name));
     this->class = strdup(src->class->c_str(src->class));
