@@ -22,7 +22,7 @@ pair new_pair() {
     this->init(this);
     return this;
 }
-pair init_pair(pair this, size_t key, size_t value) {
+pair init_pairs(pair this, size_t key, size_t value) {
     this->key = key;
     this->value = value;
     return this;
