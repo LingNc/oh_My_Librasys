@@ -15,7 +15,9 @@ struct Pair {
 };
 
 // 创建新的键值对
-pair new_pair(size_t key, size_t value);
+pair new_pair();
+pair __init_Pair();
+pair init_pairs(pair this, size_t key, size_t value);
 
 // 释放键值对
 void delete_pair(pair this);

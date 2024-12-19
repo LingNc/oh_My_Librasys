@@ -18,11 +18,11 @@ typedef enum
     ADMIN_MENU,     // 管理员主界面
     BOOK_MANAGE,    // 图书管理*
     STUDENT_MANAGE, // 学生管理*
-    BORROW_RECORDS, // 借书记录管理*
+    BORROW_RECORDS, // 借书记录管理* 
 
     // 学生界面
     STUDENT_MENU,  // 学生主界面
-    SEARCH_BOOKS,  // 搜索图书*
+    //SEARCH_BOOKS,  // 搜索图书*直接使用借书页面
     BORROW_BOOK,   // 借书*
     RETURN_BOOK,   // 还书*
     VIEW_RECORDS,  // 查看借书记录*

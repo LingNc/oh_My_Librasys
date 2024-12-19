@@ -8,26 +8,41 @@
 #include <locale.h>
 #include "screen.h"
 
-//显示界面函数
-// void display_main_menu(void);
-// void display_manager_menu();
-
-
+// 显示标题
 void display_title();
 
+// 显示主菜单
 Screen main_menu();
+
+// 显示管理员菜单
 Screen admin_menu();
+
+// 显示图书管理信息
 Screen book_manage_info();
+
+// 显示学生管理信息
 Screen stu_manage_info();
+
+// 显示借阅记录
 Screen borrow_records();
 
+// 显示学生菜单
 Screen stu_menu();
-Screen borrow_records();
-Screen search_books();
-Screen borrow_book();
-Screen return_book();
+
+// // 显示搜索图书
+// Screen search_books();
+
+// 显示查看记录
 Screen view_records();
 
+// 显示借书
+Screen borrow_book();
+
+// 显示还书
+Screen return_book();
+
+
+// 显示关于信息
 Screen about();
 
-#endif
+#endif // MENU_H

@@ -12,24 +12,28 @@ void _pair_in_data(pair this, const char* data);
 void delete_pair(pair this);
 
 // 创建新的键值对
-pair new_pair(size_t key, size_t value) {
+pair new_pair() {
     pair this = (pair)malloc(sizeof(Pair));
-    this->key = key;
-    this->value = value;
+    if (!this) {
+        perror("Pair: this 指针分配失败");
+        exit(EXIT_FAILURE);
+    }
     this->init = _pair_init;
-    this->copy = _pair_copy;
-    this->cmp = _pair_cmp;
-    this->dcmp = _pair_dcmp;
-    this->free = delete_pair;
-    this->data = _pair_data;
-    this->in_data = _pair_in_data;
     this->init(this);
     return this;
 }
-
+pair init_pairs(pair this, size_t key, size_t value) {
+    this->key = key;
+    this->value = value;
+    return this;
+}
 // 初始化键值对
 pair _pair_init(pair this) {
-    // 初始化逻辑
+    this->copy = _pair_copy;
+    this->cmp = _pair_cmp;
+    this->dcmp = _pair_dcmp;
+    this->data = _pair_data;
+    this->in_data = _pair_in_data;
     return this;
 }
 
@@ -65,8 +69,14 @@ void _pair_in_data(pair this, const char* data) {
     memcpy(&this->key, data, sizeof(size_t));
     memcpy(&this->value, data + sizeof(size_t), sizeof(size_t));
 }
-
+void _pair_free(pair this) {
+    free(this);
+}
 // 释放键值对
 void delete_pair(pair this) {
     free(this);
+}
+
+pair __init_Pair(){
+    return new_pair();
 }

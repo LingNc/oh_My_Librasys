@@ -102,6 +102,11 @@
         "student.h": "c",
         "*.def": "c",
         "menu.h": "c",
+        "book.h": "c",
+        "uibook.h": "c",
+        "function.h": "c",
+        "uistudent.h": "c",
+        "window.h": "c",
         "screen.h": "c"
     },
     "makefile.launchConfigurations": [
@@ -123,6 +128,11 @@
         {
             "cwd": "/home/lea/oh_My_Librasys",
             "binaryPath": "/home/lea/oh_My_Librasys/main",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/LingNc/oh_My_Librasys",
+            "binaryPath": "/home/LingNc/oh_My_Librasys/main",
             "binaryArgs": []
         }
     ]

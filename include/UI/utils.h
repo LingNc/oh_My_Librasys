@@ -56,4 +56,5 @@ void print_info(WINDOW* info_win, Infoname* infoname, MenuInfo* info);
 
 
 
+
 #endif

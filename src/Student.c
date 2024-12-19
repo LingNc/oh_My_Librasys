@@ -9,7 +9,7 @@ student new_student();
 static void borrow_book(student this, book b);
 static void return_book(student this, book b);
 static const char *_student_data(student this);
-static int _student_in_data(student this, const char *data);
+static void _student_in_data(student this, const char *data);
 void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate);
 
 // 初始化学生
@@ -81,7 +81,7 @@ const char *_student_data(student this) {
 }
 
 // 反序列化学生数据
-int _student_in_data(student this, const char *data) {
+void _student_in_data(student this, const char *data) {
     size_t offset = 0;
     size_t len = 0;
     memcpy(&len, data + offset, sizeof(len));
@@ -101,8 +101,6 @@ int _student_in_data(student this, const char *data) {
     offset += this->borrowedDate->length(this->borrowedDate);
     this->returnDate->assign_cstr(this->returnDate, data + offset);
     offset += this->returnDate->length(this->returnDate);
-
-    return 1; // 表示成功
 }
 
 void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate) {
@@ -113,4 +111,9 @@ void load_student(student this, size_t id, const char *name, const char *class, 
     this->borrowedCount = borrowedCount;
     this->borrowedDate->assign_cstr(this->borrowedDate, borrowedDate);
     this->returnDate->assign_cstr(this->returnDate, returnDate);
+}
+
+// 初始化 Student 对象的函数
+student __init_Student() {
+    return new_student();
 }

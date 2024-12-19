@@ -3,6 +3,7 @@
 
 #include<string.h>
 #include<assert.h>
+
 /*
 定义：
     基础类型的cmp函数定义
@@ -52,7 +53,7 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
 */
 #define _init_define_type(this,TYPE) \
     ({ \
-        this->_base = malloc(sizeof(TYPE)); \
+        this->_base=__init_##TYPE(); \
         if (!this->_base) { \
             perror("Type: _base 指针分配失败"); \
             exit(EXIT_FAILURE); \
@@ -114,11 +115,9 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
             _init_type_for_basic_with_cmp(int) \
             _init_type_for_basic_with_cmp(float) \
             _init_type_for_basic_with_cmp(double) \
-            _init_type_for_basic_with_cmp(long long) \
-            _init_type_for_basic_with_cmp(long double) \
+            _init_type_for_basic_with_cmp(size_t) \
             _init_type_for_basic_with_cmp(char) \
             else{ \
-                assert(0&&"_init_type 使用了不受支持的数据类型"); \
                 result = 0; \
             } \
         } \

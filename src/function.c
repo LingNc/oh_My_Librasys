@@ -12,7 +12,7 @@ uibook* load_books_from_file(const char *filePath) {
         return NULL;
     }
 
-    uibook *books = (uibook *)malloc(100 * sizeof(uibook)); // 假设最多有100本书
+    uibook *books = (uibook *)malloc(500 * sizeof(uibook)); // 假设最多有100本书
     int count = 0;
 
     char line[1024];
@@ -41,7 +41,7 @@ uistudent* load_students_from_file(const char *filePath) {
         return NULL;
     }
 
-    uistudent *students = (uistudent *)malloc(100 * sizeof(uistudent)); // 假设最多有100个学生
+    uistudent *students = (uistudent *)malloc(500 * sizeof(uistudent)); // 假设最多有100个学生
     int count = 0;
 
     char line[1024];
