@@ -39,7 +39,7 @@ void  book_list(uiBook** book_set)
         "管理员",
         "时间",
     };
-    
+
     // 更新终端尺寸
     update_terminal_size();
 
@@ -139,7 +139,7 @@ REFRESH_BOOK_PAD:
 
 
     while (1) {
-        int ch = wgetch(current_win);  
+        int ch = wgetch(current_win);
         switch (ch) {
             // 按键处理
             case KEY_UP:
@@ -191,7 +191,7 @@ REFRESH_BOOK_PAD:
                     ITEM *cur = current_item(menu);
                     const char *choice = item_name(cur);
                     if (strcmp(choice, "退出") == 0) {
-                        
+
                         // 退出程序
                         unpost_menu(menu);
                         free_menu(menu);
@@ -202,7 +202,7 @@ REFRESH_BOOK_PAD:
                         delwin(menu_win);
                         endwin();
                         return;
-            
+
                     }else if (strcmp(choice, "添加图书") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
@@ -215,7 +215,7 @@ REFRESH_BOOK_PAD:
                         char *bookname = s_simplewin("请s_输入书名: ");
                         char *author = s_simplewin("请输入作者: ");
                         char *publisher = s_simplewin("请输入出版社: ");
-                        
+
 
                         //-----------------------------------------------------3
                         show_message_box("已添加");
@@ -256,12 +256,12 @@ REFRESH_BOOK_PAD:
                 } else if (active_window == PAD) {
                     // 弹出确认窗口
                     show_confirm_window(book_set[current_row]);
-                   
+
                     clear();
                     werase(pad);
                     prefresh(pad, scroll_offset, 0, main_win_start_y + 1, main_win_start_x + 1, main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
                     goto REFRESH_BOOK_PAD;
-                
+
                 }
                 break;
             // 其他按键处理
@@ -278,7 +278,7 @@ REFRESH_BOOK_PAD:
         }
 
         // 设置新的高亮
-        if (active_window == PAD) 
+        if (active_window == PAD)
         {
             wattron(pad, A_REVERSE);
             print_list(book_set, pad, current_row);
@@ -322,7 +322,7 @@ void stu_list(uiStudent** student_set)
     // "54326173883", "张佳玮", "计算机21-2", "计算机科学与技术", 21,"2021-03-22", "2032-10-21",{&mybook[0],&mybook[1],&mybook[2],NULL }};
 
 
-    
+
     // uiStudent* student = student_set;
     // 更新终端尺寸
     update_terminal_size();
@@ -347,7 +347,7 @@ void stu_list(uiStudent** student_set)
     // strncpy(info.date, info.date, sizeof(info.date) - 1);
     wrefresh(info_win);
 
-   
+
 
     //打印表头
     attron(COLOR_PAIR(PAD_HEIGHT_LIGHT));
@@ -474,7 +474,7 @@ REFRESH_STU_PAD:
                     // 处理菜单选择
                     ITEM *cur = current_item(menu);
                     const char *choice = item_name(cur);
-                
+
                     if (strcmp(choice, "退出") == 0) {
                         // 退出程序
                         unpost_menu(menu);
@@ -521,7 +521,7 @@ REFRESH_STU_PAD:
                     // 其他菜单项的处理逻辑
                 } else if (active_window == PAD) {
                     // 弹出确认窗口
-                    
+
                     show_student_confirm_window(student_set[current_row]);
                      werase(pad);
                     goto REFRESH_STU_PAD;
@@ -541,7 +541,7 @@ REFRESH_STU_PAD:
         }
 
         // 设置新的高亮
-        if (active_window == PAD) 
+        if (active_window == PAD)
         {
             wattron(pad, A_REVERSE);
             print_student_list(student_set, pad, current_row);
@@ -574,7 +574,7 @@ REFRESH_STU_PAD:
 
 
 
- 
+
 //学生借阅列表
 void stu_borrow_list()
 {
@@ -586,14 +586,14 @@ void stu_borrow_list()
     };
     //uiStudent* thisStudent = stu[0];
     // uiBook** thisBook = stu->books;
-    
+
      char* menu_choices[] = {
         "借书",
         "借阅列表",
         "查询图书",
         "退出",
     };
-    
+
     // 更新终端尺寸
     update_terminal_size();
 
@@ -694,7 +694,7 @@ REFRESH_BOOK_PAD:
     // 主循环
 
     while (1) {
-        int ch = wgetch(current_win);  
+        int ch = wgetch(current_win);
         switch (ch) {
             // 按键处理
             case KEY_UP:
@@ -746,7 +746,7 @@ REFRESH_BOOK_PAD:
                     ITEM *cur = current_item(menu);
                     const char *choice = item_name(cur);
                     if (strcmp(choice, "退出") == 0) {
-                        
+
                         // 退出程序
                         unpost_menu(menu);
                         free_menu(menu);
@@ -757,11 +757,11 @@ REFRESH_BOOK_PAD:
                         delwin(menu_win);
                         endwin();
                         return;
-            
+
                     }else if (strcmp(choice, "借书") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
-                        * 
+                        *
                         * uiBook* newBook = getbookinfo();//添加图书
                         * func_addbook(newBook);
                         *
@@ -770,9 +770,9 @@ REFRESH_BOOK_PAD:
                         if (new_book == NULL)
                             break;
                         show_message_box("已借阅");
-                    
 
-                        
+
+
                     }else if(strcmp(choice, "借阅列表") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
@@ -795,7 +795,7 @@ REFRESH_BOOK_PAD:
                     // show_confirm_window(thisBook[current_row]);
                     werase(pad);
                     goto REFRESH_BOOK_PAD;
-                
+
                 }
                 break;
             // 其他按键处理
@@ -812,7 +812,7 @@ REFRESH_BOOK_PAD:
         }
 
         // 设置新的高亮
-        if (active_window == PAD) 
+        if (active_window == PAD)
         {
             wattron(pad, A_REVERSE);
             // print_list(thisBook, pad, current_row);
@@ -838,5 +838,5 @@ REFRESH_BOOK_PAD:
         wrefresh(menu_win);
         wrefresh(main_win);
     }
-    
+
 }
