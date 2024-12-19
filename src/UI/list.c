@@ -23,7 +23,7 @@ dataBase bookDb,studentDb;
 // };
 
 //图书管理列表
-void book_list(uiBook** book_set)
+void  book_list(uiBook** book_set)
 {
 
     char* menu_choices[] = {
@@ -250,6 +250,7 @@ REFRESH_BOOK_PAD:
                             }
                         }
                         bookDb->save(bookDb);
+                        return;
 
                     }
                 } else if (active_window == PAD) {
