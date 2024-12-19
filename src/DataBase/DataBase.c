@@ -13,7 +13,7 @@ static vector _database_find(dataBase this,const void *data);
 static void *_database_find_key(dataBase this,size_t key);
 static void _init_func(dataBase this);
 static size_t _database_size(dataBase this);
-static vector _database_get(dataBase this,size_t pos,size_t nums);
+static vector _database_get(dataBase this,size_t key,size_t nums);
 static vector _database_get_find(dataBase this,size_t pos,size_t nums);
 void clean_database(dataBase this);
 
@@ -97,24 +97,24 @@ static void _database_remove(dataBase this,size_t key){
 }
 
 // 保存数据库到文件
-static void _database_save(dataBase this){
-    FILE *file=fopen(this->filePath->c_str(this->filePath),"ab");
-    if(!file){
+static void _database_save(dataBase this) {
+    FILE *file = fopen(this->filePath->c_str(this->filePath), "ab");
+    if (!file) {
         perror("Failed to open file for writing");
         return;
     }
-    size_t dataCount=this->_buffer->size(this->_buffer);
-    fwrite(&dataCount,sizeof(size_t),1,file);
-    for(size_t i=0; i<dataCount; ++i){
-        void *data=this->_buffer->at(this->_buffer,i);
-        const char *serializedData=this->_buffer->_data_item(data);
-        size_t dataSize=*(size_t *)serializedData+sizeof(size_t);
-        char isDeleted=1;
-        size_t offset=ftell(file);
-        fwrite(&isDeleted,sizeof(char),1,file);
-        fwrite(serializedData,dataSize,1,file);
-        size_t key=get_next_index_key(this->_index);
-        add_index(this->_index,key,offset);
+    size_t dataCount = this->_buffer->size(this->_buffer);
+    fwrite(&dataCount, sizeof(size_t), 1, file);
+    for (size_t i = 0; i < dataCount; ++i) {
+        void *data = this->_buffer->at(this->_buffer, i);
+        const char *serializedData = this->_buffer->_data_item(data);
+        size_t dataSize = *(size_t*)serializedData;
+        char isDeleted = 1;
+        size_t offset = ftell(file);
+        fwrite(&isDeleted, sizeof(char), 1, file);
+        fwrite(serializedData, dataSize, 1, file);
+        size_t key = *(size_t*)data;
+        add_index(this->_index, key, offset);
     }
     fclose(file);
     this->_buffer->clear(this->_buffer);
@@ -163,28 +163,25 @@ static vector _database_find(dataBase this,const void *data){
 }
 
 // 通过键查找数据
-static void *_database_find_key(dataBase this,size_t key){
-    size_t offset=find_index(this->_index,key);
-    if(offset!=0){
-        FILE *file=fopen(this->filePath->c_str(this->filePath),"rb");
-        if(!file){
+static void *_database_find_key(dataBase this, size_t key) {
+    size_t offset = find_index(this->_index, key);
+    if (offset != 0) {
+        FILE *file = fopen(this->filePath->c_str(this->filePath), "rb");
+        if (!file) {
             perror("DataBase: 无法打开文件进行读取");
             return NULL;
         }
-        fseek(file,offset,SEEK_SET);
+        fseek(file, offset, SEEK_SET);
         char isDeleted;
-        fread(&isDeleted,sizeof(char),1,file);
+        fread(&isDeleted, sizeof(char), 1, file);
         size_t dataSize;
-        fread(&dataSize,sizeof(size_t),1,file);
-        // 向前移动
-        fseek(file,-sizeof(size_t),SEEK_CUR);
-        if(isDeleted==1){
-            dataSize+=sizeof(size_t);
-            char *data=(char *)malloc(dataSize);
-            fread(data,dataSize,1,file);
-            void *item=malloc(this->_find_buffer->_itemSize);
+        fread(&dataSize, sizeof(size_t), 1, file);
+        if (isDeleted == 1) {
+            char *data = (char *)malloc(dataSize);
+            fread(data, dataSize, 1, file);
+            void *item = malloc(this->_find_buffer->_itemSize);
             this->_find_buffer->_init_item(item);
-            this->_find_buffer->_in_data_item(item,data);
+            this->_find_buffer->_in_data_item(item, data);
             free(data);
             fclose(file);
             return item;
@@ -195,12 +192,12 @@ static void *_database_find_key(dataBase this,size_t key){
 }
 
 // 从数据库根据key 得到索引，从第pos开始，nums个东西
-static vector _database_get(dataBase this,size_t pos,size_t nums){
+static vector _database_get(dataBase this,size_t key,size_t nums){
     vector result=new_vector(this->_type->c_str(this->_type));
     size_t count=0;
-    for(size_t i=pos; i<this->_index->nums&&count<nums; ++i){
-        size_t key=get_index_key(this->_index,i);
-        void *data=_database_find_key(this,key);
+    for(size_t i=key; i<this->_index->nums&&count<nums; ++i){
+        // size_t key=get_index_key(this->_index,i);
+        void *data=_database_find_key(this,i);
         if(data){
             result->push_back(result,data);
             ++count;

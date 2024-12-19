@@ -39,7 +39,7 @@ struct DataBase {
     Vector *(*get_find)(dataBase,size_t pos,size_t nums);
     // 从数据库根据key 得到索引，从第pos开始，nums个东西
     // 如果为空返回size为0的vector
-    Vector *(*get)(dataBase,size_t pos,size_t nums);
+    Vector *(*get)(dataBase,size_t key,size_t nums);
     // 获得数据大小
     size_t(*size)(dataBase);
     // 清理数据库

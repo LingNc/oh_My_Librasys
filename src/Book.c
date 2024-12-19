@@ -18,13 +18,14 @@ void free_book(book this);
 // data获得序列化数据实现
 const char *_book_data(book this) {
     this->_serialize->clear(this->_serialize);
-    size_t len = sizeof(size_t) + this->ISBN->length(this->ISBN) + sizeof(size_t) + this->name->length(this->name) +
-                 sizeof(size_t) + this->author->length(this->author) + sizeof(size_t) + this->publisher->length(this->publisher) +
-                 sizeof(size_t) + this->time->length(this->time) + sizeof(this->status);
+    size_t len = sizeof(this->id) + sizeof(size_t) + this->ISBN->length(this->ISBN) +
+                 sizeof(size_t) + this->name->length(this->name) + sizeof(size_t) + this->author->length(this->author) +
+                 sizeof(size_t) + this->publisher->length(this->publisher) + sizeof(size_t) + this->time->length(this->time) +
+                 sizeof(this->status);
     this->_serialize->append_n(this->_serialize, (const char*)&len, sizeof(len));
-    this->_serialize->append_n(this->_serialize,(const char *)&this->id,sizeof(size_t));
+    this->_serialize->append_n(this->_serialize, (const char*)&this->id, sizeof(this->id));
 
-    size_t str_len=this->ISBN->length(this->ISBN);
+    size_t str_len = this->ISBN->length(this->ISBN);
     this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
     this->_serialize->append_n(this->_serialize, this->ISBN->c_str(this->ISBN), str_len);
 
@@ -44,16 +45,18 @@ const char *_book_data(book this) {
     this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
     this->_serialize->append_n(this->_serialize, this->time->c_str(this->time), str_len);
 
-    this->_serialize->append_n(this->_serialize, (const char *)&this->status, sizeof(this->status));
+    this->_serialize->append_n(this->_serialize, (const char*)&this->status, sizeof(this->status));
 
     return this->_serialize->c_str(this->_serialize);
 }
 
 // 反序列化数据实现
 void _book_in_data(book this, const char *data) {
-    // 跳过第一个大小
-    size_t ptr=sizeof(size_t);
-    size_t str_len=0;
+    size_t ptr = sizeof(size_t);
+    memcpy(&this->id, data + ptr, sizeof(this->id));
+    ptr += sizeof(this->id);
+
+    size_t str_len = 0;
     memcpy(&str_len, data + ptr, sizeof(str_len));
     ptr += sizeof(str_len);
     this->ISBN->append_n(this->ISBN, data + ptr, str_len);
