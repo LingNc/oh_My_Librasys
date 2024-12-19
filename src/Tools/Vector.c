@@ -65,7 +65,7 @@ static void _vector_remove(vector this,size_t position){
 // 清空向量
 static void _vector_clear(vector this) {
     if (this->_free_item) {
-        for (size_t i = 2; i < this->_size; i++) {
+        for (size_t i = 0; i < this->_size; i++) {
             this->_free_item(this->_data + i * this->_itemSize);
         }
     }

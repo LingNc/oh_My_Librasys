@@ -13,6 +13,7 @@ void _book_free(book this);
 book _book_init(book this);
 book new_book();
 void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status);
+void free_book(book this);
 
 // data获得序列化数据实现
 const char *_book_data(book this) {
@@ -98,7 +99,6 @@ void _book_free(book this) {
     if (this->publisher) this->publisher->free(this->publisher);
     if (this->time) this->time->free(this->time);
     if (this->_serialize) this->_serialize->free(this->_serialize);
-    // free(this);
 }
 // 初始化
 book _book_init(book this) {
@@ -140,4 +140,10 @@ void load_book(book this, size_t id, const char *ISBN, const char *name, const c
 // 初始化 Book 对象的函数
 book __init_Book() {
     return new_book();
+}
+// 释放 Book 对象本身
+void free_book(book this) {
+    if(!this) return;
+    this->free(this);
+    free(this);
 }

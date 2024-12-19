@@ -31,7 +31,7 @@ void close_index(database_index index) {
         vector bucket = index->buckets[i];
         for (size_t j = 0; j < bucket->size(bucket); ++j) {
             pair p = (pair)bucket->at(bucket, j);
-            delete_pair(p);
+            free_pair(p);
         }
         bucket->free(bucket);
     }
@@ -74,7 +74,7 @@ void remove_index(database_index index, size_t key) {
         pair p = (pair)bucket->at(bucket, i);
         if (p->key == key) {
             bucket->remove(bucket, i);
-            delete_pair(p);
+            free_pair(p);
             index->nums--; // 减少索引数量
             return;
         }
@@ -174,7 +174,7 @@ void clear_index(database_index index) {
         vector bucket = index->buckets[i];
         for (size_t j = 0; j < bucket->size(bucket); ++j) {
             pair p = (pair)bucket->at(bucket, j);
-            delete_pair(p);
+            free_pair(p);
         }
         bucket->clear(bucket);
     }

@@ -9,8 +9,10 @@ student new_student();
 static void borrow_book(student this, book b);
 static void return_book(student this, book b);
 static const char *_student_data(student this);
-static void _student_in_data(student this, const char *data);
+static void _student_free(student this);
+static void _student_in_data(student this,const char *data);
 void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate);
+void free_student(student this);
 
 // 初始化学生
 student new_student() {
@@ -116,4 +118,27 @@ void load_student(student this, size_t id, const char *name, const char *class, 
 // 初始化 Student 对象的函数
 student __init_Student() {
     return new_student();
+}
+
+// 释放 Student 对象管理的内存
+void _student_free(student this) {
+    delete_string(this->name);
+    delete_string(this->class);
+    delete_string(this->department);
+    delete_string(this->borrowedDate);
+    delete_string(this->returnDate);
+    if (this->books) {
+        for (size_t i = 0; i < this->borrowedCount; ++i) {
+            free_book((book)this->books->at(this->books, i));
+        }
+        this->books->free(this->books);
+    }
+    delete_string(this->_serialize);
+}
+
+// 释放 Student 对象本身
+void free_student(student this) {
+    if (!this) return;
+    this->free(this);
+    free(this);
 }
