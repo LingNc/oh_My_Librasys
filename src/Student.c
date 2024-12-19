@@ -25,6 +25,7 @@ student _student_init(student this){
     this->borrowedCount=0;
     this->borrowedDate=new_string();
     this->returnDate=new_string();
+    this->_serialize=new_string();
     this->books=new_vector("Book");
     this->data=_student_data;
     this->in_data=_student_in_data;
