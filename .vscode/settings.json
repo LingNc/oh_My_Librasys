@@ -137,6 +137,11 @@
             "cwd": "/home/LingNc/oh_My_Librasys",
             "binaryPath": "/home/LingNc/oh_My_Librasys/main",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/attacking_bird/oh_My_Librasys",
+            "binaryPath": "/home/attacking_bird/oh_My_Librasys/main",
+            "binaryArgs": []
         }
     ]
 }
