@@ -12,6 +12,8 @@
 !**/*.h
 !Makefile
 !README.md
+!**/*.txt
+test/
 
 !**/*.md
 
