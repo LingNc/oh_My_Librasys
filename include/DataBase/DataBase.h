@@ -33,7 +33,15 @@ struct DataBase {
     // 查找数据
     Vector* (*find)(dataBase, const void *);
     // 通过键查找数据
-    void *(*find_key)(dataBase, size_t);
+    void *(*find_key)(dataBase,size_t);
+    // 从_find_buffer 得到索引，从第pos开始，nums个东西
+    // 如果为空返回size为0的vector
+    Vector *(*get_find)(dataBase,size_t pos,size_t nums);
+    // 从数据库根据key 得到索引，从第pos开始，nums个东西
+    // 如果为空返回size为0的vector
+    Vector *(*get)(dataBase,size_t pos,size_t nums);
+    // 获得数据大小
+    size_t(*size)(dataBase);
     // 清理数据库
     void (*clean)(dataBase);
 };
