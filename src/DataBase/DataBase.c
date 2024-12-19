@@ -104,11 +104,11 @@ static void _database_save(dataBase this) {
         return;
     }
     size_t dataCount = this->_buffer->size(this->_buffer);
-    fwrite(&dataCount, sizeof(size_t), 1, file);
+    // fwrite(&dataCount, sizeof(size_t), 1, file);
     for (size_t i = 0; i < dataCount; ++i) {
         void *data = this->_buffer->at(this->_buffer, i);
         const char *serializedData = this->_buffer->_data_item(data);
-        size_t dataSize = *(size_t*)serializedData;
+        size_t dataSize = *(size_t*)serializedData+sizeof(size_t);
         char isDeleted = 1;
         size_t offset = ftell(file);
         fwrite(&isDeleted, sizeof(char), 1, file);
@@ -176,6 +176,7 @@ static void *_database_find_key(dataBase this, size_t key) {
         fread(&isDeleted, sizeof(char), 1, file);
         size_t dataSize;
         fread(&dataSize, sizeof(size_t), 1, file);
+        fseek(file,-sizeof(size_t),SEEK_CUR);
         if (isDeleted == 1) {
             char *data = (char *)malloc(dataSize);
             fread(data, dataSize, 1, file);
