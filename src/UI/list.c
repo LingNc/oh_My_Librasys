@@ -2,9 +2,10 @@
 #include "UI/list.h"
 #include <string.h>
 #include "function.h"
-dataBase bookDb,studentDb;
- uibook *bookArray ;
- uistudent *studentArray;
+dataBase bookDb, studentDb;
+uibook *bookArray;
+uistudent *studentArray;
+
 // uiBook book_set[LIST_SIZE] = {
 //     {8479248713,"9787547008592", "数学之美", "李明", "人民教育出版社","2022-10-10", 0},
 //     {8479248713,"9787547008593", "物理世界", "张伟", "科学出版社","2022-10-10",1},
@@ -22,11 +23,11 @@ dataBase bookDb,studentDb;
 //     {8479248713,"9787547008605", "机械工程", "杨洋", "西安交通大学出版社", "2022-10-10",1},
 // };
 
-//图书管理列表
-void  book_list(uiBook** book_set)
+// 图书管理列表
+void book_list(uiBook **book_set)
 {
 
-    char* menu_choices[] = {
+    char *menu_choices[] = {
         "添加图书",
         "批量导入",
         "查询图书",
@@ -39,16 +40,18 @@ void  book_list(uiBook** book_set)
         "管理员",
         "时间",
     };
-    
+
     // 更新终端尺寸
     update_terminal_size();
+
+    int lines = bookDb->_index->nums;
 
     // 创建主窗口
     int main_win_height = terminal.height - 9; // 高度减少，在底部留5格
     int main_win_width = terminal.width - 2;
     int main_win_start_y = 4; // 起始位置下降4格
     int main_win_start_x = 1;
-    WINDOW* main_win = creat_win(main_win_height,main_win_width, main_win_start_y, main_win_start_x);
+    WINDOW *main_win = creat_win(main_win_height, main_win_width, main_win_start_y, main_win_start_x);
 
     // 创建 info 窗口
     int info_height = 4;
@@ -57,9 +60,9 @@ void  book_list(uiBook** book_set)
     int info_start_x = 1;
     WINDOW *info_win = creat_win(info_height, info_width, info_start_y, info_start_x);
     mvwprintw(info_win, 0, (terminal.width - 2 - strlen("图书管理界面")) / 2, "图书管理界面");
-    //当前书籍信息打印
+    // 当前书籍信息打印
     MenuInfo info = {150, 100, "admin", "2024-12-17"};
-    print_info(info_win,&infoname, &info);
+    print_info(info_win, &infoname, &info);
     wrefresh(info_win);
 
     // 创建 menu 窗口
@@ -67,7 +70,7 @@ void  book_list(uiBook** book_set)
     int menu_width = terminal.width - 2; // 宽度减少2
     int menu_start_y = terminal.height - 5;
     int menu_start_x = 1;
-    WINDOW *menu_win = creat_win(menu_height, menu_width,menu_start_y,  menu_start_x);
+    WINDOW *menu_win = creat_win(menu_height, menu_width, menu_start_y, menu_start_x);
     keypad(menu_win, TRUE);
     wrefresh(menu_win);
 
@@ -84,7 +87,6 @@ void  book_list(uiBook** book_set)
     set_menu_format(menu, 1, n_choices);
     set_menu_spacing(menu, 0, menu_item_width - strlen(menu_choices[0]), 0);
 
-
     // 设置菜单子窗口
     set_menu_sub(menu, derwin(menu_win, 1, menu_width - 2, 2, 1));
     set_menu_mark(menu, "  ");
@@ -96,20 +98,20 @@ void  book_list(uiBook** book_set)
     set_current_item(menu, NULL);
     wrefresh(menu_win);
 
-    int scroll_offset = 0;    // 滚动偏移量
-    int current_row = 0;      // 当前选中的行
-// 创建 pad
-    int pad_height = LIST_SIZE + 1;
+    int scroll_offset = 0;              // 滚动偏移量
+    int current_row = 0;                // 当前选中的行
+                                        // 创建 pad
+    int pad_height = lines + 1;         // 根据 lines 的大小设置 pad 的高度
     int pad_width = terminal.width - 2; // 宽度减少2
     WINDOW *pad = newpad(pad_height, pad_width);
     keypad(pad, TRUE);
 REFRESH_BOOK_PAD:
     // 绘制列表项到 pad 上
 
-    for (int i = 0; i < LIST_SIZE; i++) {
+    for (int i = 0; i < lines; i++)
+    {
         print_list(book_set, pad, i);
     }
-
 
     // 高亮当前行
     wattron(pad, A_REVERSE);
@@ -125,13 +127,17 @@ REFRESH_BOOK_PAD:
     mvwprintw(main_win, 0, 83, "%s", "借阅状态");
     attroff(COLOR_PAIR(PAD_HEIGHT_LIGHT));
 
-    // 刷新 pad 的初始视图
-    prefresh(pad, scroll_offset, 0, main_win_start_y + 1, main_win_start_x + 1, main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
+    // 刷新 pad 的视图
+    prefresh(pad, scroll_offset, 0, main_win_start_y, main_win_start_x + 1,
+             main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
     wrefresh(main_win);
 
-
     // 初始化
-    enum { PAD, MENU } active_window = PAD;
+    enum
+    {
+        PAD,
+        MENU
+    } active_window = PAD;
     WINDOW *current_win = pad;
     keypad(menu_win, TRUE);
 
@@ -139,7 +145,7 @@ REFRESH_BOOK_PAD:
 
 
     while (1) {
-        int ch = wgetch(current_win);  
+        int ch = wgetch(current_win);
         switch (ch) {
             // 按键处理
             case KEY_UP:
@@ -191,7 +197,7 @@ REFRESH_BOOK_PAD:
                     ITEM *cur = current_item(menu);
                     const char *choice = item_name(cur);
                     if (strcmp(choice, "退出") == 0) {
-                        
+
                         // 退出程序
                         unpost_menu(menu);
                         free_menu(menu);
@@ -202,7 +208,7 @@ REFRESH_BOOK_PAD:
                         delwin(menu_win);
                         endwin();
                         return;
-            
+
                     }else if (strcmp(choice, "添加图书") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
@@ -215,7 +221,7 @@ REFRESH_BOOK_PAD:
                         char *bookname = s_simplewin("请s_输入书名: ");
                         char *author = s_simplewin("请输入作者: ");
                         char *publisher = s_simplewin("请输入出版社: ");
-                        
+
 
                         //-----------------------------------------------------3
                         show_message_box("已添加");
@@ -247,21 +253,22 @@ REFRESH_BOOK_PAD:
                                 uibook temp=uiBookArray[i];
                                 book tBook=back_to_book(temp);
                                 bookDb->add(bookDb,tBook);
+                                bookDb->save(bookDb);
+
                             }
                         }
-                        bookDb->save(bookDb);
                         return;
 
                     }
                 } else if (active_window == PAD) {
                     // 弹出确认窗口
                     show_confirm_window(book_set[current_row]);
-                   
+
                     clear();
                     werase(pad);
                     prefresh(pad, scroll_offset, 0, main_win_start_y + 1, main_win_start_x + 1, main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
                     goto REFRESH_BOOK_PAD;
-                
+
                 }
                 break;
             // 其他按键处理
@@ -278,23 +285,24 @@ REFRESH_BOOK_PAD:
         }
 
         // 设置新的高亮
-        if (active_window == PAD) 
+        if (active_window == PAD)
         {
             wattron(pad, A_REVERSE);
             print_list(book_set, pad, current_row);
             wattroff(pad, A_REVERSE);
             set_menu_fore(menu, COLOR_PAIR(UNHEIGHT));
-	        set_menu_back(menu, COLOR_PAIR(UNHEIGHT));
-
-        }else
+            set_menu_back(menu, COLOR_PAIR(UNHEIGHT));
+        }
+        else
         {
             print_list(book_set, pad, current_row);
             set_menu_fore(menu, COLOR_PAIR(HEIGHTLIGHT) | A_REVERSE);
-	        set_menu_back(menu, COLOR_PAIR(FONT));
+            set_menu_back(menu, COLOR_PAIR(FONT));
         }
 
         // 刷新 pad 的视图
         prefresh(pad, scroll_offset, 0, main_win_start_y + 1, main_win_start_x + 1, main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
+
         // 打印表头
         mvwprintw(main_win, 0, 5, "%s", "ISBN");
         mvwprintw(main_win, 0, 25, "%s", "书名");
@@ -306,10 +314,10 @@ REFRESH_BOOK_PAD:
     }
 }
 
-//学生管理列表
-void stu_list(uiStudent** student_set)
+// 学生管理列表
+void stu_list(uiStudent **student_set)
 {
-    char* menu_choices[] = {
+    char *menu_choices[] = {
         "添加学生",
         "批量导入",
         "查询学生",
@@ -322,7 +330,7 @@ void stu_list(uiStudent** student_set)
     // "54326173883", "张佳玮", "计算机21-2", "计算机科学与技术", 21,"2021-03-22", "2032-10-21",{&mybook[0],&mybook[1],&mybook[2],NULL }};
 
 
-    
+
     // uiStudent* student = student_set;
     // 更新终端尺寸
     update_terminal_size();
@@ -332,7 +340,7 @@ void stu_list(uiStudent** student_set)
     int main_win_width = terminal.width - 2;
     int main_win_start_y = 4; // 起始位置下降4格
     int main_win_start_x = 1;
-    WINDOW* main_win = creat_win(main_win_height,main_win_width, main_win_start_y, main_win_start_x);
+    WINDOW *main_win = creat_win(main_win_height, main_win_width, main_win_start_y, main_win_start_x);
 
     // 创建 info 窗口
     int info_height = 4;
@@ -341,13 +349,13 @@ void stu_list(uiStudent** student_set)
     int info_start_x = 1;
     WINDOW *info_win = creat_win(info_height, info_width, info_start_y, info_start_x);
     mvwprintw(info_win, 1, (terminal.width - 2 - strlen("学生管理界面")) / 2, "学生管理界面");
-    //当前学生信息打印
+    // 当前学生信息打印
     MenuInfo info = {12, 56, "张三", "2024-12-17"};
     // strncpy(info.name, info.name, sizeof(info.name) - 1);
     // strncpy(info.date, info.date, sizeof(info.date) - 1);
     wrefresh(info_win);
 
-   
+
 
     //打印表头
     attron(COLOR_PAIR(PAD_HEIGHT_LIGHT));
@@ -363,7 +371,7 @@ void stu_list(uiStudent** student_set)
     int menu_width = terminal.width - 2; // 宽度减少2
     int menu_start_y = terminal.height - 5;
     int menu_start_x = 1;
-    WINDOW *menu_win = creat_win(menu_height, menu_width,menu_start_y,  menu_start_x);
+    WINDOW *menu_win = creat_win(menu_height, menu_width, menu_start_y, menu_start_x);
     keypad(menu_win, TRUE);
     wrefresh(menu_win);
 
@@ -391,7 +399,7 @@ void stu_list(uiStudent** student_set)
     set_current_item(menu, NULL);
     wrefresh(menu_win);
 
-     // 创建 pad
+    // 创建 pad
     int pad_height = LIST_SIZE + 1;
     int pad_width = terminal.width - 2; // 宽度减少2
 
@@ -399,13 +407,13 @@ void stu_list(uiStudent** student_set)
     keypad(pad, TRUE);
 REFRESH_STU_PAD:
     // 绘制列表项到 pad 上
-    for (int i = 0; i < LIST_SIZE; i++) {      //长度需要获得
+    for (int i = 0; i < LIST_SIZE; i++)
+    { // 长度需要获得
         print_student_list(student_set, pad, i);
     }
 
-
-    int scroll_offset = 0;    // 滚动偏移量
-    int current_row = 0;      // 当前选中的行
+    int scroll_offset = 0; // 滚动偏移量
+    int current_row = 0;   // 当前选中的行
 
     // 高亮当前行
     wattron(pad, A_REVERSE);
@@ -416,14 +424,18 @@ REFRESH_STU_PAD:
     prefresh(pad, scroll_offset, 0, main_win_start_y + 1, main_win_start_x + 1, main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
     wrefresh(main_win);
 
-
     // 初始化
-    enum { PAD, MENU } active_window = PAD;
+    enum
+    {
+        PAD,
+        MENU
+    } active_window = PAD;
     WINDOW *current_win = pad;
     keypad(menu_win, TRUE);
 
     // 主循环
-    while (1) {
+    while (1)
+    {
         int ch = wgetch(current_win);
         switch (ch) {
             // 按键处理
@@ -474,7 +486,7 @@ REFRESH_STU_PAD:
                     // 处理菜单选择
                     ITEM *cur = current_item(menu);
                     const char *choice = item_name(cur);
-                
+
                     if (strcmp(choice, "退出") == 0) {
                         // 退出程序
                         unpost_menu(menu);
@@ -504,9 +516,10 @@ REFRESH_STU_PAD:
                                 uistudent temp=uiStudentArray[i];
                                 student tStudent=back_to_student(temp);
                                 studentDb->add(studentDb,tStudent);
+                                studentDb->save(studentDb);
+
                             }
                         }
-                        studentDb->save(studentDb);
                         show_message_box("添加成功");
                     }
                     else if (strcmp(choice, "查询学生") == 0)
@@ -521,7 +534,7 @@ REFRESH_STU_PAD:
                     // 其他菜单项的处理逻辑
                 } else if (active_window == PAD) {
                     // 弹出确认窗口
-                    
+
                     show_student_confirm_window(student_set[current_row]);
                      werase(pad);
                     goto REFRESH_STU_PAD;
@@ -541,19 +554,19 @@ REFRESH_STU_PAD:
         }
 
         // 设置新的高亮
-        if (active_window == PAD) 
+        if (active_window == PAD)
         {
             wattron(pad, A_REVERSE);
             print_student_list(student_set, pad, current_row);
             wattroff(pad, A_REVERSE);
             set_menu_fore(menu, COLOR_PAIR(UNHEIGHT));
-	        set_menu_back(menu, COLOR_PAIR(UNHEIGHT));
-
-        }else
+            set_menu_back(menu, COLOR_PAIR(UNHEIGHT));
+        }
+        else
         {
             print_student_list(student_set, pad, current_row);
             set_menu_fore(menu, COLOR_PAIR(HEIGHTLIGHT) | A_REVERSE);
-	        set_menu_back(menu, COLOR_PAIR(FONT));
+            set_menu_back(menu, COLOR_PAIR(FONT));
         }
 
         // 刷新 pad 的视图
@@ -574,7 +587,7 @@ REFRESH_STU_PAD:
 
 
 
- 
+
 //学生借阅列表
 void stu_borrow_list()
 {
@@ -586,14 +599,14 @@ void stu_borrow_list()
     };
     //uiStudent* thisStudent = stu[0];
     // uiBook** thisBook = stu->books;
-    
+
      char* menu_choices[] = {
         "借书",
         "借阅列表",
         "查询图书",
         "退出",
     };
-    
+
     // 更新终端尺寸
     update_terminal_size();
 
@@ -602,7 +615,7 @@ void stu_borrow_list()
     int main_win_width = terminal.width - 2;
     int main_win_start_y = 4; // 起始位置下降4格
     int main_win_start_x = 1;
-    WINDOW* main_win = creat_win(main_win_height,main_win_width, main_win_start_y, main_win_start_x);
+    WINDOW *main_win = creat_win(main_win_height, main_win_width, main_win_start_y, main_win_start_x);
 
     // 创建 info 窗口
     int info_height = 4;
@@ -611,20 +624,19 @@ void stu_borrow_list()
     int info_start_x = 1;
     WINDOW *info_win = creat_win(info_height, info_width, info_start_y, info_start_x);
     mvwprintw(info_win, 0, (terminal.width - 2 - strlen("学生借阅界面")) / 2, "学生借阅界面");
-    //当前书籍信息打印
-    // mvwprintw(info_win, 1, 1, "%s: %s", infoname.field1, stu->name);
-    // mvwprintw(info_win, 1, 20, "%s: %s", infoname.field2, stu->class);
-    // mvwprintw(info_win, 1, 40, "%s: %s", infoname.field3, stu->department);
-    // mvwprintw(info_win, 1, 60, "%s: %ld", infoname.field4, stu->id);
-    // wrefresh(info_win);
-
+    // 当前书籍信息打印
+    //  mvwprintw(info_win, 1, 1, "%s: %s", infoname.field1, stu->name);
+    //  mvwprintw(info_win, 1, 20, "%s: %s", infoname.field2, stu->class);
+    //  mvwprintw(info_win, 1, 40, "%s: %s", infoname.field3, stu->department);
+    //  mvwprintw(info_win, 1, 60, "%s: %ld", infoname.field4, stu->id);
+    //  wrefresh(info_win);
 
     // 创建 menu 窗口
     int menu_height = 5;
     int menu_width = terminal.width - 2; // 宽度减少2
     int menu_start_y = terminal.height - 5;
     int menu_start_x = 1;
-    WINDOW *menu_win = creat_win(menu_height, menu_width,menu_start_y,  menu_start_x);
+    WINDOW *menu_win = creat_win(menu_height, menu_width, menu_start_y, menu_start_x);
     keypad(menu_win, TRUE);
     wrefresh(menu_win);
 
@@ -641,7 +653,6 @@ void stu_borrow_list()
     set_menu_format(menu, 1, n_choices);
     set_menu_spacing(menu, 0, menu_item_width - strlen(menu_choices[0]), 0);
 
-
     // 设置菜单子窗口
     set_menu_sub(menu, derwin(menu_win, 1, menu_width - 2, 2, 1));
     set_menu_mark(menu, "  ");
@@ -653,7 +664,7 @@ void stu_borrow_list()
     set_current_item(menu, NULL);
     wrefresh(menu_win);
 
-// 创建 pad
+    // 创建 pad
     int pad_height = LIST_SIZE + 1;
     int pad_width = terminal.width - 2; // 宽度减少2
     WINDOW *pad = newpad(pad_height, pad_width);
@@ -664,8 +675,8 @@ REFRESH_BOOK_PAD:
     //     print_list(thisBook, pad, i);
     // }
 
-    int scroll_offset = 0;    // 滚动偏移量
-    int current_row = 0;      // 当前选中的行
+    int scroll_offset = 0; // 滚动偏移量
+    int current_row = 0;   // 当前选中的行
 
     // 高亮当前行
     wattron(pad, A_REVERSE);
@@ -685,16 +696,19 @@ REFRESH_BOOK_PAD:
     prefresh(pad, scroll_offset, 0, main_win_start_y + 1, main_win_start_x + 1, main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
     wrefresh(main_win);
 
-
     // 初始化
-    enum { PAD, MENU } active_window = PAD;
+    enum
+    {
+        PAD,
+        MENU
+    } active_window = PAD;
     WINDOW *current_win = pad;
     keypad(menu_win, TRUE);
 
     // 主循环
 
     while (1) {
-        int ch = wgetch(current_win);  
+        int ch = wgetch(current_win);
         switch (ch) {
             // 按键处理
             case KEY_UP:
@@ -746,7 +760,7 @@ REFRESH_BOOK_PAD:
                     ITEM *cur = current_item(menu);
                     const char *choice = item_name(cur);
                     if (strcmp(choice, "退出") == 0) {
-                        
+
                         // 退出程序
                         unpost_menu(menu);
                         free_menu(menu);
@@ -757,11 +771,11 @@ REFRESH_BOOK_PAD:
                         delwin(menu_win);
                         endwin();
                         return;
-            
+
                     }else if (strcmp(choice, "借书") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
-                        * 
+                        *
                         * uiBook* newBook = getbookinfo();//添加图书
                         * func_addbook(newBook);
                         *
@@ -770,9 +784,9 @@ REFRESH_BOOK_PAD:
                         if (new_book == NULL)
                             break;
                         show_message_box("已借阅");
-                    
 
-                        
+
+
                     }else if(strcmp(choice, "借阅列表") == 0)
                     {
                         /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
@@ -795,7 +809,7 @@ REFRESH_BOOK_PAD:
                     // show_confirm_window(thisBook[current_row]);
                     werase(pad);
                     goto REFRESH_BOOK_PAD;
-                
+
                 }
                 break;
             // 其他按键处理
@@ -812,19 +826,19 @@ REFRESH_BOOK_PAD:
         }
 
         // 设置新的高亮
-        if (active_window == PAD) 
+        if (active_window == PAD)
         {
             wattron(pad, A_REVERSE);
             // print_list(thisBook, pad, current_row);
             wattroff(pad, A_REVERSE);
             set_menu_fore(menu, COLOR_PAIR(UNHEIGHT));
-	        set_menu_back(menu, COLOR_PAIR(UNHEIGHT));
-
-        }else
+            set_menu_back(menu, COLOR_PAIR(UNHEIGHT));
+        }
+        else
         {
             // print_list(thisBook, pad, current_row);
             set_menu_fore(menu, COLOR_PAIR(HEIGHTLIGHT) | A_REVERSE);
-	        set_menu_back(menu, COLOR_PAIR(FONT));
+            set_menu_back(menu, COLOR_PAIR(FONT));
         }
 
         // 刷新 pad 的视图
@@ -838,5 +852,5 @@ REFRESH_BOOK_PAD:
         wrefresh(menu_win);
         wrefresh(main_win);
     }
-    
+
 }
