@@ -247,9 +247,10 @@ REFRESH_BOOK_PAD:
                                 uibook temp=uiBookArray[i];
                                 book tBook=back_to_book(temp);
                                 bookDb->add(bookDb,tBook);
+                                bookDb->save(bookDb);
+
                             }
                         }
-                        bookDb->save(bookDb);
                         return;
 
                     }
@@ -504,9 +505,10 @@ REFRESH_STU_PAD:
                                 uistudent temp=uiStudentArray[i];
                                 student tStudent=back_to_student(temp);
                                 studentDb->add(studentDb,tStudent);
+                                studentDb->save(studentDb);
+
                             }
                         }
-                        studentDb->save(studentDb);
                         show_message_box("添加成功");
                     }
                     else if (strcmp(choice, "查询学生") == 0)
