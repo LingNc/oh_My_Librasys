@@ -25,12 +25,12 @@ static size_t _database_size(dataBase this){
 }
 
 // 加载数据库
-dataBase load_database(const char *filePath,const char *type){
+dataBase load_database(const char *inPath,const char *type){
     dataBase this=(dataBase)malloc(sizeof(DataBase));
     _init_func(this);
     this->_type=new_string();
     this->_type->assign_cstr(this->_type,type);
-    _init_all(this,filePath);
+    _init_all(this,inPath);
 
     // 检查数据库文件
     FILE *file=fopen(this->filePath->c_str(this->filePath),"a+b");
@@ -60,14 +60,19 @@ static void _init_func(dataBase this){
 }
 
 // 初始化数据库
-static void _init_all(dataBase this,const char *filePath){
+static void _init_all(dataBase this,const char *inPath){
+    this->_inPath=new_string();
+    this->_inPath->assign_cstr(this->_inPath,inPath);
+
     this->filePath=new_string();
-    this->filePath->assign_cstr(this->filePath,filePath);
+    this->filePath->assign_cstr(this->filePath,inPath);
+    this->filePath->append_cstr(this->filePath,".db");
+
     this->_buffer=new_vector(this->_type->c_str(this->_type));
     this->_temp=new_vector(this->_type->c_str(this->_type));
     this->_find_buffer=new_vector(this->_type->c_str(this->_type));
     this->_index=(database_index)malloc(sizeof(DataBase_Index));
-    init_index(this->_index,filePath,100);
+    init_index(this->_index,inPath,100);
     load_index(this->_index);
 }
 

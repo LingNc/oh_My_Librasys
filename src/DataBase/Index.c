@@ -12,6 +12,7 @@ static size_t default_hash_func(size_t key) {
 void init_index(database_index index, const char *filePath, size_t bucket_count) {
     index->filePath = new_string();
     index->filePath->assign_cstr(index->filePath, filePath);
+    // index->filePath->append_cstr(index->filePath,".idx");
     index->hash = default_hash_func;
     index->bucket_count = bucket_count;
     index->nums = 0; // 初始化索引数量
