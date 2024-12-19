@@ -31,4 +31,7 @@ void load_student(student this, size_t id, const char *name, const char *class, 
 student __init_Student();
 student new_student();
 
+// 释放 Student 对象本身
+void free_student(student this);
+
 #endif

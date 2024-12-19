@@ -57,7 +57,8 @@ static void _init_all(dataBase this, const char *filePath) {
     this->_temp = new_vector(this->_type->c_str(this->_type));
     this->_find_buffer = new_vector(this->_type->c_str(this->_type));
     this->_index = (database_index)malloc(sizeof(DataBase_Index));
-    init_index(this->_index, filePath, 100);
+    init_index(this->_index,filePath,100);
+    load_index(this->_index);
 }
 
 // 添加数据
@@ -101,8 +102,8 @@ static void _database_save(dataBase this) {
         size_t offset = ftell(file);
         fwrite(&isDeleted, sizeof(char), 1, file);
         fwrite(serializedData, dataSize, 1, file);
-        size_t key = *(size_t *)data; // 假设key在data的开头
-        add_index(this->_index, key, offset);
+        size_t key=get_next_index_key(this->_index);
+        add_index(this->_index,key,offset);
     }
     fclose(file);
     this->_buffer->clear(this->_buffer);
@@ -154,11 +155,11 @@ static void *_database_find_key(dataBase this, size_t key) {
             return NULL;
         }
         fseek(file, offset, SEEK_SET);
+        char isDeleted;
+        fread(&isDeleted,sizeof(char),1,file);
         size_t dataSize;
         fread(&dataSize, sizeof(size_t), 1, file);
-        char isDeleted;
-        fread(&isDeleted, sizeof(char), 1, file);
-        if (isDeleted == 1) {
+        if(isDeleted==1){
             char *data = (char *)malloc(dataSize);
             fread(data, dataSize, 1, file);
             void *item = malloc(this->_find_buffer->_itemSize);

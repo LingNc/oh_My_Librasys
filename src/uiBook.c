@@ -67,7 +67,7 @@ void free_uibook(uibook this) {
     free(this->author);
     free(this->publisher);
     free(this->time);
-    free(this);
+    // free(this);
 }
 
 book back_to_book(uibook this) {

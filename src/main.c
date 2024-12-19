@@ -26,8 +26,8 @@ int main(){
         bookArray = (uibook *)malloc(bookReadCount * sizeof(uibook));
         for (size_t i = 0; i < bookReadCount; ++i)
         {
-            book data = bookDb->find_key(bookDb, i);
-            if (data)
+            book data=bookDb->find_key(bookDb,i);
+            if(data)
             {
                 bookArray[i] = new_from_book(data);
             }
@@ -56,7 +56,7 @@ int main(){
     while (1)
     {
         Screen next_screen = screen_functions[cur_screen]();
-        switch (next_screen)
+        switch(next_screen)
         {
         case BACK:
             cur_screen = pop_screen(stack);

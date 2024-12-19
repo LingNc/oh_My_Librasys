@@ -13,17 +13,20 @@ struct Book {
     string author;
     string publisher;
     string time;
-    int status; // 0: 可借, 1: 已借出
+    int status; // 1: 可借, 0: 已借出
 
-    // 表示序列化之后的数据
+    // 序列化数据
     string _serialize;
     _init_default_func(book);
 };
-book new_book();
 
 // 初始化 Book 对象
 book __init_Book();
+book new_book();
 
-void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status);
+// 释放 Book 对象管理的内存
+void load_book(book this,size_t id,const char *ISBN,const char *name,const char *author,const char *publisher,const char *time,int status);
+
+void free_book(book this);
 
 #endif

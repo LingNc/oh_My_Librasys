@@ -13,20 +13,36 @@ void _book_free(book this);
 book _book_init(book this);
 book new_book();
 void load_book(book this, size_t id, const char *ISBN, const char *name, const char *author, const char *publisher, const char *time, int status);
+void free_book(book this);
 
 // data获得序列化数据实现
 const char *_book_data(book this) {
     this->_serialize->clear(this->_serialize);
-    size_t len = sizeof(size_t) + this->ISBN->length(this->ISBN) + this->name->length(this->name) +
-                 this->author->length(this->author) + this->publisher->length(this->publisher) +
-                 this->time->length(this->time) + sizeof(this->status);
+    size_t len = sizeof(size_t) + sizeof(size_t) + this->ISBN->length(this->ISBN) + sizeof(size_t) + this->name->length(this->name) +
+                 sizeof(size_t) + this->author->length(this->author) + sizeof(size_t) + this->publisher->length(this->publisher) +
+                 sizeof(size_t) + this->time->length(this->time) + sizeof(this->status);
     this->_serialize->append_n(this->_serialize, (const char*)&len, sizeof(len));
 
-    this->_serialize->append_n(this->_serialize, this->ISBN->c_str(this->ISBN), this->ISBN->length(this->ISBN));
-    this->_serialize->append_n(this->_serialize, this->name->c_str(this->name), this->name->length(this->name));
-    this->_serialize->append_n(this->_serialize, this->author->c_str(this->author), this->author->length(this->author));
-    this->_serialize->append_n(this->_serialize, this->publisher->c_str(this->publisher), this->publisher->length(this->publisher));
-    this->_serialize->append_n(this->_serialize, this->time->c_str(this->time), this->time->length(this->time));
+    size_t str_len = this->ISBN->length(this->ISBN);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->ISBN->c_str(this->ISBN), str_len);
+
+    str_len = this->name->length(this->name);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->name->c_str(this->name), str_len);
+
+    str_len = this->author->length(this->author);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->author->c_str(this->author), str_len);
+
+    str_len = this->publisher->length(this->publisher);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->publisher->c_str(this->publisher), str_len);
+
+    str_len = this->time->length(this->time);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->time->c_str(this->time), str_len);
+
     this->_serialize->append_n(this->_serialize, (const char *)&this->status, sizeof(this->status));
 
     return this->_serialize->c_str(this->_serialize);
@@ -35,24 +51,31 @@ const char *_book_data(book this) {
 // 反序列化数据实现
 void _book_in_data(book this, const char *data) {
     size_t ptr = 0;
-    size_t len = 0;
-    memcpy(&len, data + ptr, sizeof(len));
-    ptr += sizeof(len);
+    size_t str_len = 0;
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->ISBN->append_n(this->ISBN, data + ptr, str_len);
+    ptr += str_len;
 
-    this->ISBN->assign_cstr(this->ISBN, data + ptr);
-    ptr += this->ISBN->length(this->ISBN);
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->name->append_n(this->name, data + ptr, str_len);
+    ptr += str_len;
 
-    this->name->assign_cstr(this->name, data + ptr);
-    ptr += this->name->length(this->name);
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->author->append_n(this->author, data + ptr, str_len);
+    ptr += str_len;
 
-    this->author->assign_cstr(this->author, data + ptr);
-    ptr += this->author->length(this->author);
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->publisher->append_n(this->publisher, data + ptr, str_len);
+    ptr += str_len;
 
-    this->publisher->assign_cstr(this->publisher, data + ptr);
-    ptr += this->publisher->length(this->publisher);
-
-    this->time->assign_cstr(this->time, data + ptr);
-    ptr += this->time->length(this->time);
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->time->append_n(this->time, data + ptr, str_len);
+    ptr += str_len;
 
     memcpy(&this->status, data + ptr, sizeof(this->status));
     ptr += sizeof(this->status);
@@ -98,7 +121,6 @@ void _book_free(book this) {
     if (this->publisher) this->publisher->free(this->publisher);
     if (this->time) this->time->free(this->time);
     if (this->_serialize) this->_serialize->free(this->_serialize);
-    free(this);
 }
 // 初始化
 book _book_init(book this) {
@@ -140,4 +162,10 @@ void load_book(book this, size_t id, const char *ISBN, const char *name, const c
 // 初始化 Book 对象的函数
 book __init_Book() {
     return new_book();
+}
+// 释放 Book 对象本身
+void free_book(book this) {
+    if(!this) return;
+    this->free(this);
+    free(this);
 }
