@@ -14,6 +14,7 @@ void init_index(database_index index, const char *filePath, size_t bucket_count)
     index->filePath->assign_cstr(index->filePath, filePath);
     index->hash = default_hash_func;
     index->bucket_count = bucket_count;
+    index->nums = 0; // 初始化索引数量
     index->buckets = (vector *)malloc(bucket_count * sizeof(vector));
     if (!index->buckets) {
         perror("Index: buckets 指针分配失败");
@@ -61,6 +62,7 @@ void add_index(database_index index, size_t key, size_t offset) {
     pair p = new_pair();
     init_pairs(p, key, offset);
     bucket->push_back(bucket, p);
+    index->nums++; // 增加索引数量
 }
 
 // 删除键值对
@@ -73,9 +75,25 @@ void remove_index(database_index index, size_t key) {
         if (p->key == key) {
             bucket->remove(bucket, i);
             delete_pair(p);
+            index->nums--; // 减少索引数量
             return;
         }
     }
+}
+
+// 获取最后一个索引键
+size_t get_last_index_key(database_index index) {
+    size_t lastKey = 0;
+    for (size_t i = 0; i < index->bucket_count; ++i) {
+        vector bucket = index->buckets[i];
+        for (size_t j = 0; j < bucket->size(bucket); ++j) {
+            pair p = (pair)bucket->at(bucket, j);
+            if (p->key > lastKey) {
+                lastKey = p->key;
+            }
+        }
+    }
+    return lastKey;
 }
 
 // 从文件加载索引
@@ -90,6 +108,7 @@ void load_index(database_index index) {
     }
     size_t indexCount;
     fread(&indexCount, sizeof(size_t), 1, indexFile);
+    index->nums = indexCount; // 设置索引数量
     for (size_t i = 0; i < indexCount; ++i) {
         size_t key, offset;
         fread(&key, sizeof(size_t), 1, indexFile);
@@ -108,11 +127,7 @@ void save_index(database_index index) {
         perror("Failed to open index file for writing");
         return;
     }
-    size_t indexCount = 0;
-    for (size_t i = 0; i < index->bucket_count; ++i) {
-        indexCount += index->buckets[i]->size(index->buckets[i]);
-    }
-    fwrite(&indexCount, sizeof(size_t), 1, indexFile);
+    fwrite(&index->nums, sizeof(size_t), 1, indexFile); // 写入索引数量
     for (size_t i = 0; i < index->bucket_count; ++i) {
         vector bucket = index->buckets[i];
         for (size_t j = 0; j < bucket->size(bucket); ++j) {

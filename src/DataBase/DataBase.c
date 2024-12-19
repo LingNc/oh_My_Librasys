@@ -39,13 +39,14 @@ dataBase load_database(const char *filePath, const char *type) {
     return this;
 }
 
-// 初始化函数
+// 初始化函��
 static void _init_func(dataBase this) {
     this->add = _database_add;
     this->rm = _database_remove;
     this->save = _database_save;
     this->find = _database_find;
-    this->find_key = _database_find_key;
+    this->find_key=_database_find_key;
+    this->clean=clean_database;
 }
 
 // 初始化数据库
@@ -61,6 +62,8 @@ static void _init_all(dataBase this, const char *filePath) {
 
 // 添加数据
 static void _database_add(dataBase this, void *data) {
+    size_t newKey = get_next_index_key(this->_index); // 获取索引中最后一个唯一编号id，然后向后顺延一个
+    *(size_t *)data = newKey; // 假设key在data的开头
     this->_buffer->push_back(this->_buffer, data);
 }
 
@@ -73,7 +76,7 @@ static void _database_remove(dataBase this, size_t key) {
             perror("DataBase: 无法打开文件进行写入");
             return;
         }
-        fseek(file, offset + sizeof(size_t), SEEK_SET); // 跳过数据大小
+        fseek(file, offset + sizeof(size_t), SEEK_SET); // 跳过数据大��
         char isDeleted = 0;
         fwrite(&isDeleted, sizeof(char), 1, file);
         fclose(file);
@@ -221,6 +224,12 @@ void clean_database(dataBase this) {
     remove(this->filePath->c_str(this->filePath));
     rename("temp.db", this->filePath->c_str(this->filePath));
     rebuild_index(this->_index, this->filePath->c_str(this->filePath));
+}
+
+// 获取下一个索引键
+size_t get_next_index_key(database_index index) {
+    size_t lastKey = get_last_index_key(index); // 获取索引中最后一个唯一编号id
+    return lastKey + 1;
 }
 
 

@@ -47,5 +47,8 @@ void close_database(dataBase this);
 // 清理数据库
 void clean_database(dataBase this);
 
+// 获取下一个索引键
+size_t get_next_index_key(database_index index);
+
 #define database(filePath, type) load_database(filePath, #type)
 #endif
