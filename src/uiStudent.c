@@ -89,7 +89,7 @@ void free_uistudent(uistudent this) {
         }
         free(this->books);
     }
-    free(this);
+    // free(this);
 }
 
 student back_to_student(uistudent this) {

@@ -98,7 +98,7 @@ void _book_free(book this) {
     if (this->publisher) this->publisher->free(this->publisher);
     if (this->time) this->time->free(this->time);
     if (this->_serialize) this->_serialize->free(this->_serialize);
-    free(this);
+    // free(this);
 }
 // 初始化
 book _book_init(book this) {
