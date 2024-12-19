@@ -63,9 +63,10 @@ static void _init_all(dataBase this, const char *filePath) {
 
 // 添加数据
 static void _database_add(dataBase this, void *data) {
-    size_t newKey = get_next_index_key(this->_index); // 获取索引中最后一个唯一编号id，然后向后顺延一个
-    *(size_t *)data = newKey; // 假设key在data的开头
-    this->_buffer->push_back(this->_buffer, data);
+    size_t newKey=get_next_index_key(this->_index); // 获取索引中最后一个唯一编号id，然后向后顺延一个
+    // id在第1个
+    *(size_t *)data=newKey;
+    this->_buffer->push_back(this->_buffer,data);
 }
 
 // 删除数据

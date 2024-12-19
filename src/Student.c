@@ -14,7 +14,7 @@ static void _student_free(student this);
 static void _student_in_data(student this,const char *data);
 void load_student(student this,size_t id,const char *name,const char *class,const char *department,int borrowedCount,const char *borrowedDate,const char *returnDate);
 void free_student(student this);
-static student _student_copy(student this);
+static void _student_copy(student this, student other);
 static int _student_cmp(student this, student other);
 
 student _student_init(student this){
@@ -80,43 +80,74 @@ void return_book(student this,book b){
 // 序列化学生数据
 const char *_student_data(student this){
     this->_serialize->clear(this->_serialize);
-    size_t len=sizeof(this->id)+this->name->length(this->name)+this->class->length(this->class)+
-        this->department->length(this->department)+sizeof(this->borrowedCount)+
-        this->borrowedDate->length(this->borrowedDate)+this->returnDate->length(this->returnDate);
-    this->_serialize->append_n(this->_serialize,(const char *)&len,sizeof(len));
+    size_t len = sizeof(size_t) + sizeof(this->id) + sizeof(size_t) + this->name->length(this->name) +
+                 sizeof(size_t) + this->class->length(this->class) + sizeof(size_t) + this->department->length(this->department) +
+                 sizeof(this->borrowedCount) + sizeof(size_t) + this->borrowedDate->length(this->borrowedDate) +
+                 sizeof(size_t) + this->returnDate->length(this->returnDate);
+    this->_serialize->append_n(this->_serialize, (const char*)&len, sizeof(len));
 
-    this->_serialize->append_n(this->_serialize,(const char *)&this->id,sizeof(this->id));
-    this->_serialize->append_n(this->_serialize,this->name->c_str(this->name),this->name->length(this->name));
-    this->_serialize->append_n(this->_serialize,this->class->c_str(this->class),this->class->length(this->class));
-    this->_serialize->append_n(this->_serialize,this->department->c_str(this->department),this->department->length(this->department));
-    this->_serialize->append_n(this->_serialize,(const char *)&this->borrowedCount,sizeof(this->borrowedCount));
-    this->_serialize->append_n(this->_serialize,this->borrowedDate->c_str(this->borrowedDate),this->borrowedDate->length(this->borrowedDate));
-    this->_serialize->append_n(this->_serialize,this->returnDate->c_str(this->returnDate),this->returnDate->length(this->returnDate));
+    this->_serialize->append_n(this->_serialize, (const char*)&this->id, sizeof(this->id));
+
+    size_t str_len = this->name->length(this->name);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->name->c_str(this->name), str_len);
+
+    str_len = this->class->length(this->class);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->class->c_str(this->class), str_len);
+
+    str_len = this->department->length(this->department);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->department->c_str(this->department), str_len);
+
+    this->_serialize->append_n(this->_serialize, (const char*)&this->borrowedCount, sizeof(this->borrowedCount));
+
+    str_len = this->borrowedDate->length(this->borrowedDate);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->borrowedDate->c_str(this->borrowedDate), str_len);
+
+    str_len = this->returnDate->length(this->returnDate);
+    this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
+    this->_serialize->append_n(this->_serialize, this->returnDate->c_str(this->returnDate), str_len);
 
     return this->_serialize->c_str(this->_serialize);
 }
 
 // 反序列化学生数据
-void _student_in_data(student this,const char *data){
-    size_t offset=0;
-    size_t len=0;
-    memcpy(&len,data+offset,sizeof(len));
-    offset+=sizeof(len);
+void _student_in_data(student this, const char *data) {
+    size_t ptr = 0;
+    size_t len = 0;
+    memcpy(&this->id, data + ptr, sizeof(this->id));
+    ptr += sizeof(this->id);
 
-    memcpy(&this->id,data+offset,sizeof(this->id));
-    offset+=sizeof(this->id);
-    this->name->assign_cstr(this->name,data+offset);
-    offset+=this->name->length(this->name);
-    this->class->assign_cstr(this->class,data+offset);
-    offset+=this->class->length(this->class);
-    this->department->assign_cstr(this->department,data+offset);
-    offset+=this->department->length(this->department);
-    memcpy(&this->borrowedCount,data+offset,sizeof(this->borrowedCount));
-    offset+=sizeof(this->borrowedCount);
-    this->borrowedDate->assign_cstr(this->borrowedDate,data+offset);
-    offset+=this->borrowedDate->length(this->borrowedDate);
-    this->returnDate->assign_cstr(this->returnDate,data+offset);
-    offset+=this->returnDate->length(this->returnDate);
+    size_t str_len = 0;
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->name->append_n(this->name, data + ptr, str_len);
+    ptr += str_len;
+
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->class->append_n(this->class, data + ptr, str_len);
+    ptr += str_len;
+
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->department->append_n(this->department, data + ptr, str_len);
+    ptr += str_len;
+
+    memcpy(&this->borrowedCount, data + ptr, sizeof(this->borrowedCount));
+    ptr += sizeof(this->borrowedCount);
+
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->borrowedDate->append_n(this->borrowedDate, data + ptr, str_len);
+    ptr += str_len;
+
+    memcpy(&str_len, data + ptr, sizeof(str_len));
+    ptr += sizeof(str_len);
+    this->returnDate->append_n(this->returnDate, data + ptr, str_len);
+    ptr += str_len;
 }
 
 void load_student(student this,size_t id,const char *name,const char *class,const char *department,int borrowedCount,const char *borrowedDate,const char *returnDate){
@@ -142,10 +173,10 @@ void _student_free(student this){
     delete_string(this->borrowedDate);
     delete_string(this->returnDate);
     if(this->books){
-        for(size_t i=0; i<this->borrowedCount; ++i){
-            free_book((book)this->books->at(this->books,i));
-        }
-        this->books->free(this->books);
+        // for(size_t i=0; i<this->borrowedCount; ++i){
+            // ((book)this->books->at(this->books,i))->free;
+        // }
+        // this->books->free(this->books);
     }
     delete_string(this->_serialize);
 }
@@ -157,20 +188,19 @@ void free_student(student this){
     free(this);
 }
 
-student _student_copy(student this) {
-    student new_stu = new_student();
-    new_stu->id = this->id;
-    new_stu->name->assign_cstr(new_stu->name, this->name->c_str(this->name));
-    new_stu->class->assign_cstr(new_stu->class, this->class->c_str(this->class));
-    new_stu->department->assign_cstr(new_stu->department, this->department->c_str(this->department));
-    new_stu->borrowedCount = this->borrowedCount;
-    new_stu->borrowedDate->assign_cstr(new_stu->borrowedDate, this->borrowedDate->c_str(this->borrowedDate));
-    new_stu->returnDate->assign_cstr(new_stu->returnDate, this->returnDate->c_str(this->returnDate));
-    for (size_t i = 0; i < this->books->size(this->books); ++i) {
-        book b = (book)this->books->at(this->books, i);
-        new_stu->books->push_back(new_stu->books, b);
+static void _student_copy(student this, student other) {
+    this->id = other->id;
+    this->name->assign_cstr(this->name, other->name->c_str(other->name));
+    this->class->assign_cstr(this->class, other->class->c_str(other->class));
+    this->department->assign_cstr(this->department, other->department->c_str(other->department));
+    this->borrowedCount = other->borrowedCount;
+    this->borrowedDate->assign_cstr(this->borrowedDate, other->borrowedDate->c_str(other->borrowedDate));
+    this->returnDate->assign_cstr(this->returnDate, other->returnDate->c_str(other->returnDate));
+    this->books->clear(this->books);
+    for (size_t i = 0; i < other->books->size(other->books); ++i) {
+        book b = (book)other->books->at(other->books, i);
+        this->books->push_back(this->books, b);
     }
-    return new_stu;
 }
 
 int _student_cmp(student this, student other) {

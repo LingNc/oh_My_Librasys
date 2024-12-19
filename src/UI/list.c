@@ -143,167 +143,145 @@ REFRESH_BOOK_PAD:
 
     // 主循环
 
-    while (1)
-    {
+
+    while (1) {
         int ch = wgetch(current_win);
-        switch (ch)
-        {
-        // 按键处理
-        case KEY_UP:
-            if (active_window == PAD && current_row > 0)
-            {
-                // 去掉旧的高亮
-                print_list(book_set, pad, current_row);
-                current_row--;
-                if (current_row < scroll_offset && scroll_offset > 0)
-                {
-                    scroll_offset--;
-                }
-            }
-            break;
-        case KEY_DOWN:
-            if (active_window == PAD && current_row < LIST_SIZE - 1)
-            {
-                // 去掉旧的高亮
-                print_list(book_set, pad, current_row);
-                current_row++;
-                if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height)
-                {
-                    scroll_offset++;
-                }
-            }
-            break;
-        case KEY_LEFT:
-            if (active_window == MENU)
-            {
-                menu_driver(menu, REQ_LEFT_ITEM);
-            }
-            break;
-        case KEY_RIGHT:
-            if (active_window == MENU)
-            {
-                menu_driver(menu, REQ_RIGHT_ITEM);
-            }
-            break;
-        case 9: // Tab 键
-            if (active_window == PAD)
-            {
-                active_window = MENU;
-                current_win = menu_win;
-            }
-            else
-            {
-                active_window = PAD;
-                current_win = pad;
-            }
-            // 更新窗口焦点提示
-            update_window_focus(menu_win, active_window == MENU);
-            update_window_focus(main_win, active_window == PAD);
-            break;
-        case 10: // 回车键
-            if (active_window == MENU)
-            {
-                // 处理菜单选择
-                Inputinfo *new_book;
-                ITEM *cur = current_item(menu);
-                const char *choice = item_name(cur);
-                if (strcmp(choice, "退出") == 0)
-                {
-
-                    // 退出程序
-                    unpost_menu(menu);
-                    free_menu(menu);
-                    for (int i = 0; i < n_choices; ++i)
-                    {
-                        free_item(items[i]);
+        switch (ch) {
+            // 按键处理
+            case KEY_UP:
+                if (active_window == PAD && current_row > 0) {
+                    // 去掉旧的高亮
+                    print_list(book_set, pad, current_row);
+                    current_row--;
+                    if (current_row < scroll_offset && scroll_offset > 0) {
+                        scroll_offset--;
                     }
-                    free(items);
-                    delwin(menu_win);
-                    endwin();
-                    return;
                 }
-                else if (strcmp(choice, "添加图书") == 0)
-                {
-                    /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
-                     *
-                     * uiBook* newBook = getbookinfo();//添加图书
-                     * func_addbook(newBook);
-                     *
-                     */
-                    char *ISBN = s_simplewin("请输入ISBN号: ");
-                    char *bookname = s_simplewin("请输入书名: ");
-                    char *author = s_simplewin("请输入作者: ");
-                    char *publisher = s_simplewin("请输入出版社: ");
+                break;
+            case KEY_DOWN:
+                if (active_window == PAD && current_row < LIST_SIZE - 1) {
+                    // 去掉旧的高亮
+                    print_list(book_set, pad, current_row);
+                    current_row++;
+                    if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height) {
+                        scroll_offset++;
+                    }
+                }
+                break;
+            case KEY_LEFT:
+                if (active_window == MENU) {
+                    menu_driver(menu, REQ_LEFT_ITEM);
+                }
+                break;
+            case KEY_RIGHT:
+                if (active_window == MENU) {
+                    menu_driver(menu, REQ_RIGHT_ITEM);
+                }
+                break;
+            case 9: // Tab 键
+                if (active_window == PAD) {
+                    active_window = MENU;
+                    current_win = menu_win;
+                } else {
+                    active_window = PAD;
+                    current_win = pad;
+                }
+                // 更新窗口焦点提示
+                update_window_focus(menu_win, active_window == MENU);
+                update_window_focus(main_win, active_window == PAD);
+                break;
+            case 10: // 回车键
+                if (active_window == MENU) {
+                    // 处理菜单选择
+                    Inputinfo* new_book;
+                    ITEM *cur = current_item(menu);
+                    const char *choice = item_name(cur);
+                    if (strcmp(choice, "退出") == 0) {
 
-                    book lea_new_book = my_init_book(1, ISBN, bookname, author, publisher);
-                    book tBook = back_to_book(lea_new_book);
-                    bookDb->add(bookDb, tBook);
-                    bookDb->save(bookDb);
-
-                    //-----------------------------------------------------3
-                    show_message_box("已添加");
-                    return;
-                }
-                else if (strcmp(choice, "查询图书") == 0)
-                {
-                    /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
-                     * uiBook* searchBook = getbookinfo();//添加图书
-                     * func_findbook(searchBook);
-                     *
-                     */
-                    char *ISBN = s_simplewin("请输入ISBN号: ");
-                    char *bookname = s_simplewin("请输入书名: ");
-                    char *author = s_simplewin("请输入作者: ");
-                    char *publisher = s_simplewin("请输入出版社: ");
-                }
-                else if (strcmp(choice, "批量导入") == 0)
-                {
-                    /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
-                     * uiBook* searchBook = getbookinfo();//添加图书
-                     * func_findbook(searchBook);
-                     *
-                     */
-                    // create_input_window
-                    char *route = s_simplewin("请输入文件路径: ");
-                    uibook *uiBookArray = load_books_from_file(route);
-                    for (size_t i = 0; i < 1000; i++)
-                    {
-                        if (uiBookArray[i])
-                        {
-                            uibook temp = uiBookArray[i];
-                            book tBook = back_to_book(temp);
-                            bookDb->add(bookDb, tBook);
+                        // 退出程序
+                        unpost_menu(menu);
+                        free_menu(menu);
+                        for (int i = 0; i < n_choices; ++i) {
+                            free_item(items[i]);
                         }
-                    }
-                    bookDb->save(bookDb);
-                    return;
-                }
-            }
-            else if (active_window == PAD)
-            {
-                // 弹出确认窗口
-                show_confirm_window(book_set[current_row]);
+                        free(items);
+                        delwin(menu_win);
+                        endwin();
+                        return;
 
-                clear();
-                werase(pad);
-                prefresh(pad, scroll_offset, 0, main_win_start_y, main_win_start_x + 1,
-                         main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
-                wrefresh(main_win);
-                goto REFRESH_BOOK_PAD;
-            }
-            break;
-        // 其他按键处理
-        case 'q': // 按 'q' 退出
-            unpost_menu(menu);
-            free_menu(menu);
-            for (int i = 0; i < n_choices; ++i)
-            {
-                free_item(items[i]);
-            }
-            free(items);
-            delwin(menu_win);
-            endwin();
-            return;
+                    }else if (strcmp(choice, "添加图书") == 0)
+                    {
+                        /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
+                         *
+                         * uiBook* newBook = getbookinfo();//添加图书
+                         * func_addbook(newBook);
+                         *
+                         */
+                        char *ISBN = s_simplewin("请输入ISBN号: ");
+                        char *bookname = s_simplewin("请s_输入书名: ");
+                        char *author = s_simplewin("请输入作者: ");
+                        char *publisher = s_simplewin("请输入出版社: ");
+
+
+                        //-----------------------------------------------------3
+                        show_message_box("已添加");
+                    }else if(strcmp(choice, "查询图书") == 0)
+                    {
+                        /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
+                        * uiBook* searchBook = getbookinfo();//添加图书
+                        * func_findbook(searchBook);
+                        *
+                        */
+                        char *ISBN = s_simplewin("请输入ISBN号: ");
+                        char *bookname = s_simplewin("请输入书名: ");
+                        char *author = s_simplewin("请输入作者: ");
+                        char *publisher = s_simplewin("请输入出版社: ");
+
+
+                    }else if(strcmp(choice, "批量导入") == 0)
+                    {
+                        /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
+                        * uiBook* searchBook = getbookinfo();//添加图书
+                        * func_findbook(searchBook);
+                        *
+                        */
+                        // create_input_window
+                        char *route = s_simplewin("请输入文件路径: ");
+                        uibook *uiBookArray=load_books_from_file(route);
+                        for(size_t i=0;i<1000;i++){
+                            if(uiBookArray[i]){
+                                uibook temp=uiBookArray[i];
+                                book tBook=back_to_book(temp);
+                                bookDb->add(bookDb,tBook);
+                                bookDb->save(bookDb);
+
+                            }
+                        }
+                        return;
+
+                    }
+                } else if (active_window == PAD) {
+                    // 弹出确认窗口
+                    show_confirm_window(book_set[current_row]);
+
+                    clear();
+                    werase(pad);
+                    prefresh(pad, scroll_offset, 0, main_win_start_y + 1, main_win_start_x + 1, main_win_start_y + main_win_height - 2, main_win_start_x + main_win_width - 2);
+                    goto REFRESH_BOOK_PAD;
+
+                }
+                break;
+            // 其他按键处理
+            case 'q':  // 按 'q' 退出
+                unpost_menu(menu);
+                free_menu(menu);
+                for (int i = 0; i < n_choices; ++i) {
+                    free_item(items[i]);
+                }
+                free(items);
+                delwin(menu_win);
+                endwin();
+                return;
         }
 
         // 设置新的高亮
@@ -351,6 +329,8 @@ void stu_list(uiStudent **student_set)
     // uiStudent cur_student = {
     // "54326173883", "张佳玮", "计算机21-2", "计算机科学与技术", 21,"2021-03-22", "2032-10-21",{&mybook[0],&mybook[1],&mybook[2],NULL }};
 
+
+
     // uiStudent* student = student_set;
     // 更新终端尺寸
     update_terminal_size();
@@ -375,7 +355,9 @@ void stu_list(uiStudent **student_set)
     // strncpy(info.date, info.date, sizeof(info.date) - 1);
     wrefresh(info_win);
 
-    // 打印表头
+
+
+    //打印表头
     attron(COLOR_PAIR(PAD_HEIGHT_LIGHT));
     mvwprintw(main_win, 0, 5, "%s", "学号");
     mvwprintw(main_win, 0, 23, "%s", "姓名");
@@ -455,139 +437,120 @@ REFRESH_STU_PAD:
     while (1)
     {
         int ch = wgetch(current_win);
-        switch (ch)
-        {
-        // 按键处理
-        case KEY_UP:
-            if (active_window == PAD && current_row > 0)
-            {
-                // 去掉旧的高亮
-                print_student_list(student_set, pad, current_row);
-                current_row--;
-                if (current_row < scroll_offset && scroll_offset > 0)
-                {
-                    scroll_offset--;
-                }
-            }
-            break;
-        case KEY_DOWN:
-            if (active_window == PAD && current_row < LIST_SIZE - 1)
-            {
-                // 去掉旧的高亮
-                print_student_list(student_set, pad, current_row);
-                current_row++;
-                if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height)
-                {
-                    scroll_offset++;
-                }
-            }
-            break;
-        case KEY_LEFT:
-            if (active_window == MENU)
-            {
-                menu_driver(menu, REQ_LEFT_ITEM);
-            }
-            break;
-        case KEY_RIGHT:
-            if (active_window == MENU)
-            {
-                menu_driver(menu, REQ_RIGHT_ITEM);
-            }
-            break;
-        case 9: // Tab 键
-            if (active_window == PAD)
-            {
-                active_window = MENU;
-                current_win = menu_win;
-            }
-            else
-            {
-                active_window = PAD;
-                current_win = pad;
-            }
-            // 更新窗口焦点提示（如果有）
-            update_window_focus(menu_win, active_window == MENU);
-            update_window_focus(main_win, active_window == PAD);
-            break;
-        case 10: // 回车键
-            if (active_window == MENU)
-            {
-                // 处理菜单选择
-                ITEM *cur = current_item(menu);
-                const char *choice = item_name(cur);
-
-                if (strcmp(choice, "退出") == 0)
-                {
-                    // 退出程序
-                    unpost_menu(menu);
-                    free_menu(menu);
-                    for (int i = 0; i < n_choices; ++i)
-                    {
-                        free_item(items[i]);
+        switch (ch) {
+            // 按键处理
+            case KEY_UP:
+                if (active_window == PAD && current_row > 0) {
+                    // 去掉旧的高亮
+                    print_student_list(student_set, pad, current_row);
+                    current_row--;
+                    if (current_row < scroll_offset && scroll_offset > 0) {
+                        scroll_offset--;
                     }
-                    free(items);
-                    delwin(menu_win);
-                    endwin();
-                    return;
                 }
-                else if (strcmp(choice, "添加学生") == 0)
-                {
-                    char *id = s_simplewin("请输入学号: ");
-                    size_t id_int;
-                    sprintf(id, "%ld", id_int);
-                    char *name = s_simplewin("请输入姓名: ");
-                    char *class = s_simplewin("请输入班级: ");
-                    char *department = s_simplewin("请输入学院: ");
-                    show_message_box("已添加");
+                break;
+            case KEY_DOWN:
+                if (active_window == PAD && current_row < LIST_SIZE - 1) {
+                    // 去掉旧的高亮
+                    print_student_list(student_set, pad, current_row);
+                    current_row++;
+                    if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height) {
+                        scroll_offset++;
+                    }
                 }
-                else if (strcmp(choice, "批量导入") == 0)
-                {
-                    char *route = s_simplewin("请输入文件路径: ");
-                    uistudent *uiStudentArray = load_students_from_file(route);
-                    for (size_t i = 0; i < 1000; i++)
-                    {
-                        if (uiStudentArray[i])
-                        {
-                            uistudent temp = uiStudentArray[i];
-                            student tStudent = back_to_student(temp);
-                            studentDb->add(studentDb, tStudent);
+                break;
+            case KEY_LEFT:
+                if (active_window == MENU) {
+                    menu_driver(menu, REQ_LEFT_ITEM);
+                }
+                break;
+            case KEY_RIGHT:
+                if (active_window == MENU) {
+                    menu_driver(menu, REQ_RIGHT_ITEM);
+                }
+                break;
+            case 9: // Tab 键
+                if (active_window == PAD) {
+                    active_window = MENU;
+                    current_win = menu_win;
+                } else {
+                    active_window = PAD;
+                    current_win = pad;
+                }
+                // 更新窗口焦点提示（如果有）
+                update_window_focus(menu_win, active_window == MENU);
+                update_window_focus(main_win, active_window == PAD);
+                break;
+            case 10: // 回车键
+                if (active_window == MENU) {
+                    // 处理菜单选择
+                    ITEM *cur = current_item(menu);
+                    const char *choice = item_name(cur);
+
+                    if (strcmp(choice, "退出") == 0) {
+                        // 退出程序
+                        unpost_menu(menu);
+                        free_menu(menu);
+                        for (int i = 0; i < n_choices; ++i) {
+                            free_item(items[i]);
                         }
-                    }
-                    studentDb->save(studentDb);
-                    show_message_box("添加成功");
-                }
-                else if (strcmp(choice, "查询学生") == 0)
-                {
-                    char *id = s_simplewin("请输入学号: ");
-                    size_t id_int;
-                    sprintf(id, "%ld", id_int);
-                    char *name = s_simplewin("请输入姓名: ");
-                    char *class = s_simplewin("请输入班级: ");
-                    char *department = s_simplewin("请输入学院: ");
-                }
-                // 其他菜单项的处理逻辑
-            }
-            else if (active_window == PAD)
-            {
-                // 弹出确认窗口
+                        free(items);
+                        delwin(menu_win);
+                        endwin();
+                        return;
+                    }else if (strcmp(choice, "添加学生") == 0)
+                    {
+                        char*id = s_simplewin("请输入学号: ");
+                        size_t id_int;
+                        sprintf(id, "%ld", id_int);
+                        char*name = s_simplewin("请输入姓名: ");
+                        char*class = s_simplewin("请输入班级: ");
+                        char*department = s_simplewin("请输入学院: ");
+                        show_message_box("已添加");
+                    }else if (strcmp(choice, "批量导入") == 0)
+                    {
+                        char*route = s_simplewin("请输入文件路径: ");
+                        uistudent *uiStudentArray=load_students_from_file(route);
+                        for(size_t i=0;i<1000;i++){
+                            if(uiStudentArray[i]){
+                                uistudent temp=uiStudentArray[i];
+                                student tStudent=back_to_student(temp);
+                                studentDb->add(studentDb,tStudent);
+                                studentDb->save(studentDb);
 
-                show_student_confirm_window(student_set[current_row]);
-                werase(pad);
-                goto REFRESH_STU_PAD;
-            }
-            break;
-        // 其他按键处理
-        case 'q': // 按 'q' 退出
-            unpost_menu(menu);
-            free_menu(menu);
-            for (int i = 0; i < n_choices; ++i)
-            {
-                free_item(items[i]);
-            }
-            free(items);
-            delwin(menu_win);
-            endwin();
-            return;
+                            }
+                        }
+                        show_message_box("添加成功");
+                    }
+                    else if (strcmp(choice, "查询学生") == 0)
+                    {
+                        char*id = s_simplewin("请输入学号: ");
+                        size_t id_int;
+                        sprintf(id, "%ld", id_int);
+                        char*name = s_simplewin("请输入姓名: ");
+                        char*class = s_simplewin("请输入班级: ");
+                        char*department = s_simplewin("请输入学院: ");
+                    }
+                    // 其他菜单项的处理逻辑
+                } else if (active_window == PAD) {
+                    // 弹出确认窗口
+
+                    show_student_confirm_window(student_set[current_row]);
+                     werase(pad);
+                    goto REFRESH_STU_PAD;
+                }
+                break;
+            // 其他按键处理
+            case 'q':  // 按 'q' 退出
+                unpost_menu(menu);
+                free_menu(menu);
+                for (int i = 0; i < n_choices; ++i) {
+                    free_item(items[i]);
+                }
+                free(items);
+                delwin(menu_win);
+                endwin();
+                return;
         }
 
         // 设置新的高亮
@@ -622,7 +585,10 @@ REFRESH_STU_PAD:
     }
 }
 
-// 学生借阅列表
+
+
+
+//学生借阅列表
 void stu_borrow_list()
 {
     Infoname infoname = {
@@ -631,10 +597,10 @@ void stu_borrow_list()
         "学院",
         "学号",
     };
-    // uiStudent* thisStudent = stu[0];
-    //  uiBook** thisBook = stu->books;
+    //uiStudent* thisStudent = stu[0];
+    // uiBook** thisBook = stu->books;
 
-    char *menu_choices[] = {
+     char* menu_choices[] = {
         "借书",
         "借阅列表",
         "查询图书",
@@ -741,137 +707,122 @@ REFRESH_BOOK_PAD:
 
     // 主循环
 
-    while (1)
-    {
+    while (1) {
         int ch = wgetch(current_win);
-        switch (ch)
-        {
-        // 按键处理
-        case KEY_UP:
-            if (active_window == PAD && current_row > 0)
-            {
-                // 去掉旧的高亮
-                // print_list(thisBook, pad, current_row);
-                current_row--;
-                if (current_row < scroll_offset && scroll_offset > 0)
-                {
-                    scroll_offset--;
-                }
-            }
-            break;
-        case KEY_DOWN:
-            if (active_window == PAD && current_row < LIST_SIZE - 1)
-            {
-                // 去掉旧的高亮
-                // print_list(thisBook, pad, current_row);
-                current_row++;
-                if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height)
-                {
-                    scroll_offset++;
-                }
-            }
-            break;
-        case KEY_LEFT:
-            if (active_window == MENU)
-            {
-                menu_driver(menu, REQ_LEFT_ITEM);
-            }
-            break;
-        case KEY_RIGHT:
-            if (active_window == MENU)
-            {
-                menu_driver(menu, REQ_RIGHT_ITEM);
-            }
-            break;
-        case 9: // Tab 键
-            if (active_window == PAD)
-            {
-                active_window = MENU;
-                current_win = menu_win;
-            }
-            else
-            {
-                active_window = PAD;
-                current_win = pad;
-            }
-            // 更新窗口焦点提示
-            update_window_focus(menu_win, active_window == MENU);
-            update_window_focus(main_win, active_window == PAD);
-            break;
-        case 10: // 回车键
-            if (active_window == MENU)
-            {
-                // 处理菜单选择
-                Inputinfo *new_book;
-                ITEM *cur = current_item(menu);
-                const char *choice = item_name(cur);
-                if (strcmp(choice, "退出") == 0)
-                {
-
-                    // 退出程序
-                    unpost_menu(menu);
-                    free_menu(menu);
-                    for (int i = 0; i < n_choices; ++i)
-                    {
-                        free_item(items[i]);
+        switch (ch) {
+            // 按键处理
+            case KEY_UP:
+                if (active_window == PAD && current_row > 0) {
+                    // 去掉旧的高亮
+                    // print_list(thisBook, pad, current_row);
+                    current_row--;
+                    if (current_row < scroll_offset && scroll_offset > 0) {
+                        scroll_offset--;
                     }
-                    free(items);
-                    delwin(menu_win);
-                    endwin();
-                    return;
                 }
-                else if (strcmp(choice, "借书") == 0)
-                {
-                    /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
-                     *
-                     * uiBook* newBook = getbookinfo();//添加图书
-                     * func_addbook(newBook);
-                     *
-                     */
-                    new_book = input_info("ISBN", "书名", "作者", "出版社");
-                    if (new_book == NULL)
-                        break;
-                    show_message_box("已借阅");
+                break;
+            case KEY_DOWN:
+                if (active_window == PAD && current_row < LIST_SIZE - 1) {
+                    // 去掉旧的高亮
+                    // print_list(thisBook, pad, current_row);
+                    current_row++;
+                    if (current_row >= scroll_offset + main_win_height - 2 && scroll_offset + main_win_height - 2 < pad_height) {
+                        scroll_offset++;
+                    }
                 }
-                else if (strcmp(choice, "借阅列表") == 0)
-                {
-                    /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
-                     * uiBook* searchBook = getbookinfo();//添加图书
-                     * func_findbook(searchBook);
-                     *
-                     */
+                break;
+            case KEY_LEFT:
+                if (active_window == MENU) {
+                    menu_driver(menu, REQ_LEFT_ITEM);
+                }
+                break;
+            case KEY_RIGHT:
+                if (active_window == MENU) {
+                    menu_driver(menu, REQ_RIGHT_ITEM);
+                }
+                break;
+            case 9: // Tab 键
+                if (active_window == PAD) {
+                    active_window = MENU;
+                    current_win = menu_win;
+                } else {
+                    active_window = PAD;
+                    current_win = pad;
+                }
+                // 更新窗口焦点提示
+                update_window_focus(menu_win, active_window == MENU);
+                update_window_focus(main_win, active_window == PAD);
+                break;
+            case 10: // 回车键
+                if (active_window == MENU) {
+                    // 处理菜单选择
+                    Inputinfo* new_book;
+                    ITEM *cur = current_item(menu);
+                    const char *choice = item_name(cur);
+                    if (strcmp(choice, "退出") == 0) {
 
-                    new_book = input_info("ISBN", "书名", "作者", "出版社");
-                    if (new_book == NULL)
-                        break;
+                        // 退出程序
+                        unpost_menu(menu);
+                        free_menu(menu);
+                        for (int i = 0; i < n_choices; ++i) {
+                            free_item(items[i]);
+                        }
+                        free(items);
+                        delwin(menu_win);
+                        endwin();
+                        return;
+
+                    }else if (strcmp(choice, "借书") == 0)
+                    {
+                        /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
+                        *
+                        * uiBook* newBook = getbookinfo();//添加图书
+                        * func_addbook(newBook);
+                        *
+                        */
+                       new_book = input_info("ISBN", "书名", "作者", "出版社");
+                        if (new_book == NULL)
+                            break;
+                        show_message_box("已借阅");
+
+
+
+                    }else if(strcmp(choice, "借阅列表") == 0)
+                    {
+                        /*待实现功能, 传入一个结构体, 返回数据, 重新打印到pad
+                        * uiBook* searchBook = getbookinfo();//添加图书
+                        * func_findbook(searchBook);
+                        *
+                        */
+
+                       new_book = input_info("ISBN", "书名", "作者", "出版社");
+                        if (new_book == NULL)
+                            break;
+                    }else if (strcmp(choice, "查询图书") == 0)
+                    {
+                        new_book = input_info("ISBN", "书名", "作者", "出版社");
+                        if (new_book == NULL)
+                            break;
+                    }
+                } else if (active_window == PAD) {
+                    // 弹出确认窗口
+                    // show_confirm_window(thisBook[current_row]);
+                    werase(pad);
+                    goto REFRESH_BOOK_PAD;
+
                 }
-                else if (strcmp(choice, "查询图书") == 0)
-                {
-                    new_book = input_info("ISBN", "书名", "作者", "出版社");
-                    if (new_book == NULL)
-                        break;
+                break;
+            // 其他按键处理
+            case 'q':  // 按 'q' 退出
+                unpost_menu(menu);
+                free_menu(menu);
+                for (int i = 0; i < n_choices; ++i) {
+                    free_item(items[i]);
                 }
-            }
-            else if (active_window == PAD)
-            {
-                // 弹出确认窗口
-                // show_confirm_window(thisBook[current_row]);
-                werase(pad);
-                goto REFRESH_BOOK_PAD;
-            }
-            break;
-        // 其他按键处理
-        case 'q': // 按 'q' 退出
-            unpost_menu(menu);
-            free_menu(menu);
-            for (int i = 0; i < n_choices; ++i)
-            {
-                free_item(items[i]);
-            }
-            free(items);
-            delwin(menu_win);
-            endwin();
-            return;
+                free(items);
+                delwin(menu_win);
+                endwin();
+                return;
         }
 
         // 设置新的高亮
@@ -901,4 +852,5 @@ REFRESH_BOOK_PAD:
         wrefresh(menu_win);
         wrefresh(main_win);
     }
+
 }
