@@ -83,8 +83,9 @@ void _book_in_data(book this, const char *data) {
 }
 
 // 复制图书数据实现
-book _book_copy(book this, book other) {
-    this->ISBN->assign(this->ISBN, other->ISBN);
+book _book_copy(book this,book other){
+    this->id=other->id;
+    this->ISBN->assign(this->ISBN,other->ISBN);
     this->name->assign(this->name, other->name);
     this->author->assign(this->author, other->author);
     this->publisher->assign(this->publisher, other->publisher);
