@@ -56,7 +56,7 @@ int main(){
     while (1)
     {
         Screen next_screen = screen_functions[cur_screen]();
-        switch (next_screen)
+        switch(next_screen)
         {
         case BACK:
             cur_screen = pop_screen(stack);

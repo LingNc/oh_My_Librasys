@@ -108,7 +108,7 @@ void load_index(database_index index) {
     }
     size_t indexCount;
     fread(&indexCount, sizeof(size_t), 1, indexFile);
-    index->nums = indexCount; // 设置索引数量
+    // index->nums = indexCount; // 设置索引数量
     for (size_t i = 0; i < indexCount; ++i) {
         size_t key, offset;
         fread(&key, sizeof(size_t), 1, indexFile);
