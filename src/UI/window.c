@@ -84,13 +84,18 @@ void show_confirm_window(uiBook* book)
                     char *bookname = simplewin("请输入书名: ");
                     char *author = simplewin("请输入作者: ");
                     char *publisher = simplewin("请输入出版社: ");
+                    char *status = simplewin("是否可借阅: ");
+
 
                 
                     strcpy(book->ISBN, ISBN);
                     strcpy(book->name, bookname);
                     strcpy(book->author, author);
                     strcpy(book->publisher, publisher);
-                    book->status = -1;
+                    if(strcmp(status, "是") == 0)
+                        book->status = 1;
+                    else
+                        book->status = 0;
                     // 需要所有其他信息, 可能要更新
                     // wrefresh(win);
                     return ;
@@ -274,7 +279,9 @@ void show_student_confirm_window(uiStudent* student)
                     char *class = simplewin("请输入班级: ");
                     char *department = simplewin("请输入学院: ");
                     if (id_int == 1)
-                        student->id = 0;
+                        {
+                            student->id = 0;
+                        }
                     else
                         student->id = id_int;
                     
@@ -286,11 +293,15 @@ void show_student_confirm_window(uiStudent* student)
                 }
                 else if (strcmp(choice, "删除") == 0)
                 {
-                    student->id = 0;
+                    
                     strcpy(student->name, "");
                     strcpy(student->class, "");
                     strcpy(student->department, "");
+                    studentDb->rm(studentDb,student->id);
                     show_message_box("已删除!");
+                    studentDb->save(studentDb);
+                    student->id = 0;
+                    
                 }
                 return;
         }

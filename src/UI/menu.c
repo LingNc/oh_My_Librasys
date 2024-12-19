@@ -18,20 +18,6 @@ void display_title()
     update_terminal_size();
     int width = (terminal.width - 87) / 2;
 
-      // init_pair(8, COLOR_RED, COLOR_BLACK);
-    // init_pair(9, COLOR_YELLOW, COLOR_BLACK);
-    // init_pair(10, COLOR_GREEN, COLOR_BLACK);
-    // init_pair(11, COLOR_CYAN, COLOR_BLACK);
-    // init_pair(12, COLOR_BLUE, COLOR_BLACK);
-    // init_pair(13, COLOR_MAGENTA, COLOR_BLACK);
-    // const char *text[] = {
-    //     "                __         __  ___         __    _ __               _____              ",
-    //     "         ____  / /_       /  |/  /_  __   / /   (_) /_  _________ _/ ___/__  _______   ",
-    //     "        / __ \\/ __ \\     / /|_/ / / / /  / /   / / __ \\/ ___/ __ `/\\__ \\/ / / / ___/   ",
-    //     "       / /_/ / / / /    / /  / / /_/ /  / /___/ / /_/ / /  / /_/ /___/ / /_/ (__  )    ",
-    //     "       \\____/_/ /_/    /_/  /_/\\__, /  /_____/_/_.___/_/   \\__,_//____/\\__, /____/     ",
-    //     "                              /____/                                  /____/           "
-    // };
     mvprintw(4, width, "                __         __  ___         __    _ __               _____              ");
     mvprintw(5, width, "         ____  / /_       /  |/  /_  __   / /   (_) /_  _________ _/ ___/__  _______   ");
     mvprintw(6, width, "        / __ \\/ __ \\     / /|_/ / / / /  / /   / / __ \\/ ___/ __ `/\\__ \\/ / / / ___/   ");
@@ -39,12 +25,6 @@ void display_title()
     mvprintw(8, width, "       \\____/_/ /_/    /_/  /_/\\__, /  /_____/_/_.___/_/   \\__,_//____/\\__, /____/     ");
     mvprintw(9, width, "                              /____/                                  /____/           ");
     
-    //    // 打印彩色渐变文本
-    // for (int i = 0; i < 6; i++) {
-    //     attron(COLOR_PAIR((i % 6) + 1));
-    //     mvprintw(start_row + i, start_col, "%s", text[i]);
-    //     attroff(COLOR_PAIR((i % 6) + 1));
-    // }
 
     mvprintw(LINES - 3, 0, "按 <ENTER> 选择");
     mvprintw(LINES - 2, 0, "上下选择, 退格键退出");
@@ -222,17 +202,45 @@ Screen admin_menu()
 //图书管理界面
 Screen book_manage_info()
 { 
-    uiBook**  mybook;
-    mybook =  load_books_from_file("Book.txt");
-    book_list(mybook);
+    // uiBook**  mybook;
+    //mybook =  load_books_from_file("Book.txt");
+    size_t bookIndexCount = bookDb->_index->nums;
+    size_t bookReadCount = bookIndexCount < 1000 ? bookIndexCount : 1000;
+    if (bookReadCount > 0)
+    {
+        bookArray = (uibook *)malloc(bookReadCount * sizeof(uibook));
+        for (size_t i = 0; i < bookReadCount; ++i)
+        {
+            book data = bookDb->find_key(bookDb, i);
+            if (data)
+            {
+                bookArray[i] = new_from_book(data);
+            }
+        }
+    }
+    book_list(bookArray);
     return BACK;
 }
 
 //学生管理界面
 Screen stu_manage_info()
 {
-    uiStudent** mystudent = load_students_from_file("Student.txt");
-    stu_list(mystudent);  
+    // uiStudent** mystudent = load_students_from_file("Student.txt");
+    size_t studentIndexCount = studentDb->_index->nums;
+    size_t studentReadCount = studentIndexCount < 1000 ? studentIndexCount : 1000;
+    if (studentReadCount > 0)
+    {
+        studentArray = (uistudent *)malloc(studentReadCount * sizeof(uistudent));
+        for (size_t i = 0; i < studentReadCount; ++i)
+        {
+            student data = studentDb->find_key(studentDb, i);
+            if (data)
+            {
+                studentArray[i] = new_from_student(data);
+            }
+        }
+    }
+    stu_list(studentArray);  
     return BACK;
 }
 
@@ -254,8 +262,8 @@ Screen stu_menu()
 {
     char *stu_choices[] = {
         "查看借书记录",
-        "借书",
-        "还书",
+        // "借书",
+        // "还书",
         "退出登录",
     };
     // 清空屏幕
@@ -395,8 +403,6 @@ Screen about()
     WINDOW* win = newwin(terminal.height/2,terminal.width/2, terminal.height/4,terminal.width/4);
     box(win,0,0);
     mvwprintw(win,1,1,"Oh My Labrasys 是一款专为图书管理设计的软件，界面简洁直观，功能布局清晰。");
-    mvwprintw(win,2,1,"还没完呢, 该怎么些, 后面的好难");
-    mvwprintw(win,3,1,"12月16号， 今天排版列表花了一下午， 最后还是用了最简单的定位解决了");
     wrefresh(win);
     wgetch(win);
     return BACK;

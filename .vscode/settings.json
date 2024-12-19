@@ -108,7 +108,8 @@
         "uistudent.h": "c",
         "window.h": "c",
         "screen.h": "c",
-        "check.h": "c"
+        "check.h": "c",
+        "database.h": "c"
     },
     "makefile.launchConfigurations": [
         {

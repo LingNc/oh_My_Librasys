@@ -1,7 +1,10 @@
 #include "UI/utils.h"
 #include "UI/list.h"
 #include <string.h>
-
+#include "function.h"
+dataBase bookDb,studentDb;
+ uibook *bookArray ;
+ uistudent *studentArray;
 // uiBook book_set[LIST_SIZE] = {
 //     {8479248713,"9787547008592", "数学之美", "李明", "人民教育出版社","2022-10-10", 0},
 //     {8479248713,"9787547008593", "物理世界", "张伟", "科学出版社","2022-10-10",1},
@@ -238,7 +241,15 @@ REFRESH_BOOK_PAD:
                         */
                         // create_input_window
                         char *route = s_simplewin("请输入文件路径: ");
-                        
+                        uibook *uiBookArray=load_books_from_file(route);
+                        for(size_t i=0;i<1000;i++){
+                            if(uiBookArray[i]){
+                                uibook temp=uiBookArray[i];
+                                book tBook=back_to_book(temp);
+                                bookDb->add(bookDb,tBook);
+                            }
+                        }
+                        bookDb->save(bookDb);
 
                     }
                 } else if (active_window == PAD) {
@@ -486,6 +497,15 @@ REFRESH_STU_PAD:
                     }else if (strcmp(choice, "批量导入") == 0)
                     {
                         char*route = s_simplewin("请输入文件路径: ");
+                        uistudent *uiStudentArray=load_students_from_file(route);
+                        for(size_t i=0;i<1000;i++){
+                            if(uiStudentArray[i]){
+                                uistudent temp=uiStudentArray[i];
+                                student tStudent=back_to_student(temp);
+                                studentDb->add(studentDb,tStudent);
+                            }
+                        }
+                        studentDb->save(studentDb);
                         show_message_box("添加成功");
                     }
                     else if (strcmp(choice, "查询学生") == 0)

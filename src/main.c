@@ -8,14 +8,47 @@
 
 extern Screen (*screen_functions[])();
 
-
+// dataBase bookDb,studentDb;
+// uibook *bookArray ;
+// uistudent *studentArray;
 int main(){
+    bookDb=database("db/book.bin",Book);
+    studentDb=database("db/student.bin",Student);
     //dataBase test=database("db/test.bin",Book);
-    book b=new_book();
-    load_book(b,1234567,"918904271092","高数","李四","人民日报","",1);
-    uibook c=new_from_book(b);
-    uiBook bop[20];
 
+    // 取前1000个图书信息
+    size_t bookIndexCount = bookDb->_index->nums;
+
+    size_t bookReadCount = bookIndexCount < 1000 ? bookIndexCount : 1000;
+
+    if (bookReadCount > 0)
+    {
+        bookArray = (uibook *)malloc(bookReadCount * sizeof(uibook));
+        for (size_t i = 0; i < bookReadCount; ++i)
+        {
+            book data = bookDb->find_key(bookDb, i);
+            if (data)
+            {
+                bookArray[i] = new_from_book(data);
+            }
+        }
+    }
+
+    // 读取前1000个学生信息
+    size_t studentIndexCount = studentDb->_index->nums;
+    size_t studentReadCount = studentIndexCount < 1000 ? studentIndexCount : 1000;
+    if (studentReadCount > 0)
+    {
+        studentArray = (uistudent *)malloc(studentReadCount * sizeof(uistudent));
+        for (size_t i = 0; i < studentReadCount; ++i)
+        {
+            student data = studentDb->find_key(studentDb, i);
+            if (data)
+            {
+                studentArray[i] = new_from_student(data);
+            }
+        }
+    }
     Stack *stack=(Stack *)calloc(1,sizeof(Stack));
     stack->top=-1;
     Screen cur_screen=MAIN;

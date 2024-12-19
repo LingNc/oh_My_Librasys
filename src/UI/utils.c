@@ -171,6 +171,9 @@ void refresh_win(WINDOW** win)
 //打印pad的每一项,到缓冲区
 void print_list(uiBook** books, WINDOW* pad, int i)
 { 
+    if (books == NULL || books[i] == NULL) {
+        return;
+    }
     mvwprintw(pad, i, 0, "%s", books[i]->ISBN);
     mvwprintw(pad, i, 22, "%s", books[i]->name); 
     mvwprintw(pad, i, 39, "%s", books[i]->author); 
@@ -189,7 +192,7 @@ void print_student_list(uiStudent** students, WINDOW* pad, int i)
 {
     if (students[i]->id != 0)
     {
-        mvwprintw(pad, i, 0, "%d", students[i]->id);
+        mvwprintw(pad, i, 0, "%ld", students[i]->id);
         mvwprintw(pad, i, 100, "%d", students[i]->borrowedCount);
     }
     mvwprintw(pad, i, 18, "%s", students[i]->name); 

@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include "uiBook.h"
 #include "uiStudent.h"
+#include "DataBase/DataBase.h"
 
-
+extern dataBase bookDb,studentDb;
+extern uibook *bookArray ;
+extern uistudent *studentArray;
 
 #define LIST_SIZE 99      // 列表项总数
 #define VISIBLE_ROWS 20   // 可见行数
