@@ -4,17 +4,16 @@
 #include "uiBook.h"
 #include "Student.h"
 #include "uiStudent.h"
+#include "DataBase/DataBase.h"
 
-uibook* load_books_from_file(const char *filePath) {
+void load_books_from_file(const char *filePath, dataBase bookDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
         perror("load uibook: 无法打开文件");
-        return NULL;
+        return;
     }
 
-    uibook *books = (uibook *)malloc(1000 * sizeof(uibook)); // 假设最多有100本书
     int count = 0;
-
     char line[1024];
     while (fgets(line, sizeof(line), file)) {
         size_t id;
@@ -26,24 +25,26 @@ uibook* load_books_from_file(const char *filePath) {
 
         book newBook = new_book();
         load_book(newBook, id, ISBN, name, author, publisher, time, status);
-        books[count] = new_from_book(newBook);
+        bookDb->add(bookDb, newBook);
+
         count++;
+        if (count % 5000 == 0) {
+            bookDb->save(bookDb);
+        }
     }
 
     fclose(file);
-    return books;
+    bookDb->save(bookDb);
 }
 
-uistudent* load_students_from_file(const char *filePath) {
+void load_students_from_file(const char *filePath, dataBase studentDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
         perror("load uistudent: 无法打开文件");
-        return NULL;
+        return;
     }
 
-    uistudent *students = (uistudent *)malloc(1000 * sizeof(uistudent)); // 假设最多有100个学生
     int count = 0;
-
     char line[1024];
     while (fgets(line, sizeof(line), file)) {
         size_t id;
@@ -55,10 +56,14 @@ uistudent* load_students_from_file(const char *filePath) {
 
         student newStudent = new_student();
         load_student(newStudent, id, name, class, department, borrowedCount, borrowedDate, returnDate);
-        students[count] = new_from_student(newStudent);
+        studentDb->add(studentDb, newStudent);
+
         count++;
+        if (count % 5000 == 0) {
+            studentDb->save(studentDb);
+        }
     }
 
     fclose(file);
-    return students;
+    studentDb->save(studentDb);
 }
