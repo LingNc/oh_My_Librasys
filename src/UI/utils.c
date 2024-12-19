@@ -41,7 +41,7 @@ void update_terminal_size() {
 //   n_choices: 菜单项的数量
 // 返回值:
 //   ITEM**: 指向ITEM指针数组的指针，表示创建的菜单项
-ITEM** creat_items(char** choices, int n_choices) 
+ITEM** creat_items(char** choices, int n_choices)
 {
     ITEM **items;
     items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
@@ -159,7 +159,7 @@ void refresh_win(WINDOW** win)
         getmaxyx(*win, height, width);
         getbegyx(*win, y, x);
         delwin(*win);
-        
+
         *win = creat_win(height, width, y, x);
         keypad(*win, TRUE);
         box(*win, 0, 0);
@@ -170,17 +170,17 @@ void refresh_win(WINDOW** win)
 
 //打印pad的每一项,到缓冲区
 void print_list(uiBook** books, WINDOW* pad, int i)
-{ 
+{
     if (books == NULL || books[i] == NULL) {
         return;
     }
     mvwprintw(pad, i, 0, "%s", books[i]->ISBN);
-    mvwprintw(pad, i, 22, "%s", books[i]->name); 
-    mvwprintw(pad, i, 39, "%s", books[i]->author); 
+    mvwprintw(pad, i, 22, "%s", books[i]->name);
+    mvwprintw(pad, i, 39, "%s", books[i]->author);
     mvwprintw(pad, i, 56, "%s", books[i]->publisher);
-    if(books[i]->status == 1) 
-        mvwprintw(pad, i, 82, "可借阅"); 
-    else  if(books[i]->status == 0)       
+    if(books[i]->status == 1)
+        mvwprintw(pad, i, 82, "可借阅");
+    else  if(books[i]->status == 0)
         mvwprintw(pad, i, 82, "不可借阅");
     else
          mvwprintw(pad, i, 82, "");
@@ -190,18 +190,21 @@ void print_list(uiBook** books, WINDOW* pad, int i)
 //打印学生pad的每一项,到缓冲区
 void print_student_list(uiStudent** students, WINDOW* pad, int i)
 {
-    if (students[i]->id != 0)
+        if (students == NULL || students[i] == NULL) {
+        return;
+    }
+    if(students[i]->id!=0)
     {
         mvwprintw(pad, i, 0, "%ld", students[i]->id);
         mvwprintw(pad, i, 100, "%d", students[i]->borrowedCount);
     }
-    mvwprintw(pad, i, 18, "%s", students[i]->name); 
-    mvwprintw(pad, i, 40, "%s", students[i]->class); 
-    mvwprintw(pad, i, 60, "%s", students[i]->department); 
+    mvwprintw(pad, i, 18, "%s", students[i]->name);
+    mvwprintw(pad, i, 40, "%s", students[i]->class);
+    mvwprintw(pad, i, 60, "%s", students[i]->department);
 }
 
 //提示高亮选中框
-void update_window_focus(WINDOW *win, bool focused) 
+void update_window_focus(WINDOW *win, bool focused)
 {
     if (focused) {
         wattron(win, COLOR_PAIR(FOCUSED));

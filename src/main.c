@@ -26,8 +26,8 @@ int main(){
         bookArray = (uibook *)malloc(bookReadCount * sizeof(uibook));
         for (size_t i = 0; i < bookReadCount; ++i)
         {
-            book data = bookDb->find_key(bookDb, i);
-            if (data)
+            book data=bookDb->find_key(bookDb,i);
+            if(data)
             {
                 bookArray[i] = new_from_book(data);
             }
