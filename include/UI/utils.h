@@ -55,6 +55,7 @@ void update_window_focus(WINDOW *win, bool focused);
 void print_info(WINDOW* info_win, Infoname* infoname, MenuInfo* info);
 
 
+Book* my_init_book(size_t id, const char *ISBN, const char *name, const char *author, const char *publisher);
 
 
 #endif
