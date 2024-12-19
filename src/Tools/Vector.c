@@ -111,14 +111,19 @@ static void _vector_delete(vector this) {
 // 序列化向量数据
 static const char *_vector_data(vector this){
     this->_serialize->clear(this->_serialize);
-    size_t totalSize=sizeof(size_t)+this->_size*this->_itemSize;
-    this->_serialize->append_n(this->_serialize,(const char *)&totalSize,sizeof(totalSize));
+    size_t totalSize=sizeof(size_t);
+    string temp=new_string();
 
     for(size_t i=0; i<this->_size; ++i){
         void *item=(char *)this->_data+i*this->_itemSize;
-        this->_serialize->append_n(this->_serialize,(const char *)item,this->_itemSize);
+        // 获得元素序列化数据
+        temp->append_cstr(temp,this->_data_item(item));
     }
-
+    totalSize=temp->size(temp);
+    this->_serialize->append_n(this->_serialize,&totalSize,sizeof(size_t));
+    // 储存有多少个
+    this->_serialize->append_n(this->_serialize,&this->_size,sizeof(size_t));
+    this->_serialize->append(this->_serialize,temp);
     return this->_serialize->c_str(this->_serialize);
 }
 
@@ -126,7 +131,7 @@ static const char *_vector_data(vector this){
 static bool _vector_in_data(vector this,const char *data){
     size_t offset=0;
     size_t totalSize=0;
-    memcpy(&totalSize,data+offset,sizeof(totalSize));
+    memcpy(&totalSize,data,sizeof(totalSize));
     offset+=sizeof(totalSize);
 
     size_t newSize=(totalSize-sizeof(size_t))/this->_itemSize;
