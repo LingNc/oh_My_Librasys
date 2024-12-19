@@ -8,7 +8,7 @@
 uibook* load_books_from_file(const char *filePath) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
-        perror("无法打开文件");
+        perror("load uibook: 无法打开文件");
         return NULL;
     }
 
@@ -37,7 +37,7 @@ uibook* load_books_from_file(const char *filePath) {
 uistudent* load_students_from_file(const char *filePath) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
-        perror("无法打开文件");
+        perror("load uistudent: 无法打开文件");
         return NULL;
     }
 

@@ -15,6 +15,8 @@ static void _init_func(dataBase this);
 static size_t _database_size(dataBase this);
 static vector _database_get(dataBase this,size_t key,size_t nums);
 static vector _database_get_find(dataBase this,size_t pos,size_t nums);
+static void _database_add_auto(dataBase this,void* data);
+static void _database_add_key(dataBase this, void* data, size_t key);
 void clean_database(dataBase this);
 
 #define _max_item 100
@@ -47,7 +49,7 @@ dataBase load_database(const char *inPath,const char *type){
     return this;
 }
 
-// 初始化函��
+// 初始化函数
 static void _init_func(dataBase this){
     this->add=_database_add;
     this->rm=_database_remove;
@@ -57,6 +59,8 @@ static void _init_func(dataBase this){
     this->clean=clean_database;
     this->get=_database_get;
     this->get_find=_database_get_find;
+    this->add_key = _database_add_key;
+    this->add_auto = _database_add_auto;
 }
 
 // 初始化数据库
@@ -76,11 +80,20 @@ static void _init_all(dataBase this,const char *inPath){
     load_index(this->_index);
 }
 
-// 添加数据
+// 添加数据,自动索引
 static void _database_add(dataBase this,void *data){
     size_t newKey=get_next_index_key(this->_index); // 获取索引中最后一个唯一编号id，然后向后顺延一个
     // id在第1个
     *(size_t *)data=newKey;
+    this->_buffer->push_back(this->_buffer,data);
+}
+// 添加数据,根据读入数据自动索引
+static void _database_add_auto(dataBase this,void* data){
+    this->_buffer->push_back(this->_buffer,data);
+}
+// 添加数据,手动索引
+static void _database_add_key(dataBase this,void* data,size_t key){
+    *(size_t*)data=key;
     this->_buffer->push_back(this->_buffer,data);
 }
 
@@ -90,7 +103,7 @@ static void _database_remove(dataBase this,size_t key){
     if(offset!=0){
         FILE *file=fopen(this->filePath->c_str(this->filePath),"rb+");
         if(!file){
-            perror("DataBase: 无法��开文件进行写入");
+            perror("DataBase: 无法打开文件进行写入");
             return;
         }
         fseek(file,offset,SEEK_SET);
@@ -105,7 +118,7 @@ static void _database_remove(dataBase this,size_t key){
 static void _database_save(dataBase this) {
     FILE *file = fopen(this->filePath->c_str(this->filePath), "ab");
     if (!file) {
-        perror("Failed to open file for writing");
+        perror("DataBase: 不能打开文件,可能文件夹不存在\n");
         return;
     }
     size_t dataCount = this->_buffer->size(this->_buffer);
