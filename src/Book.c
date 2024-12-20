@@ -18,10 +18,12 @@ void free_book(book this);
 // data获得序列化数据实现
 const char *_book_data(book this) {
     this->_serialize->clear(this->_serialize);
-    size_t len = sizeof(size_t) + sizeof(size_t) + this->ISBN->length(this->ISBN) + sizeof(size_t) + this->name->length(this->name) +
-                 sizeof(size_t) + this->author->length(this->author) + sizeof(size_t) + this->publisher->length(this->publisher) +
-                 sizeof(size_t) + this->time->length(this->time) + sizeof(this->status);
+    size_t len = sizeof(this->id) + sizeof(size_t) + this->ISBN->length(this->ISBN) +
+                 sizeof(size_t) + this->name->length(this->name) + sizeof(size_t) + this->author->length(this->author) +
+                 sizeof(size_t) + this->publisher->length(this->publisher) + sizeof(size_t) + this->time->length(this->time) +
+                 sizeof(this->status);
     this->_serialize->append_n(this->_serialize, (const char*)&len, sizeof(len));
+    this->_serialize->append_n(this->_serialize, (const char*)&this->id, sizeof(this->id));
 
     size_t str_len = this->ISBN->length(this->ISBN);
     this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
@@ -43,14 +45,17 @@ const char *_book_data(book this) {
     this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
     this->_serialize->append_n(this->_serialize, this->time->c_str(this->time), str_len);
 
-    this->_serialize->append_n(this->_serialize, (const char *)&this->status, sizeof(this->status));
+    this->_serialize->append_n(this->_serialize, (const char*)&this->status, sizeof(this->status));
 
     return this->_serialize->c_str(this->_serialize);
 }
 
 // 反序列化数据实现
 void _book_in_data(book this, const char *data) {
-    size_t ptr = 0;
+    size_t ptr = sizeof(size_t);
+    memcpy(&this->id, data + ptr, sizeof(this->id));
+    ptr += sizeof(this->id);
+
     size_t str_len = 0;
     memcpy(&str_len, data + ptr, sizeof(str_len));
     ptr += sizeof(str_len);
@@ -83,8 +88,9 @@ void _book_in_data(book this, const char *data) {
 }
 
 // 复制图书数据实现
-book _book_copy(book this, book other) {
-    this->ISBN->assign(this->ISBN, other->ISBN);
+book _book_copy(book this,book other){
+    this->id=other->id;
+    this->ISBN->assign(this->ISBN,other->ISBN);
     this->name->assign(this->name, other->name);
     this->author->assign(this->author, other->author);
     this->publisher->assign(this->publisher, other->publisher);

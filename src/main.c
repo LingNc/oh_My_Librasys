@@ -14,6 +14,9 @@ extern Screen (*screen_functions[])();
 int main(){
     bookDb=database("db/book.bin",Book);
     studentDb=database("db/student.bin",Student);
+    // dataBase infoDb=database("db/info.bin",String);
+    // string str=new_string();
+    // infoDb->add(infoDb,str);
     //dataBase test=database("db/test.bin",Book);
 
     // 取前1000个图书信息

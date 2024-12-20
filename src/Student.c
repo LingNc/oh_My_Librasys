@@ -80,7 +80,7 @@ void return_book(student this,book b){
 // 序列化学生数据
 const char *_student_data(student this){
     this->_serialize->clear(this->_serialize);
-    size_t len = sizeof(size_t) + sizeof(this->id) + sizeof(size_t) + this->name->length(this->name) +
+    size_t len = sizeof(this->id) + sizeof(size_t) + this->name->length(this->name) +
                  sizeof(size_t) + this->class->length(this->class) + sizeof(size_t) + this->department->length(this->department) +
                  sizeof(this->borrowedCount) + sizeof(size_t) + this->borrowedDate->length(this->borrowedDate) +
                  sizeof(size_t) + this->returnDate->length(this->returnDate);
@@ -115,9 +115,10 @@ const char *_student_data(student this){
 
 // 反序列化学生数据
 void _student_in_data(student this, const char *data) {
-    size_t ptr = 0;
-    size_t len = 0;
-    memcpy(&this->id, data + ptr, sizeof(this->id));
+    // 跳过第一个大小
+    size_t ptr=sizeof(size_t);
+    size_t len=0;
+    memcpy(&this->id,data+ptr,sizeof(this->id));
     ptr += sizeof(this->id);
 
     size_t str_len = 0;

@@ -12,6 +12,7 @@ static size_t default_hash_func(size_t key) {
 void init_index(database_index index, const char *filePath, size_t bucket_count) {
     index->filePath = new_string();
     index->filePath->assign_cstr(index->filePath, filePath);
+    // index->filePath->append_cstr(index->filePath,".idx");
     index->hash = default_hash_func;
     index->bucket_count = bucket_count;
     index->nums = 0; // 初始化索引数量
@@ -102,7 +103,7 @@ void load_index(database_index index) {
     snprintf(indexFilePath, sizeof(indexFilePath), "%s.idx", index->filePath->c_str(index->filePath));
     FILE *indexFile = fopen(indexFilePath, "rb");
     if (!indexFile) {
-        perror("DataBase: 无法打开索引文件进行读取，正在初始化新索引");
+        perror("index: 无法打开索引文件进行读取，正在初始化新索引\n");
         init_index(index, index->filePath->c_str(index->filePath), index->bucket_count);
         return;
     }
@@ -124,7 +125,7 @@ void save_index(database_index index) {
     snprintf(indexFilePath, sizeof(indexFilePath), "%s.idx", index->filePath->c_str(index->filePath));
     FILE *indexFile = fopen(indexFilePath, "wb");
     if (!indexFile) {
-        perror("Failed to open index file for writing");
+        perror("index: 不能打开index文件,可能文件夹不存在\n");
         return;
     }
     fwrite(&index->nums, sizeof(size_t), 1, indexFile); // 写入索引数量
@@ -146,7 +147,7 @@ void rebuild_index(database_index index, const char *filePath) {
     clear_index(index);
     FILE *file = fopen(filePath, "rb");
     if (!file) {
-        perror("DataBase: 无法打开文件进行读取");
+        perror("index: 无法打开文件进行读取");
         return;
     }
     fseek(file, sizeof(size_t), SEEK_SET); // 跳过数据数量
