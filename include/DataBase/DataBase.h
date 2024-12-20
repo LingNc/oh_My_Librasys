@@ -32,7 +32,9 @@ struct DataBase {
     // 自定义键值对添加
     void (*add_key)(dataBase,void*,size_t key);
     // 删除数据
-    void (*rm)(dataBase, size_t);
+    void (*rm)(dataBase,size_t);
+    // 修改数据
+    bool (*change)(dataBase,size_t id,void *new);
     // 保存数据库到文件
     void (*save)(dataBase);
     // 查找数据
@@ -61,7 +63,7 @@ void close_database(dataBase this);
 void clean_database(dataBase this);
 
 // 获取下一个索引键
-size_t get_next_index_key(database_index index);
+size_t get_new_key(database_index index, vector buffer);
 
 #define database(filePath, type) load_database(filePath, #type)
 #endif

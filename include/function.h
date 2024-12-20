@@ -3,8 +3,12 @@
 
 #include "uiBook.h"
 #include "uiStudent.h"
+#include "DataBase/DataBase.h"
 
-uibook* load_books_from_file(const char *filename);
-uistudent* load_students_from_file(const char *filename);
+void load_books_from_file(const char *filename, dataBase bookDb);
+void load_students_from_file(const char *filename, dataBase studentDb);
+
+vector load_borrow_records(dataBase borrowDb, size_t student_id);
+void save_borrow_records(dataBase borrowDb, size_t student_id, vector records);
 
 #endif

@@ -19,7 +19,7 @@ static size_t _vector_size(vector this);
 static size_t _vector_find(vector this,const void *key,size_t startIndex);
 static void _vector_delete(vector this);
 static const char *_vector_data(vector this);
-static bool _vector_in_data(vector this,const char *data);
+static void _vector_in_data(vector this,const char *data);
 static void _vector_resize(vector this,size_t newSize);
 static vector _vector_init_func(vector this);
 
@@ -69,7 +69,8 @@ static void _vector_clear(vector this) {
             this->_free_item(this->_data + i * this->_itemSize);
         }
     }
-    this->_size = 0;
+    this->_data=realloc(this->_data,this->_itemSize*this->_allocatedSize);
+    this->_size=0;
 }
 
 // 获取指定位置的元素
@@ -120,22 +121,23 @@ static const char *_vector_data(vector this){
         temp->append_cstr(temp,this->_data_item(item));
     }
     totalSize=temp->size(temp);
-    this->_serialize->append_n(this->_serialize,&totalSize,sizeof(size_t));
+    this->_serialize->append_n(this->_serialize,(const char*)&totalSize,sizeof(size_t));
     // 储存有多少个
-    this->_serialize->append_n(this->_serialize,&this->_size,sizeof(size_t));
+    this->_serialize->append_n(this->_serialize,(const char*)&this->_size,sizeof(size_t));
     this->_serialize->append(this->_serialize,temp);
     return this->_serialize->c_str(this->_serialize);
 }
 
 // 反序列化向量数据
-static bool _vector_in_data(vector this,const char *data){
+static void _vector_in_data(vector this,const char *data){
     size_t offset=0;
     size_t totalSize=0;
     memcpy(&totalSize,data,sizeof(totalSize));
     offset+=sizeof(totalSize);
 
-    size_t newSize=(totalSize-sizeof(size_t))/this->_itemSize;
-    _vector_resize(this,newSize);
+    size_t newSize=0;
+    memcpy(&newSize,data+offset,sizeof(size_t));
+    if(newSize!=0) _vector_resize(this,newSize);
 
     for(size_t i=0; i<newSize; ++i){
         void *item=(char *)this->_data+i*this->_itemSize;
@@ -143,8 +145,8 @@ static bool _vector_in_data(vector this,const char *data){
         offset+=this->_itemSize;
     }
 
-    this->_size=newSize;
-    return true;
+    // this->_size=newSize;
+    // return true;
 }
 
 // 调整向量大小

@@ -43,7 +43,7 @@ void remove_index(database_index index, size_t key);
 // 重建索引
 void rebuild_index(database_index index, const char *filePath);
 
-// 获取最后一个索引键
-size_t get_last_index_key(database_index index);
+// 获取第一个未使用的索引键
+size_t get_new_key(database_index index, vector buffer);
 
 #endif

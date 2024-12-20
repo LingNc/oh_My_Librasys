@@ -4,17 +4,16 @@
 #include "uiBook.h"
 #include "Student.h"
 #include "uiStudent.h"
+#include "DataBase/DataBase.h"
 
-uibook* load_books_from_file(const char *filePath) {
+void load_books_from_file(const char *filePath, dataBase bookDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
         perror("load uibook: 无法打开文件");
-        return NULL;
+        return;
     }
 
-    uibook *books = (uibook *)malloc(1000 * sizeof(uibook)); // 假设最多有100本书
     int count = 0;
-
     char line[1024];
     while (fgets(line, sizeof(line), file)) {
         size_t id;
@@ -26,24 +25,26 @@ uibook* load_books_from_file(const char *filePath) {
 
         book newBook = new_book();
         load_book(newBook, id, ISBN, name, author, publisher, time, status);
-        books[count] = new_from_book(newBook);
+        bookDb->add(bookDb, newBook);
+
         count++;
+        if (count % 5000 == 0) {
+            bookDb->save(bookDb);
+        }
     }
 
     fclose(file);
-    return books;
+    bookDb->save(bookDb);
 }
 
-uistudent* load_students_from_file(const char *filePath) {
+void load_students_from_file(const char *filePath, dataBase studentDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
-        perror("load uistudent: 无法打开文件");
-        return NULL;
+        perror("load uistudent: 无���打开文件");
+        return;
     }
 
-    uistudent *students = (uistudent *)malloc(1000 * sizeof(uistudent)); // 假设最多有100个学生
     int count = 0;
-
     char line[1024];
     while (fgets(line, sizeof(line), file)) {
         size_t id;
@@ -55,10 +56,44 @@ uistudent* load_students_from_file(const char *filePath) {
 
         student newStudent = new_student();
         load_student(newStudent, id, name, class, department, borrowedCount, borrowedDate, returnDate);
-        students[count] = new_from_student(newStudent);
+        studentDb->add(studentDb, newStudent);
+
         count++;
+        if (count % 5000 == 0) {
+            studentDb->save(studentDb);
+        }
     }
 
     fclose(file);
-    return students;
+    studentDb->save(studentDb);
 }
+
+void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
+    string ser_records=new_string();
+    size_t allSize=0;
+    size_t offset=0;
+    const char *data=(const char *)records->data(records);
+    allSize+=*(size_t *)data;
+    offset+=sizeof(size_t);
+    allSize+=2*sizeof(size_t);
+    ser_records->append_n(ser_records,data,allSize);
+    borrowDb->rm(borrowDb, student_id); // 删除原先的记录
+    borrowDb->add_auto(borrowDb, ser_records); // 重新加入
+    borrowDb->save(borrowDb);
+}
+
+vector load_borrow_records(dataBase borrowDb, size_t student_id) {
+    string ser_records = borrowDb->find_key(borrowDb, student_id);
+    if (!ser_records) {
+        ser_records=new_string();
+        size_t t=0;
+        ser_records->append_n(ser_records,(const char *)&t,sizeof(size_t));
+        ser_records->append_n(ser_records,(const char *)&t,sizeof(size_t));
+        borrowDb->add_auto(borrowDb,ser_records);
+        borrowDb->save(borrowDb);
+    }
+    vector records = vector(String);
+    records->in_data(records, ser_records->c_str(ser_records));
+    return records;
+}
+

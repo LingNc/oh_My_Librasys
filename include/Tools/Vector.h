@@ -50,7 +50,7 @@ struct Vector
 
     // 反序列化向量数据
     // 返回是否成功
-    bool (*in_data)(vector this, const char *data);
+    void (*in_data)(vector this, const char *data);
 
     // 调整向量大小
     // 无返回值
