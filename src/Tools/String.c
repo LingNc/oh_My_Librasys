@@ -298,7 +298,6 @@ static void _string_swap(string this, string other) {
 static void _string_free(string this){
     free(this->_data);
     free(this->_serialize);
-    free(this);
 }
 
 // copy 函数实现
@@ -407,4 +406,5 @@ void init_string(string this){
 // 销毁 String 对象的函数
 void delete_string(string this){
     _string_free(this);
+    free(this);
 }

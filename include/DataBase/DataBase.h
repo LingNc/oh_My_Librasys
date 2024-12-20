@@ -32,7 +32,9 @@ struct DataBase {
     // 自定义键值对添加
     void (*add_key)(dataBase,void*,size_t key);
     // 删除数据
-    void (*rm)(dataBase, size_t);
+    void (*rm)(dataBase,size_t);
+    // 修改数据
+    bool (*change)(dataBase,size_t id,void *new);
     // 保存数据库到文件
     void (*save)(dataBase);
     // 查找数据

@@ -478,7 +478,7 @@ int main(){
 
     bookDb=database("db/book",Book);
     studentDb=database("db/student",Student);
-    borrowDb=database("db/borrow_records",Vector);
+    borrowDb=database("db/borrow_records",String);
 
     main_menu();
 

@@ -110,7 +110,15 @@
         "screen.h": "c",
         "check.h": "c",
         "database.h": "c",
-        "index.h": "c"
+        "index.h": "c",
+        "ccomplex": "c",
+        "cerrno": "c",
+        "cfloat": "c",
+        "climits": "c",
+        "ios": "c",
+        "queue": "c",
+        "cstdbool": "c",
+        "pair.h": "c"
     },
     "makefile.launchConfigurations": [
         {

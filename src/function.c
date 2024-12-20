@@ -40,7 +40,7 @@ void load_books_from_file(const char *filePath, dataBase bookDb) {
 void load_students_from_file(const char *filePath, dataBase studentDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
-        perror("load uistudent: 无法打开文件");
+        perror("load uistudent: 无���打开文件");
         return;
     }
 
@@ -67,18 +67,33 @@ void load_students_from_file(const char *filePath, dataBase studentDb) {
     fclose(file);
     studentDb->save(studentDb);
 }
+
 void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
     string ser_records=new_string();
-    ser_records->append_char(ser_records,records->data(records));
-    borrowDb->add_auto(borrowDb,ser_records);
+    size_t allSize=0;
+    size_t offset=0;
+    const char *data=(const char *)records->data(records);
+    allSize+=*(size_t *)data;
+    offset+=sizeof(size_t);
+    allSize+=2*sizeof(size_t);
+    ser_records->append_n(ser_records,data,allSize);
+    borrowDb->rm(borrowDb, student_id); // 删除原先的记录
+    borrowDb->add_auto(borrowDb, ser_records); // 重新加入
     borrowDb->save(borrowDb);
 }
 
-
-vector load_borrow_records(dataBase borrowDb,size_t student_id){
+vector load_borrow_records(dataBase borrowDb, size_t student_id) {
     string ser_records = borrowDb->find_key(borrowDb, student_id);
-    vector records=vector(String);
-    records->in_data(records,ser_records->c_str(ser_records));
+    if (!ser_records) {
+        ser_records=new_string();
+        size_t t=0;
+        ser_records->append_n(ser_records,(const char *)&t,sizeof(size_t));
+        ser_records->append_n(ser_records,(const char *)&t,sizeof(size_t));
+        borrowDb->add_auto(borrowDb,ser_records);
+        borrowDb->save(borrowDb);
+    }
+    vector records = vector(String);
+    records->in_data(records, ser_records->c_str(ser_records));
     return records;
 }
 
