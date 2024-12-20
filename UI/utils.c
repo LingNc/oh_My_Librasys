@@ -228,3 +228,24 @@ void print_info(WINDOW* info_win, Infoname* infoname, MenuInfo* info)
 }
 
 
+
+
+
+Book* my_init_book(size_t id, const char *ISBN, const char *name, const char *author, const char *publisher) {
+    Book *book = (Book *)malloc(sizeof(Book));
+    if (book == NULL) {
+        // 处理内存分配失败的情况
+        return NULL;
+    }
+
+    book->id = id;
+    book->ISBN = new_string(ISBN);
+    book->name = new_string(name);
+    book->author = new_string(author);
+    book->publisher = new_string(publisher);
+    book->time = "";
+    book->status = 1;
+    book->_serialize = NULL; // 或者用 new_string("") 初始化
+
+    return book;
+}
