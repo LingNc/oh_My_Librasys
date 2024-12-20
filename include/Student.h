@@ -18,7 +18,6 @@ struct Student {
     int borrowedCount;
     string borrowedDate;
     string returnDate;
-    vector books; // 动态数组，存储借阅的图书信息
 
     // 序列化数据
     string _serialize;

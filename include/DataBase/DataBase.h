@@ -61,7 +61,7 @@ void close_database(dataBase this);
 void clean_database(dataBase this);
 
 // 获取下一个索引键
-size_t get_next_index_key(database_index index);
+size_t get_new_key(database_index index, vector buffer);
 
 #define database(filePath, type) load_database(filePath, #type)
 #endif
