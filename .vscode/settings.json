@@ -145,6 +145,12 @@
             "cwd": "/home/LingNc/oh_My_Librasys",
             "binaryPath": "/home/LingNc/oh_My_Librasys/main",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lea/study/c/oh_My_Librasys",
+            "binaryPath": "/home/lea/study/c/oh_My_Librasys/main",
+            "binaryArgs": []
         }
-    ]
+    ],
+    "makefile.makefilePath": "/home/lea/study/c/oh_My_Librasys/Makefile"
 }
