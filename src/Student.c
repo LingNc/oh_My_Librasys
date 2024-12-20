@@ -1,13 +1,15 @@
 #include "Student.h"
 #include "Book.h"
+#include "DataBase/DataBase.h"
+#include "time.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 // 函数声明
 student new_student();
-static void borrow_book(student this,book b);
-static void return_book(student this,book b);
+static void borrow_book(dataBase borrowDb, student this,book b);
+static void return_book(dataBase borrowDb, student this,book b);
 static student _student_init(student this);
 static const char *_student_data(student this);
 static void _student_free(student this);
@@ -26,7 +28,6 @@ student _student_init(student this){
     this->borrowedDate=new_string();
     this->returnDate=new_string();
     this->_serialize=new_string();
-    this->books=new_vector("Book");
     this->data=_student_data;
     this->in_data=_student_in_data;
     this->init=_student_init;
@@ -48,33 +49,43 @@ student new_student(){
 }
 
 // 借书
-void borrow_book(student this,book b){
-    if(this->borrowedCount<MAX_AVAILABLE&&b->status==0){
-        this->books->push_back(this->books,b);
+void borrow_book(dataBase borrowDb, student this, book b) {
+    if (this->borrowedCount < MAX_AVAILABLE && b->status == 0) {
+        // 更新借书记录数据库
+        vector borrow_records = load_borrow_records(borrowDb, this->id);
+        string record = new_string();
+        record->append_n(record, (const char*)&b->id, sizeof(size_t));
+        size_t timestamp = time(NULL);
+        record->append_n(record, (const char*)&timestamp, sizeof(size_t));
+        borrow_records->push_back(borrow_records, record);
+        save_borrow_records(borrowDb, this->id, borrow_records);
+        borrow_records->free(borrow_records);
+
         this->borrowedCount++;
-        b->status=1;
-        // 更新借书日期
-        // ...
-    }
-    else{
+        b->status = 1;
+    } else {
         printf("无法借书，已达到最大借阅数量或图书已借出。\n");
     }
 }
 
 // 还书
-void return_book(student this,book b){
-    for(size_t i=0; i<this->books->size(this->books); ++i){
-        book borrowedBook=(book)this->books->at(this->books,i);
-        if(borrowedBook->id==b->id){
-            this->books->remove(this->books,i);
+void return_book(dataBase borrowDb, student this, book b) {
+    vector borrow_records = load_borrow_records(borrowDb, this->id);
+    for (size_t i = 0; i < borrow_records->size(borrow_records); ++i) {
+        string record = (string)borrow_records->at(borrow_records, i);
+        size_t book_id;
+        memcpy(&book_id, record->c_str(record), sizeof(size_t));
+        if (book_id == b->id) {
+            borrow_records->remove(borrow_records, i);
+            save_borrow_records(borrowDb, this->id, borrow_records);
+            borrow_records->free(borrow_records);
             this->borrowedCount--;
-            b->status=0;
-            // 更新还书日期
-            // ...
+            b->status = 0;
             return;
         }
     }
     printf("未找到借阅的图书。\n");
+    borrow_records->free(borrow_records);
 }
 
 // 序列化学生数据
@@ -173,12 +184,6 @@ void _student_free(student this){
     delete_string(this->department);
     delete_string(this->borrowedDate);
     delete_string(this->returnDate);
-    if(this->books){
-        // for(size_t i=0; i<this->borrowedCount; ++i){
-            // ((book)this->books->at(this->books,i))->free;
-        // }
-        // this->books->free(this->books);
-    }
     delete_string(this->_serialize);
 }
 
@@ -197,11 +202,6 @@ static void _student_copy(student this, student other) {
     this->borrowedCount = other->borrowedCount;
     this->borrowedDate->assign_cstr(this->borrowedDate, other->borrowedDate->c_str(other->borrowedDate));
     this->returnDate->assign_cstr(this->returnDate, other->returnDate->c_str(other->returnDate));
-    this->books->clear(this->books);
-    for (size_t i = 0; i < other->books->size(other->books); ++i) {
-        book b = (book)other->books->at(other->books, i);
-        this->books->push_back(this->books, b);
-    }
 }
 
 int _student_cmp(student this, student other) {

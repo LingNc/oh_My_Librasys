@@ -67,3 +67,18 @@ void load_students_from_file(const char *filePath, dataBase studentDb) {
     fclose(file);
     studentDb->save(studentDb);
 }
+void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
+    string ser_records=new_string();
+    ser_records->append_char(ser_records,records->data(records));
+    borrowDb->add_auto(borrowDb,ser_records);
+    borrowDb->save(borrowDb);
+}
+
+
+vector load_borrow_records(dataBase borrowDb,size_t student_id){
+    string ser_records = borrowDb->find_key(borrowDb, student_id);
+    vector records=vector(String);
+    records->in_data(records,ser_records->c_str(ser_records));
+    return records;
+}
+

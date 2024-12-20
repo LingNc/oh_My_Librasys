@@ -7,6 +7,7 @@
 // 函数声明
 static void _init_all(dataBase this,const char *filePath);
 static void _database_add(dataBase this,void *data);
+static void _database_add_no_key(dataBase this, void* data);
 static void _database_remove(dataBase this,size_t key);
 static void _database_save(dataBase this);
 static vector _database_find(dataBase this,const void *data);
@@ -21,7 +22,7 @@ void clean_database(dataBase this);
 
 #define _max_item 100
 
-// 获得数据库的实际储存大小
+// 获���数据库的实际储存大小
 static size_t _database_size(dataBase this){
     return this->_index->nums;
 }
@@ -60,7 +61,8 @@ static void _init_func(dataBase this){
     this->get=_database_get;
     this->get_find=_database_get_find;
     this->add_key = _database_add_key;
-    this->add_auto = _database_add_auto;
+    this->add_auto=_database_add_auto;
+    this->size=_database_size;
 }
 
 // 初始化数据库
@@ -81,11 +83,10 @@ static void _init_all(dataBase this,const char *inPath){
 }
 
 // 添加数据,自动索引
-static void _database_add(dataBase this,void *data){
-    size_t newKey=get_next_index_key(this->_index); // 获取索引中最后一个唯一编号id，然后向后顺延一个
-    // id在第1个
-    *(size_t *)data=newKey;
-    this->_buffer->push_back(this->_buffer,data);
+static void _database_add(dataBase this, void *data) {
+    size_t newKey = get_new_key(this->_index, this->_buffer); // 获取第一个未使用的唯一编号id
+    *(size_t *)data = newKey;
+    this->_buffer->push_back(this->_buffer, data);
 }
 // 添加数据,根据读入数据自动索引
 static void _database_add_auto(dataBase this,void* data){
@@ -97,7 +98,12 @@ static void _database_add_key(dataBase this,void* data,size_t key){
     this->_buffer->push_back(this->_buffer,data);
 }
 
-// 删除数据
+// 添加数据,不使用索引
+static void _database_add_no_key(dataBase this, void* data) {
+    this->_buffer->push_back(this->_buffer, data);
+}
+
+// ���除数据
 static void _database_remove(dataBase this,size_t key){
     size_t offset=find_index(this->_index,key);
     if(offset!=0){
@@ -210,7 +216,7 @@ static void *_database_find_key(dataBase this, size_t key) {
     return NULL;
 }
 
-// 从数据库根据key 得到索引，从第pos开始，nums个东西
+// 从数���库根据key 得到索引，从���pos开始，nums个东西
 static vector _database_get(dataBase this,size_t key,size_t nums){
     vector result=new_vector(this->_type->c_str(this->_type));
     size_t count=0;
@@ -253,7 +259,7 @@ void close_database(dataBase this){
 void clean_database(dataBase this){
     FILE *file=fopen(this->filePath->c_str(this->filePath),"rb+");
     if(!file){
-        perror("DataBase: 无法打开文件进行清理");
+        perror("DataBase: 无法打��文件进行清理");
         return;
     }
     FILE *tempFile=fopen("temp.db","wb");
@@ -291,10 +297,7 @@ void clean_database(dataBase this){
     rebuild_index(this->_index,this->filePath->c_str(this->filePath));
 }
 
-// 获取下一个索引键
-size_t get_next_index_key(database_index index){
-    size_t lastKey=get_last_index_key(index); // 获取索引中最后一个唯一编号id
-    return lastKey+1;
-}
+// ��取下一个索引键
+size_t get_new_key(database_index index, vector buffer);
 
 
