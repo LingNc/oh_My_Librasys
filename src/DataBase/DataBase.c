@@ -18,6 +18,7 @@ static vector _database_get(dataBase this,size_t key,size_t nums);
 static vector _database_get_find(dataBase this,size_t pos,size_t nums);
 static void _database_add_auto(dataBase this,void* data);
 static void _database_add_key(dataBase this, void* data, size_t key);
+static bool _database_change(dataBase this, size_t id, void *new_data);
 void clean_database(dataBase this);
 
 #define _max_item 100
@@ -63,6 +64,7 @@ static void _init_func(dataBase this){
     this->add_key = _database_add_key;
     this->add_auto=_database_add_auto;
     this->size=_database_size;
+    this->change = _database_change;
 }
 
 // 初始化数据库
@@ -103,7 +105,7 @@ static void _database_add_no_key(dataBase this, void* data) {
     this->_buffer->push_back(this->_buffer, data);
 }
 
-// ���除数据
+// �����数据
 static void _database_remove(dataBase this,size_t key){
     size_t offset=find_index(this->_index,key);
     if(offset!=0){
@@ -243,7 +245,7 @@ static vector _database_get_find(dataBase this,size_t pos,size_t nums){
     return result;
 }
 
-// 关闭数据库
+// 关闭��据库
 void close_database(dataBase this){
     _database_save(this);
     this->_buffer->clear(this->_buffer);
@@ -259,7 +261,7 @@ void close_database(dataBase this){
 void clean_database(dataBase this){
     FILE *file=fopen(this->filePath->c_str(this->filePath),"rb+");
     if(!file){
-        perror("DataBase: 无法打��文件进行清理");
+        perror("DataBase: 无法打开文件进行清理");
         return;
     }
     FILE *tempFile=fopen("temp.db","wb");
@@ -297,7 +299,14 @@ void clean_database(dataBase this){
     rebuild_index(this->_index,this->filePath->c_str(this->filePath));
 }
 
-// ��取下一个索引键
+// 获取取下一个索引键
 size_t get_new_key(database_index index, vector buffer);
+
+// 修改数据
+static bool _database_change(dataBase this, size_t id, void *new_data) {
+    _database_remove(this, id); // 先删除旧数据
+    _database_add_key(this, new_data, id); // 再添加新数据
+    return true;
+}
 
 

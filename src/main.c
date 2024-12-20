@@ -65,7 +65,11 @@ void borrow_book(){
 
             s->borrowedCount++;
             b->status=1;
+            bookDb->rm(bookDb,b->id);
+            bookDb->add_auto(bookDb,b);
             bookDb->save(bookDb);
+            studentDb->rm(studentDb,s->id);
+            studentDb->add(studentDb,s);
             studentDb->save(studentDb);
             printf("借书成功\n");
         }
