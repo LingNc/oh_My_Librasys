@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include "time.h"
 
 dataBase bookDb,studentDb,borrowDb;
 
