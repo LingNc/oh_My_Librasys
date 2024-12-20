@@ -303,9 +303,13 @@ void clean_database(dataBase this){
 size_t get_new_key(database_index index, vector buffer);
 
 // 修改数据
-static bool _database_change(dataBase this, size_t id, void *new_data) {
-    _database_remove(this, id); // 先删除旧数据
-    _database_add_key(this, new_data, id); // 再添加新数据
+static bool _database_change(dataBase this,size_t id,void *new_data){
+    // 先删除旧数据
+    _database_remove(this,id);
+    // 再添加新数据
+    _database_add_key(this,new_data,id);
+    // 保存
+    _database_save(this);
     return true;
 }
 
