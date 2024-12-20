@@ -16,7 +16,7 @@ static void _student_free(student this);
 static void _student_in_data(student this,const char *data);
 void load_student(student this,size_t id,const char *name,const char *class,const char *department,int borrowedCount,const char *borrowedDate,const char *returnDate);
 void free_student(student this);
-static void _student_copy(student this, student other);
+static student _student_copy(student this, student other);
 static int _student_cmp(student this, student other);
 
 student _student_init(student this){
@@ -194,7 +194,7 @@ void free_student(student this){
     free(this);
 }
 
-static void _student_copy(student this, student other) {
+static student _student_copy(student this, student other) {
     this->id = other->id;
     this->name->assign_cstr(this->name, other->name->c_str(other->name));
     this->class->assign_cstr(this->class, other->class->c_str(other->class));

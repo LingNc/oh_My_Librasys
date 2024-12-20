@@ -41,7 +41,9 @@ static void _vector_push_back(vector this,const void *item){
         _grow(this);
     }
     void *dest=(char *)this->_data+this->_size*this->_itemSize;
-    this->_init_item(dest);
+    if(this->_init_item){
+        this->_init_item(dest);
+    }
     if(this->_copy_item){
         this->_copy_item(dest,(void *)item);
     }
@@ -93,7 +95,13 @@ static size_t _vector_find(vector this,const void *key,size_t startIndex){
     for(size_t i=startIndex; i<this->_size; i++){
         void *elem=(char *)this->_data+i*this->_itemSize;
         int cmp_result;
-        cmp_result=this->_cmp_item(elem,(void *)key);
+        if(this->_cmp_item){
+            cmp_result=this->_cmp_item(elem,(void *)key);
+        }
+        else{
+            cmp_result=this->_dcmp_item(elem,(void *)key,this->_typename->c_str(this->_typename));
+        }
+
         if(cmp_result==0){
             return i;
         }
@@ -177,11 +185,10 @@ static vector _vector_init_func(vector this){
 // 全部初始化
 static void _init_all(vector this,const char *type){
     this->init=_init_all;
+
     // 初始化成员函数
     _vector_init_func(this);
     // 初始化基本元素类型以及元素函数
-    // this->_itemSize= _init_type(this,type);
-this->_itemSize = ({
     size_t result = 0;
     if (strcmp(type, "String") == 0) {
         result = ({
@@ -247,6 +254,9 @@ this->_itemSize = ({
         this->_copy_item = NULL;
         this->_free_item = NULL;
         this->_cmp_item = NULL;
+        this->_init_item = NULL;
+        this->_data_item = NULL;
+        this->_in_data_item = NULL;
         if (strcmp(type, "int") == 0) {
             this->_dcmp_item = _default_cmp;
             result = sizeof(int);
@@ -266,13 +276,13 @@ this->_itemSize = ({
             result = 0;
         }
     }
-    result;
-});
+    this->_itemSize=result;
     // 初始化自身变量
     this->npos=(size_t)-1;
     this->_allocatedSize=10;
     this->_serialize=new_string();
     this->_typename=new_string();
+    this->_typename->append_cstr(this->_typename,type);
     this->_data=malloc(this->_itemSize*this->_allocatedSize);
     if(!this->_data){
         perror("Vector: _data 指针分配失败");

@@ -18,6 +18,8 @@ struct DataBase {
     string _inPath;
     // 数据录入缓冲区
     vector _buffer;
+    // 数据录入索引缓冲区
+    vector _buffer_index;
     // 临时缓冲区
     vector _temp;
     // 查找结果缓冲区

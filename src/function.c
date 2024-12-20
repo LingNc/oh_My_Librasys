@@ -77,9 +77,7 @@ void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
     offset+=sizeof(size_t);
     allSize+=2*sizeof(size_t);
     ser_records->append_n(ser_records,data,allSize);
-    borrowDb->rm(borrowDb, student_id); // 删除原先的记录
-    borrowDb->add_auto(borrowDb, ser_records); // 重新加入
-    borrowDb->save(borrowDb);
+    borrowDb->change(borrowDb,student_id,ser_records);
 }
 
 vector load_borrow_records(dataBase borrowDb, size_t student_id) {
@@ -89,7 +87,7 @@ vector load_borrow_records(dataBase borrowDb, size_t student_id) {
         size_t t=0;
         ser_records->append_n(ser_records,(const char *)&t,sizeof(size_t));
         ser_records->append_n(ser_records,(const char *)&t,sizeof(size_t));
-        borrowDb->add_auto(borrowDb,ser_records);
+        borrowDb->add_key(borrowDb,ser_records,student_id);
         borrowDb->save(borrowDb);
     }
     vector records = vector(String);
