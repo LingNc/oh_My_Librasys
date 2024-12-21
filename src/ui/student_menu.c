@@ -79,7 +79,7 @@ void return_book(void *arg) {
         printf("未找到借阅的图书。\n");
         borrow_records->free(borrow_records);
     } else {
-        printf("学���或书籍不存在\n");
+        printf("学生或书籍不存在\n");
     }
     getchar(); getchar();
     clear_screen();
@@ -126,7 +126,7 @@ void student_menu(void *arg) {
         L"4. 退出"
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
-    void *funcs[] = {
+    void (*funcs[])(void *) = {
         borrow_book,
         return_book,
         view_borrow_info

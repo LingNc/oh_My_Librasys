@@ -22,7 +22,7 @@ void main_menu() {
         L"3. 退出"
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
-    void *funcs[] = {
+    void (*funcs[])(void *) = {
         student_menu,
         book_management_menu
     };
