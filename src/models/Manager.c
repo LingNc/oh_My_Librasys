@@ -1,4 +1,5 @@
 #include "models/Manager.h"
+#include "stdio.h"
 
 // 函数声明
 manager _manager_init(manager this);

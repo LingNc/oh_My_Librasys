@@ -8,8 +8,8 @@
 
 // 函数声明
 student new_student();
-static void borrow_book(dataBase borrowDb, student this,book b);
-static void return_book(dataBase borrowDb, student this,book b);
+// static void borrow_book(dataBase borrowDb, student this,book b);
+// static void return_book(dataBase borrowDb, student this,book b);
 static student _student_init(student this);
 static const char *_student_data(student this);
 static void _student_free(student this);
@@ -48,45 +48,45 @@ student new_student(){
     return this;
 }
 
-// 借书
-void borrow_book(dataBase borrowDb, student this, book b) {
-    if (this->borrowedCount < MAX_AVAILABLE && b->status == 0) {
-        // 更新借书记录数据库
-        vector borrow_records = load_borrow_records(borrowDb, this->id);
-        string record = new_string();
-        record->append_n(record, (const char*)&b->id, sizeof(size_t));
-        size_t timestamp = time(NULL);
-        record->append_n(record, (const char*)&timestamp, sizeof(size_t));
-        borrow_records->push_back(borrow_records, record);
-        save_borrow_records(borrowDb, this->id, borrow_records);
-        borrow_records->free(borrow_records);
+// // 借书
+// void borrow_book(dataBase borrowDb, student this, book b) {
+//     if (this->borrowedCount < MAX_AVAILABLE && b->status == 0) {
+//         // 更新借书记录数据库
+//         vector borrow_records = load_borrow_records(borrowDb, this->id);
+//         string record = new_string();
+//         record->append_n(record, (const char*)&b->id, sizeof(size_t));
+//         size_t timestamp = time(NULL);
+//         record->append_n(record, (const char*)&timestamp, sizeof(size_t));
+//         borrow_records->push_back(borrow_records, record);
+//         save_borrow_records(borrowDb, this->id, borrow_records);
+//         borrow_records->free(borrow_records);
 
-        this->borrowedCount++;
-        b->status = 1;
-    } else {
-        printf("无法借书，已达到最大借阅数量或图书已借出。\n");
-    }
-}
+//         this->borrowedCount++;
+//         b->status = 1;
+//     } else {
+//         printf("无法借书，已达到最大借阅数量或图书已借出。\n");
+//     }
+// }
 
-// 还书
-void return_book(dataBase borrowDb, student this, book b) {
-    vector borrow_records = load_borrow_records(borrowDb, this->id);
-    for (size_t i = 0; i < borrow_records->size(borrow_records); ++i) {
-        string record = (string)borrow_records->at(borrow_records, i);
-        size_t book_id;
-        memcpy(&book_id, record->c_str(record), sizeof(size_t));
-        if (book_id == b->id) {
-            borrow_records->remove(borrow_records, i);
-            save_borrow_records(borrowDb, this->id, borrow_records);
-            borrow_records->free(borrow_records);
-            this->borrowedCount--;
-            b->status = 0;
-            return;
-        }
-    }
-    printf("未找到借阅的图书。\n");
-    borrow_records->free(borrow_records);
-}
+// // 还书
+// void return_book(dataBase borrowDb, student this, book b) {
+//     vector borrow_records = load_borrow_records(borrowDb, this->id);
+//     for (size_t i = 0; i < borrow_records->size(borrow_records); ++i) {
+//         string record = (string)borrow_records->at(borrow_records, i);
+//         size_t book_id;
+//         memcpy(&book_id, record->c_str(record), sizeof(size_t));
+//         if (book_id == b->id) {
+//             borrow_records->remove(borrow_records, i);
+//             save_borrow_records(borrowDb, this->id, borrow_records);
+//             borrow_records->free(borrow_records);
+//             this->borrowedCount--;
+//             b->status = 0;
+//             return;
+//         }
+//     }
+//     printf("未找到借阅的图书。\n");
+//     borrow_records->free(borrow_records);
+// }
 
 // 序列化学生数据
 const char *_student_data(student this){
@@ -202,6 +202,7 @@ static student _student_copy(student this, student other) {
     this->borrowedCount = other->borrowedCount;
     this->borrowedDate->assign_cstr(this->borrowedDate, other->borrowedDate->c_str(other->borrowedDate));
     this->returnDate->assign_cstr(this->returnDate, other->returnDate->c_str(other->returnDate));
+    return this;
 }
 
 int _student_cmp(student this, student other) {
