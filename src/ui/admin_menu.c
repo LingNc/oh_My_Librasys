@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <wchar.h>
 #include "ui/menu.h"
+#include "ui/func.h"
 #include "DataBase/DataBase.h"
 #include "models/Book.h"
 #include "models/Student.h"
