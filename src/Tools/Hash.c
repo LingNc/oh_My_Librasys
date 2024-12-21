@@ -1,8 +1,12 @@
 #include "Tools/Hash.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #define SHA256_BLOCK_SIZE 32
+#define ROTRIGHT(word, bits) (((word) >> (bits)) | ((word) << (32 - (bits))))
+#define CH(x, y, z) (((x) & (y)) ^ (~(x) & (z)))
+#define MAJ(x, y, z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 
 typedef struct {
     unsigned char data[64];
