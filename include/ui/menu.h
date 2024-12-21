@@ -1,8 +1,9 @@
-#ifndef MENU_H
-#define MENU_H
+#ifndef _menu_h
+#define _menu_h
 #include <wchar.h>
 #include <stdbool.h>
 #include "DataBase/DataBase.h"
+
 
 extern dataBase studentDb, managerDb;
 

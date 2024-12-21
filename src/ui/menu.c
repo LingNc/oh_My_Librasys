@@ -2,6 +2,7 @@
 #include <wchar.h>
 #include <string.h>
 #include "ui/menu.h"
+#include "ui/line.h"
 #include "DataBase/DataBase.h"
 #include "models/Student.h"
 #include "models/Manager.h"
@@ -14,21 +15,14 @@ void clear_screen() {
     printf("\033[H\033[J");
 }
 
-void display_menu(int highlight,const wchar_t **choices,int n_choices){
-    printf("\033[H\033[J"); // 清屏
-    for(int i=0; i<n_choices; ++i){
-        if(i==highlight){
-            printf("> %ls\n",choices[i]); // 设置背景色为黄色，字体为白色
-        }
-        else{
-            printf("  %ls\n",choices[i]);
-        }
-    }
+void display_menu(int highlight, const wchar_t **choices, int n_choices) {
+    clear_screen();
+    display_line(highlight, choices, n_choices);
 }
 
 bool handle_menu_input(int *highlight, int n_choices, int *choice) {
-    char line[100] = { 0 };
-    fgets(line, 100, stdin);
+    char line[MAX_INPUT] = { 0 };
+    fgets(line, MAX_INPUT, stdin);
     bool direct_jump = false;
     for (size_t i = 0; i < strlen(line); i++) {
         switch (line[i]) {
