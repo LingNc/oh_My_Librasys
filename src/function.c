@@ -1,9 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include "Book.h"
-#include "uiBook.h"
-#include "Student.h"
-#include "uiStudent.h"
+#include "models/Book.h"
+#include "models/uiBook.h"
+#include "models/Student.h"
+#include "models/uiStudent.h"
 #include "DataBase/DataBase.h"
 
 void load_books_from_file(const char *filePath, dataBase bookDb) {

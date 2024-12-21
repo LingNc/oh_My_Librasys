@@ -2,8 +2,8 @@
 #define _uistudent_lib
 
 #include <stddef.h>
-#include "uiBook.h"
-#include "Student.h"
+#include "models/uiBook.h"
+#include "models/Student.h"
 
 typedef struct uiStudent uiStudent;
 typedef uiStudent *uistudent;

@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "uiBook.h"
-#include "uiStudent.h"
+#include "models/uiBook.h"
+#include "models/uiStudent.h"
 #include "DataBase/DataBase.h"
 
 extern dataBase bookDb,studentDb;
