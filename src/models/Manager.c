@@ -1,4 +1,16 @@
-#include "Manager.h"
+#include "models/Manager.h"
+
+// 函数声明
+manager _manager_init(manager this);
+manager new_manager();
+manager __init_Manager();
+void load_manager(manager this,size_t id,const char *name,const char *registration_date,const char *registered_by);
+void _manager_free(manager this);
+void free_manager(manager this);
+manager _manager_copy(manager this, manager other);
+int _manager_cmp(manager this, manager other);
+const char *_manager_data(manager this);
+void _manager_in_data(manager this, const char *data);
 
 manager _manager_init(manager this) {
     this->id = 0;
@@ -24,6 +36,10 @@ manager new_manager() {
     }
     _manager_init(this);
     return this;
+}
+
+manager __init_Manager(){
+    return new_manager();
 }
 
 // 加载 Manager 数据
