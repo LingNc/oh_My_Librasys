@@ -3,10 +3,13 @@
 #include <time.h>
 #include "ui/menu.h"
 #include "ui/func.h"
+#include "ui/page.h"
 #include "DataBase/DataBase.h"
 #include "models/Book.h"
 #include "models/Student.h"
 #include "function.h"
+
+#define DEFAULT_PAGE_SIZE 10
 
 extern dataBase studentDb, borrowDb, bookDb;
 
@@ -14,6 +17,10 @@ void borrow_book(void **arg) {
     size_t student_id = *(size_t *)arg[0];
     clear_screen();
     printf("借书功能\n");
+
+    // 刷新图书数据库内容并展示界面
+    page(bookDb, DEFAULT_PAGE_SIZE, "图书列表");
+
     size_t book_id;
     printf("请输入书籍ID: ");
     scanf("%zu", &book_id);

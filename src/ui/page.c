@@ -7,20 +7,18 @@
 #include "DataBase/DataBase.h"
 #include "Tools/Vector.h"
 #include "ui/func.h"
+#include "ui/command.h"
 
-void display_page(vector content, int highlight, const char prefix[], int page_size) {
+void display_page(vector content, int highlight, const char prefix[]) {
     clear_screen();
     printf("%s\n", prefix);
     display(highlight, content);
     printf("Page %d\n", highlight + 1);
-    printf("请输入每个页面显示的数量: %d\n", page_size);
 }
 
 bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, int *page_size) {
     char ch = getch();
     bool direct_jump = false;
-    char input[10] = {0};
-    size_t input_index = 0;
 
     switch (ch) {
     case 'a':
@@ -45,15 +43,7 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
         *choice = *highlight + 1;
         break;
     case '/':
-        printf("/");
-        while ((ch = getch()) != '\n') {
-            if (input_index < sizeof(input) - 1) {
-                input[input_index++] = ch;
-                putchar(ch);
-            }
-        }
-        input[input_index] = '\0';
-        *page_size = atoi(input);
+        execute(page_size);
         *page = 0; // 重置页码
         *highlight = 0; // 重置光标位置
         break;
@@ -75,7 +65,7 @@ void page(dataBase db, int page_size, const char *prefix) {
     int choice = -1;
     while (1) {
         vector content = db->get(db, page * page_size, page_size);
-        display_page(content, highlight, prefix, page_size);
+        display_page(content, highlight, prefix);
         bool res = handle_page_input(&page, total_pages, &highlight, &choice, &page_size);
         if (choice != -1 && res) {
             if (choice > total_pages) {
