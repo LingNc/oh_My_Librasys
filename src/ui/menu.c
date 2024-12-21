@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
-#include "menu.h"
+#include "ui/menu.h"
+
+void clear_screen() {
+    printf("\033[H\033[J");
+}
 
 void display_menu(int highlight,const wchar_t **choices,int n_choices){
     printf("\033[H\033[J"); // 清屏

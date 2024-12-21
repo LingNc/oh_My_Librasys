@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <wchar.h>
-#include "menu.h"
+#include <time.h>
+#include "ui/menu.h"
 #include "DataBase/DataBase.h"
 #include "models/Book.h"
 #include "models/Student.h"
+#include "function.h"
 
 extern dataBase studentDb, borrowDb, bookDb;
 

@@ -15,10 +15,6 @@
 
 dataBase bookDb, studentDb, borrowDb, managerDb;
 
-void clear_screen() {
-    printf("\033[H\033[J");
-}
-
 void main_menu() {
     const wchar_t *choices[] = {
         L"1. 学生入口",
