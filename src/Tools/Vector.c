@@ -1,7 +1,8 @@
 #include "Tools/Vector.h"
 #include "Tools/Pair.h"
-#include "Book.h"
-#include "Student.h"
+#include "models/Book.h"
+#include "models/Student.h"
+#include "models/Manager.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -249,6 +250,21 @@ static void _init_all(vector this,const char *type){
             this->_data_item = (const char *(*)(void *))((Pair *)this->_base)->data;
             this->_in_data_item = (void (*)(void *, const char *))((Pair *)this->_base)->in_data;
             sizeof(Pair);
+        });
+    } else if (strcmp(type, "Manager") == 0) {
+        result = ({
+            this->_base = __init_Manager();
+            if (!this->_base) {
+                perror("Type: _base 指针分配失败");
+                exit(1);
+            }
+            this->_init_item = (void *(*)(void *))((Manager *)this->_base)->init;
+            this->_copy_item = (void *(*)(void *, const void *))((Manager *)this->_base)->copy;
+            this->_free_item = (void (*)(void *))((Manager *)this->_base)->free;
+            this->_cmp_item = (int (*)(const void *, const void *))((Manager *)this->_base)->cmp;
+            this->_data_item = (const char *(*)(void *))((Manager *)this->_base)->data;
+            this->_in_data_item = (void (*)(void *, const char *))((Manager *)this->_base)->in_data;
+            sizeof(Manager);
         });
     } else {
         this->_copy_item = NULL;

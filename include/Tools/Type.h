@@ -89,7 +89,7 @@ extern int _default_cmp(const void *a,const void *b,const char* typename);
 */
 #define _init_type_for_basic_with_cmp(TYPE) \
     if (strcmp(type, #TYPE) == 0) { \
-        this->_cmp_item = _default_cmp; \
+        this->_dcmp_item = _default_cmp; \
         result=sizeof(TYPE); \
     }
 
@@ -107,6 +107,7 @@ extern int _default_cmp(const void *a,const void *b,const char* typename);
         _init_type_for(Book) \
         _init_type_for(Student) \
         _init_type_for(Pair) \
+        _init_type_for(Manager) \
         else{ \
             this->_copy_item=NULL; \
             this->_free_item=NULL; \
