@@ -110,9 +110,9 @@ void view_borrow_info(void **arg) {
         }
         borrow_records->free(borrow_records);
     } else {
-        printf("学生不存在\n");
+        printf("当前学生尚未借书，暂未借阅信息。\n");
     }
-    getchar(); getchar(); // 等待用户按键
+    getchar();  // 等待用户按键
     clear_screen();
 }
 

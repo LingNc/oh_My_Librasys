@@ -26,32 +26,33 @@ void display_menu(int highlight,const wchar_t **choices,int n_choices){
     }
 }
 
-bool handle_menu_input(int *highlight,int n_choices,int *choice){
-    char line[100]={ 0 };
-    fgets(line,100,stdin);
-    for(size_t i=0; i<strlen(line); i++){
-        switch(line[i]){
+bool handle_menu_input(int *highlight, int n_choices, int *choice) {
+    char line[100] = { 0 };
+    fgets(line, 100, stdin);
+    bool direct_jump = false;
+    for (size_t i = 0; i < strlen(line); i++) {
+        switch (line[i]) {
         case 'w':
-            *highlight=(*highlight-1+n_choices)%n_choices; // 上移光标
+            *highlight = (*highlight - 1 + n_choices) % n_choices; // 上移光标
             break;
         case 's':
-            *highlight=(*highlight+1)%n_choices; // 下移光标
+            *highlight = (*highlight + 1) % n_choices; // 下移光标
             break;
         case '\n':
-            *choice=*highlight+1;
+            *choice = *highlight + 1;
             break;
         default:
-            if(line[i]>='0'&&line[i]<='9'){
-                *highlight=((line[i]-'0')-1)%n_choices;
+            if (line[i] >= '0' && line[i] <= '9') {
+                *highlight = ((line[i] - '0') - 1) % n_choices;
+                direct_jump = true;
             }
             break;
         }
     }
-    return (strlen(line)==1&&line[0]=='\n');
+    return direct_jump || (strlen(line) == 1 && line[0] == '\n');
 }
 
-
-void menu(const wchar_t **choices,void (**funcs)(void **),int n_choices,void **arg){
+void menu(const wchar_t **choices, void (**funcs)(void **), int n_choices, void **arg) {
     int highlight = 0;
     int choice = -1;
     while (1) {
@@ -65,7 +66,7 @@ void menu(const wchar_t **choices,void (**funcs)(void **),int n_choices,void **a
                 }
             }
             // 最后一个是退出命令
-            if (choice == n_choices - 1) {
+            if (choice == n_choices) {
                 printf("退出\n");
                 return;
             }
