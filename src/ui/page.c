@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
+#include <stdlib.h>
 #include "ui/page.h"
 #include "ui/line.h"
 #include "DataBase/DataBase.h"
@@ -19,19 +20,19 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
     char ch = getch();
     bool direct_jump = false;
     char input[10] = {0};
-    int input_index = 0;
+    size_t input_index = 0;
 
     switch (ch) {
     case 'a':
     case 'h':
     case 'p':
-        *page = (*page - 1 + total_pages) % total_pages; // 左翻页或向前翻页
+        *page = (*page - 1 + total_pages) % total_pages; // 向前翻页
         *highlight = 0; // 重置光标位置
         break;
     case 'd':
     case 'l':
     case 'n':
-        *page = (*page + 1) % total_pages; // 右翻页或向后翻页
+        *page = (*page + 1) % total_pages; // 向后翻页
         *highlight = 0; // 重置光标位置
         break;
     case 'w':
