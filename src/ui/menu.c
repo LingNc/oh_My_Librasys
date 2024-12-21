@@ -53,7 +53,7 @@ void menu(const wchar_t **choices, void (**funcs)(void *), int n_choices, void *
                 }
             }
             // 最后一个是退出命令
-            if (choice == n_choices) {
+            if (choice == n_choices - 1) {
                 printf("退出\n");
                 return;
             }
