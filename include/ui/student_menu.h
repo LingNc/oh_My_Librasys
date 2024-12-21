@@ -1,7 +1,6 @@
+#ifndef _student_menu_h
+#define _student_menu_h
 
-#ifndef STUDENT_MENU_H
-#define STUDENT_MENU_H
+void student_menu(void **arg);
 
-void student_menu(void *arg);
-
-#endif // STUDENT_MENU_H
+#endif // _student_menu_h

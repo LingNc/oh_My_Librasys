@@ -1,7 +1,6 @@
+#ifndef _admin_menu_h
+#define _admin_menu_h
 
-#ifndef ADMIN_MENU_H
-#define ADMIN_MENU_H
+void admin_menu(void **arg);
 
-void book_management_menu(void *arg);
-
-#endif // ADMIN_MENU_H
+#endif // _admin_menu_h

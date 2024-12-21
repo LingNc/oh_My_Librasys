@@ -2,6 +2,13 @@
 #include <wchar.h>
 #include <string.h>
 #include "ui/menu.h"
+#include "DataBase/DataBase.h"
+#include "models/Student.h"
+#include "models/Manager.h"
+#include "ui/admin_menu.h"
+#include "ui/student_menu.h"
+
+extern dataBase studentDb, managerDb;
 
 void clear_screen() {
     printf("\033[H\033[J");
@@ -43,7 +50,8 @@ bool handle_menu_input(int *highlight,int n_choices,int *choice){
     return (strlen(line)==1&&line[0]=='\n');
 }
 
-void menu(const wchar_t **choices, void (**funcs)(void *), int n_choices, void *arg) {
+
+void menu(const wchar_t **choices,void (**funcs)(void **),int n_choices,void **arg){
     int highlight = 0;
     int choice = -1;
     while (1) {
@@ -53,7 +61,7 @@ void menu(const wchar_t **choices, void (**funcs)(void *), int n_choices, void *
             for (int i = 0; i < n_choices - 1; i++) {
                 if (choice - 1 == i) {
                     // 执行对应的函数
-                    funcs[i](arg);
+                    funcs[i](&arg[i]);
                 }
             }
             // 最后一个是退出命令

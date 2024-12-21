@@ -9,8 +9,8 @@
 
 extern dataBase studentDb, borrowDb, bookDb;
 
-void borrow_book(void *arg) {
-    size_t student_id = *(size_t *)arg;
+void borrow_book(void **arg) {
+    size_t student_id = *(size_t *)arg[0];
     clear_screen();
     printf("借书功能\n");
     size_t book_id;
@@ -46,12 +46,11 @@ void borrow_book(void *arg) {
     clear_screen();
 }
 
-void return_book(void *arg) {
+void return_book(void **arg) {
+    size_t student_id = *(size_t *)arg[0];
     clear_screen();
     printf("还书功能\n");
-    size_t student_id, book_id;
-    printf("请输入学生ID: ");
-    scanf("%zu", &student_id);
+    size_t book_id;
     printf("请输入书籍ID: ");
     scanf("%zu", &book_id);
 
@@ -85,8 +84,8 @@ void return_book(void *arg) {
     clear_screen();
 }
 
-void view_borrow_info(void *arg) {
-    size_t student_id = *(size_t *)arg;
+void view_borrow_info(void **arg) {
+    size_t student_id = *(size_t *)arg[0];
     clear_screen();
     printf("查看借阅信息功能\n");
 
@@ -101,9 +100,9 @@ void view_borrow_info(void *arg) {
         for (size_t i = 0; i < borrow_records->size(borrow_records); ++i) {
             string record = (string)borrow_records->at(borrow_records, i);
             size_t book_id;
-            size_t timestamp;
+            time_t timestamp;
             memcpy(&book_id, record->c_str(record), sizeof(size_t));
-            memcpy(&timestamp, record->c_str(record) + sizeof(size_t), sizeof(size_t));
+            memcpy(&timestamp, record->c_str(record) + sizeof(size_t), sizeof(time_t));
             book b = bookDb->find_key(bookDb, book_id);
             if (b) {
                 printf("书籍ID: %zu, 书名: %s, 借出时间: %s", b->id, b->name->c_str(b->name), ctime(&timestamp));
@@ -117,8 +116,8 @@ void view_borrow_info(void *arg) {
     clear_screen();
 }
 
-void student_menu(void *arg) {
-    size_t student_id = *(size_t *)arg;
+void student_menu(void **arg) {
+    size_t student_id = *(size_t *)arg[0];
     const wchar_t *choices[] = {
         L"1. 借书",
         L"2. 还书",
@@ -126,10 +125,11 @@ void student_menu(void *arg) {
         L"4. 退出"
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
-    void (*funcs[])(void *) = {
+    void (*funcs[])(void **) = {
         borrow_book,
         return_book,
         view_borrow_info
     };
-    menu(choices, funcs, n_choices, &student_id);
+    void *args[] = { &student_id };
+    menu(choices, funcs, n_choices, args);
 }

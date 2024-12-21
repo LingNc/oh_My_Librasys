@@ -24,7 +24,7 @@ void import_books(){
     clear_screen();
 }
 
-void add_book(void *arg) {
+void add_book(void **arg) {
     clear_screen();
     printf("增加书功能\n");
     printf("1. 手动输入\n");
@@ -81,7 +81,7 @@ void add_book(void *arg) {
     clear_screen();
 }
 
-void delete_book(void *arg) {
+void delete_book(void **arg) {
     clear_screen();
     printf("删除书功能\n");
     size_t book_id;
@@ -101,7 +101,7 @@ void delete_book(void *arg) {
     clear_screen();
 }
 
-void view_book_list(void *arg) {
+void view_book_list(void **arg) {
     clear_screen();
     printf("查看书籍列表功能\n");
     size_t page, page_size;
@@ -136,7 +136,7 @@ void view_book_list(void *arg) {
     clear_screen();
 }
 
-void add_student(void *arg) {
+void add_student(void **arg) {
     clear_screen();
     printf("增加学生功能\n");
     while (1) {
@@ -178,7 +178,7 @@ void add_student(void *arg) {
     clear_screen();
 }
 
-void delete_student(void *arg) {
+void delete_student(void **arg) {
     clear_screen();
     printf("删除学生功能\n");
     size_t student_id;
@@ -198,7 +198,7 @@ void delete_student(void *arg) {
     clear_screen();
 }
 
-void view_student_list(void *arg) {
+void view_student_list(void **arg) {
     clear_screen();
     printf("查看学生列表功能\n");
     size_t page, page_size;
@@ -232,7 +232,7 @@ void view_student_list(void *arg) {
     clear_screen();
 }
 
-void book_management_menu(void *arg) {
+void admin_menu(void **arg) {
     const wchar_t *choices[] = {
         L"1. 增加书",
         L"2. 删除书",
@@ -243,7 +243,7 @@ void book_management_menu(void *arg) {
         L"7. 退出"
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
-    void *funcs[] = {
+    void (*funcs[])(void **) = {
         add_book,
         delete_book,
         view_book_list,
