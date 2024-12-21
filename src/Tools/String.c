@@ -366,6 +366,7 @@ static void _init_all(string this){
     this->assign_char=_string_assign_char;
     this->assign_cstr=_string_assign_cstr;
     this->assign=_string_assign;
+    this->assign_n=_string_assign_n;
     this->append_char=_string_append_char;
     this->append_cstr=_string_append_cstr;
     this->append=_string_append_string;
