@@ -5,7 +5,7 @@
 #include "models/Student.h"
 #include "models/Book.h"
 #include "models/Manager.h"
-#include "ui/line.h"
+#include "ui/list.h"
 
 void display_wchar(int highlight, const wchar_t **lines, int n_lines) {
     for (int i = 0; i < n_lines; ++i) {

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "ui/page.h"
-#include "ui/line.h"
+#include "ui/list.h"
 #include "DataBase/DataBase.h"
 #include "Tools/Vector.h"
 #include "ui/func.h"
@@ -13,10 +13,11 @@ void display_page(vector content, int highlight, const char prefix[]) {
     clear_screen();
     printf("%s\n", prefix);
     display(highlight, content);
-    printf("Page %d\n", highlight + 1);
+    printf("Page: %d\n", highlight + 1);
 }
 
-bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, int *page_size) {
+bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, void **args) {
+    int *page_size = (int *)args[0];
     char ch = getch();
     bool direct_jump = false;
 
@@ -43,7 +44,7 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
         *choice = *highlight + 1;
         break;
     case '/':
-        execute(page_size);
+        execute(args);
         *page = 0; // 重置页码
         *highlight = 0; // 重置光标位置
         break;
@@ -63,10 +64,11 @@ void page(dataBase db, int page_size, const char *prefix) {
     int page = 0;
     int highlight = 0;
     int choice = -1;
+    void *args[] = { &page_size };
     while (1) {
         vector content = db->get(db, page * page_size, page_size);
         display_page(content, highlight, prefix);
-        bool res = handle_page_input(&page, total_pages, &highlight, &choice, &page_size);
+        bool res = handle_page_input(&page, total_pages, &highlight, &choice, args);
         if (choice != -1 && res) {
             if (choice > total_pages) {
                 printf("无效选择，请重新选择\n");
