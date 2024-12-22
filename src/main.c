@@ -24,11 +24,10 @@ void login(void *arg){
     size_t id;
     if(is_admin){
         printf("管理员登录\n");
-        printf("账号: \n");
-    }
+        printf("账号: ");    }
     else{
         printf("学生登录\n");
-        printf("学号: \n");
+        printf("学号: ");
     }
     scanf("%zu", &id);
     getchar(); // 读走回车
@@ -40,7 +39,8 @@ void login(void *arg){
             admin_menu(args);
         } else {
             printf("管理员ID不存在，请重新输入\n");
-            login(arg);
+            getchar();
+            // login(arg);
         }
     } else {
         student s = studentDb->find_key(studentDb, id);
@@ -48,7 +48,8 @@ void login(void *arg){
             student_menu(args);
         } else {
             printf("学号输入有误，请重新输入\n");
-            login(arg);
+            getchar();
+            // login(arg);
         }
     }
 }
@@ -61,7 +62,7 @@ void preInfo(void *arg) {
     printf("请选择一个选项：\n");
 }
 
-void main_menu(){
+void main_menu() {
     const wchar_t *choices[] = {
         L"1. 学生入口",
         L"2. 管理员入口",

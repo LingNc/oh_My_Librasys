@@ -9,11 +9,8 @@
 #include "ui/func.h"
 #include "ui/command.h"
 
-void display_page(vector content, int page, int total_pages, int highlight, const char *prefix, void *args[]) {
+void display_page(vector content, int page, int total_pages, int highlight, void *args[]) {
     clear_screen();
-    if (prefix) {
-        printf("%s\n", prefix);
-    }
     *(int *)args[1] = *(int *)args[0];
     if ((int)content->size(content) < *(int *)args[1]) {
         *(int *)args[1] = (int)content->size(content);
@@ -71,7 +68,7 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
     return direct_jump || ch == '\n';
 }
 
-void page(dataBase db, int pageSize, const char *prefix, void (*func)(void *)) {
+void page(dataBase db, int pageSize, void (**funcs)(void *), void *arg) {
     int total_pages = (db->size(db) + pageSize - 1) / pageSize;
     int page = 0;
     int highlight = 0;
@@ -80,21 +77,23 @@ void page(dataBase db, int pageSize, const char *prefix, void (*func)(void *)) {
     void *args[] = { &pageSize, &lineSize };
     while (1) {
         vector content = db->get(db, page * pageSize, pageSize);
-        display_page(content, page, total_pages, highlight, prefix, args);
+        if (funcs[0]) funcs[0](arg); // preInfo
+        display_page(content, page, total_pages, highlight, args);
         bool res = handle_page_input(&page, total_pages, &highlight, &choice, args);
         if (choice != -1 && res) {
             if (choice > total_pages) {
                 printf("无效选择，请重新选择\n");
                 getchar();
             } else {
-                void *item=content->at(content,choice);
+                void *item = content->at(content, choice);
                 // 传入选中的结构体指针
-                func(item);
+                funcs[1](item);
             }
             // 重置选择
-            choice=-1;
+            choice = -1;
         }
         content->free(content);
         total_pages = (db->size(db) + pageSize - 1) / pageSize; // 更新总页数
+        if (funcs[2]) funcs[2](arg); // postInfo
     }
 }
