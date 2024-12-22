@@ -8,16 +8,43 @@
 #endif
 #include "ui/func.h"
 
-void clear_screen() {
+void clear_screen(){
     printf("\033[H\033[J");
 }
+
+// 启用所有鼠标事件跟踪
+void enable_mouse_tracking(){
+    printf("\033[?1003h\n");
+    fflush(stdout);
+}
+
+// 禁用鼠标事件跟踪
+void disable_mouse_tracking(){
+    printf("\033[?1003l\n");
+    fflush(stdout);
+}
+
+char handle_event(char ch){
+    if(ch==27){
+        getchar(); // 跳过 [
+        switch(getchar()){
+        case 'A': return 'w'; // 上箭头
+        case 'B': return 's'; // 下箭头
+        case 'D': return 'a'; // 左箭头
+        case 'C': return 'd'; // 右箭头
+        }
+    }
+    return ch;
+}
+
+
 
 // Unix/Linux/macOS 使用 termios 禁用回显和标准输入缓冲
 char getch(){
 #ifdef _WIN32
-    char ch = _getch();
-    if (ch == 0 || ch == 224) {
-        switch (_getch()) {
+    char ch=_getch();
+    if(ch==0||ch==224){
+        switch(_getch()){
         case 72: return 'w'; // 上箭头
         case 80: return 's'; // 下箭头
         case 75: return 'a'; // 左箭头
@@ -26,44 +53,38 @@ char getch(){
     }
     return ch;
 #else
-    struct termios oldt, newt;
+    struct termios oldt,newt;
     char ch;
 
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ECHO | ICANON);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    ch = getchar();
-    if (ch == 27) {
-        getchar(); // 跳过 [
-        switch (getchar()) {
-        case 'A': ch = 'w'; break; // 上箭头
-        case 'B': ch = 's'; break; // 下箭头
-        case 'D': ch = 'a'; break; // 左箭头
-        case 'C': ch = 'd'; break; // 右箭头
-        }
-    }
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    tcgetattr(STDIN_FILENO,&oldt);
+    newt=oldt;
+    newt.c_lflag&=~(ECHO|ICANON);
+    tcsetattr(STDIN_FILENO,TCSANOW,&newt);
+    // enable_mouse_tracking();
+    ch=getchar();
+    ch=handle_event(ch);
+    // disable_mouse_tracking();
+    tcsetattr(STDIN_FILENO,TCSANOW,&oldt);
 
     return ch;
 #endif
 }
 
-void backspace(char *input, int *input_index) {
-    if (*input_index > 0) {
-        input[--(*input_index)] = '\0';
+void backspace(char *input,int *input_index){
+    if(*input_index>0){
+        input[--(*input_index)]='\0';
         printf("\b \b");
     }
 }
 
-void refresh(char *input, int *input_index, const char *new_content) {
-    // 使用退格符删除当前行
-    for (int i = 0; i < *input_index; i++) {
+void refresh(char *input,int *input_index,const char *new_content){
+    // 使用退格符删除��前行
+    for(int i=0; i<*input_index; i++){
         printf("\b \b");
     }
     // 打印新的内容
-    printf("%s", new_content);
+    printf("%s",new_content);
     // 更新缓冲区
-    strcpy(input, new_content);
-    *input_index = strlen(new_content);
+    strcpy(input,new_content);
+    *input_index=strlen(new_content);
 }

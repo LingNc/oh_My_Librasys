@@ -32,7 +32,7 @@ void build_trie(trie root, const char **commands, int num_commands) {
 
 int search(trie root, const char *key) {
     trie node = root;
-    for (int i = 0; key[i] != '\0'; i++) {
+    for (int i = 0; key[i] != '\0'&&key[i]!=' '; i++) {
         int index = key[i];
         if (!node->children[index]) {
             return 0;

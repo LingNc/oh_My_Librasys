@@ -9,7 +9,7 @@
 #define NUM_COMMANDS 2
 
 const char *commands[NUM_COMMANDS]={
-    "set ",
+    "set",
     "help"
 };
 
@@ -134,7 +134,7 @@ void execute(void **args){
     input[index]='\0';
 
     if(search(root,input+1)){ // 忽略第一个字符 '/'
-        if(strncmp(input+1,"set ",4)==0){
+        if(strncmp(input+1,"set",3)==0){
             *page_size=atoi(input+5);
             printf("\n每页显示数量已设置为 %d\n",*page_size);
         }
@@ -145,4 +145,5 @@ void execute(void **args){
     else{
         printf("\n无效命令，输入 /help 查看帮助\n");
     }
+    getchar();
 }
