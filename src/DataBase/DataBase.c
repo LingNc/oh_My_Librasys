@@ -7,7 +7,7 @@
 // 函数声明
 static void _init_all(dataBase this,const char *filePath);
 static void _database_add(dataBase this,void *data);
-static void _database_add_no_key(dataBase this, void* data);
+// static void _database_add_no_key(dataBase this, void* data);
 static void _database_remove(dataBase this,size_t key);
 static void _database_save(dataBase this);
 static vector _database_find(dataBase this,const void *data);
@@ -16,9 +16,9 @@ static void _init_func(dataBase this);
 static size_t _database_size(dataBase this);
 static vector _database_get(dataBase this,size_t key,size_t nums);
 static vector _database_get_find(dataBase this,size_t pos,size_t nums);
-static void _database_add_auto(dataBase this,void* data);
-static void _database_add_key(dataBase this, void* data, size_t key);
-static bool _database_change(dataBase this, size_t id, void *new_data);
+static void _database_add_auto(dataBase this,void *data);
+static void _database_add_key(dataBase this,void *data,size_t key);
+static bool _database_change(dataBase this,size_t id,void *new_data);
 void clean_database(dataBase this);
 
 #define _max_item 100
@@ -61,10 +61,10 @@ static void _init_func(dataBase this){
     this->clean=clean_database;
     this->get=_database_get;
     this->get_find=_database_get_find;
-    this->add_key = _database_add_key;
+    this->add_key=_database_add_key;
     this->add_auto=_database_add_auto;
     this->size=_database_size;
-    this->change = _database_change;
+    this->change=_database_change;
 }
 
 // 初始化数据库
@@ -82,28 +82,34 @@ static void _init_all(dataBase this,const char *inPath){
     this->_index=(database_index)malloc(sizeof(DataBase_Index));
     init_index(this->_index,inPath,100);
     load_index(this->_index);
+    this->_buffer_index=new_vector("size_t"); // 初始化索引缓冲区
 }
 
 // 添加数据,自动索引
-static void _database_add(dataBase this, void *data) {
-    size_t newKey = get_new_key(this->_index, this->_buffer); // 获取第一个未使用的唯一编号id
-    *(size_t *)data = newKey;
-    this->_buffer->push_back(this->_buffer, data);
-}
-// 添加数据,根据读入数据自动索引
-static void _database_add_auto(dataBase this,void* data){
+static void _database_add(dataBase this,void *data){
+    size_t newKey=get_new_key(this->_index,this->_buffer); // 获取第一个未使用的唯一编号id
+    *(size_t *)data=newKey;
     this->_buffer->push_back(this->_buffer,data);
-}
-// 添加数据,手动索引
-static void _database_add_key(dataBase this,void* data,size_t key){
-    *(size_t*)data=key;
-    this->_buffer->push_back(this->_buffer,data);
+    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索引缓冲区
 }
 
-// 添加数据,不使用索引
-static void _database_add_no_key(dataBase this, void* data) {
-    this->_buffer->push_back(this->_buffer, data);
+// 添加数据,根据读入数据自动索引
+static void _database_add_auto(dataBase this,void *data){
+    size_t newKey=*(size_t *)data; // 从数据中读取id
+    this->_buffer->push_back(this->_buffer,data);
+    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索引缓冲区
 }
+
+// 添加数据,手动索引
+static void _database_add_key(dataBase this,void *data,size_t key){
+    this->_buffer->push_back(this->_buffer,data);
+    this->_buffer_index->push_back(this->_buffer_index,&key); // 将新键值对存入索引缓冲区
+}
+
+// // 添加数据,不使用索引
+// static void _database_add_no_key(dataBase this, void* data) {
+//     this->_buffer->push_back(this->_buffer, data);
+// }
 
 // �����数据
 static void _database_remove(dataBase this,size_t key){
@@ -123,27 +129,27 @@ static void _database_remove(dataBase this,size_t key){
 }
 
 // 保存数据库到文件
-static void _database_save(dataBase this) {
-    FILE *file = fopen(this->filePath->c_str(this->filePath), "ab");
-    if (!file) {
+static void _database_save(dataBase this){
+    FILE *file=fopen(this->filePath->c_str(this->filePath),"ab");
+    if(!file){
         perror("DataBase: 不能打开文件,可能文件夹不存在\n");
         return;
     }
-    size_t dataCount = this->_buffer->size(this->_buffer);
-    // fwrite(&dataCount, sizeof(size_t), 1, file);
-    for (size_t i = 0; i < dataCount; ++i) {
-        void *data = this->_buffer->at(this->_buffer, i);
-        const char *serializedData = this->_buffer->_data_item(data);
-        size_t dataSize = *(size_t*)serializedData+sizeof(size_t);
-        char isDeleted = 1;
-        size_t offset = ftell(file);
-        fwrite(&isDeleted, sizeof(char), 1, file);
-        fwrite(serializedData, dataSize, 1, file);
-        size_t key = *(size_t*)data;
-        add_index(this->_index, key, offset);
+    size_t dataCount=this->_buffer->size(this->_buffer);
+    for(size_t i=0; i<dataCount; ++i){
+        void *data=this->_buffer->at(this->_buffer,i);
+        size_t *key=(size_t *)this->_buffer_index->at(this->_buffer_index,i); // 从索引缓冲区获取键值对
+        const char *serializedData=this->_buffer->_data_item(data);
+        size_t dataSize=*(size_t *)serializedData+sizeof(size_t);
+        char isDeleted=1;
+        size_t offset=ftell(file);
+        fwrite(&isDeleted,sizeof(char),1,file);
+        fwrite(serializedData,dataSize,1,file);
+        add_index(this->_index,*key,offset); // 使用键值对添加索引
     }
     fclose(file);
     this->_buffer->clear(this->_buffer);
+    this->_buffer_index->clear(this->_buffer_index); // 清空索引缓冲区
 
     // 保存索引到单独的文件
     save_index(this->_index);
@@ -169,15 +175,27 @@ static vector _database_find(dataBase this,const void *data){
         if(isDeleted==1){
             char *buffer=(char *)malloc(dataSize);
             fread(buffer,dataSize,1,file);
-            void *item=malloc(this->_find_buffer->_itemSize);
-            this->_find_buffer->_init_item(item);
+            vector buff=this->_find_buffer;
+            void *item=malloc(buff->_itemSize);
+            if(this->_find_buffer->_init_item) this->_find_buffer->_init_item(item);
             this->_find_buffer->_in_data_item(item,buffer);
-            if(this->_find_buffer->_cmp_item(item,data)>=0){
-                this->_find_buffer->push_back(this->_find_buffer,item);
+            if(this->_find_buffer->_cmp_item){
+                if(this->_find_buffer->_cmp_item(item,data)>=0){
+                    buff->push_back(buff,item);
+                }
+                else{
+                    free(item);
+                }
             }
             else{
-                free(item);
+                if(buff->_dcmp_item(item,data,buff->_typename->c_str(buff->_typename))==0){
+                    buff->push_back(buff,item);
+                }
+                else{
+                    free(item);
+                }
             }
+
             free(buffer);
         }
         else{
@@ -189,26 +207,27 @@ static vector _database_find(dataBase this,const void *data){
 }
 
 // 通过键查找数据
-static void *_database_find_key(dataBase this, size_t key) {
-    size_t offset = find_index(this->_index, key);
-    if (offset != 0) {
-        FILE *file = fopen(this->filePath->c_str(this->filePath), "rb");
-        if (!file) {
+static void *_database_find_key(dataBase this,size_t key){
+    size_t offset=find_index(this->_index,key);
+    if(offset!=0){
+        FILE *file=fopen(this->filePath->c_str(this->filePath),"rb");
+        if(!file){
             perror("DataBase: 无法打开文件进行读取");
             return NULL;
         }
-        fseek(file, offset, SEEK_SET);
+        fseek(file,offset,SEEK_SET);
         char isDeleted;
-        fread(&isDeleted, sizeof(char), 1, file);
+        fread(&isDeleted,sizeof(char),1,file);
         size_t dataSize;
-        fread(&dataSize, sizeof(size_t), 1, file);
+        fread(&dataSize,sizeof(size_t),1,file);
         fseek(file,-sizeof(size_t),SEEK_CUR);
-        if (isDeleted == 1) {
-            char *data = (char *)malloc(dataSize);
-            fread(data, dataSize, 1, file);
-            void *item = malloc(this->_find_buffer->_itemSize);
+        dataSize+=sizeof(size_t);
+        if(isDeleted==1){
+            char *data=(char *)malloc(dataSize);
+            fread(data,dataSize,1,file);
+            void *item=malloc(this->_find_buffer->_itemSize);
             this->_find_buffer->_init_item(item);
-            this->_find_buffer->_in_data_item(item, data);
+            this->_find_buffer->_in_data_item(item,data);
             free(data);
             fclose(file);
             return item;
@@ -222,7 +241,7 @@ static void *_database_find_key(dataBase this, size_t key) {
 static vector _database_get(dataBase this,size_t key,size_t nums){
     vector result=new_vector(this->_type->c_str(this->_type));
     size_t count=0;
-    for(size_t i=key; i<this->_index->nums&&count<nums; ++i){
+    for(size_t i=key; (i<=this->_index->nums)&&(count<nums); ++i){
         // size_t key=get_index_key(this->_index,i);
         void *data=_database_find_key(this,i);
         if(data){
@@ -300,12 +319,16 @@ void clean_database(dataBase this){
 }
 
 // 获取取下一个索引键
-size_t get_new_key(database_index index, vector buffer);
+size_t get_new_key(database_index index,vector buffer);
 
 // 修改数据
-static bool _database_change(dataBase this, size_t id, void *new_data) {
-    _database_remove(this, id); // 先删除旧数据
-    _database_add_key(this, new_data, id); // 再添加新数据
+static bool _database_change(dataBase this,size_t id,void *new_data){
+    // 先删除旧数据
+    _database_remove(this,id);
+    // 再添加新数据
+    _database_add_key(this,new_data,id);
+    // 保存
+    _database_save(this);
     return true;
 }
 

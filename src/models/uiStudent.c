@@ -1,5 +1,5 @@
-#include "uiStudent.h"
-#include "Student.h"
+#include "models/uiStudent.h"
+#include "models/Student.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

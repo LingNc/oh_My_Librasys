@@ -39,6 +39,10 @@ struct String{
     // 返回写String的字符串
     string(*assign)(string, string);
 
+    // 写入字符串的前n个字符
+    // 返回写入之后的字符串
+    string(*assign_n)(string,const char *,size_t);
+
     // 删除指定位置的字符
     // 返回删除后的字符串
     string(*erase_char)(string,size_t);

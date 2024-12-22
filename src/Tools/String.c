@@ -6,8 +6,9 @@
 static char *_string_c_str(string this);
 static string _string_assign_char(string this, char c);
 static string _string_assign_cstr(string this, const char *s);
-static string _string_assign(string this, string other);
-static string _string_append_char(string this, char c);
+static string _string_assign(string this,string other);
+static string _string_assign_n(string this,const char *s,size_t n);
+static string _string_append_char(string this,char c);
 static string _string_append_cstr(string this, const char *s);
 static string _string_append_string(string this, string other);
 static string _string_append_n(string this, const char *s, size_t n);
@@ -77,6 +78,16 @@ static string _string_assign_cstr(string this, const char *s) {
 // assign 函数实现
 static string _string_assign(string this, string other) {
     return _string_assign_cstr(this, other->_data);
+}
+
+// aassign_n 函数实现
+static string _string_assign_n(string this, const char *s, size_t n) {
+    size_t len=n;
+    _grow(this, len + 1);
+    memcpy(this->_data, s, len);
+    this->_length = len;
+    this->_data[this->_length] = '\0';
+    return this;
 }
 
 // append_char 函数实现
@@ -355,6 +366,7 @@ static void _init_all(string this){
     this->assign_char=_string_assign_char;
     this->assign_cstr=_string_assign_cstr;
     this->assign=_string_assign;
+    this->assign_n=_string_assign_n;
     this->append_char=_string_append_char;
     this->append_cstr=_string_append_cstr;
     this->append=_string_append_string;

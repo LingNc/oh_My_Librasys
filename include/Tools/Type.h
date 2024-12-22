@@ -28,7 +28,7 @@
     _default_cmp_if_for(TYPE)，TYPE为指定的类型
 */
 #define _default_cmp_if_for(TYPE) \
-    if (itemSize == sizeof(TYPE)) \
+    if (strcmp(typename,#TYPE)) \
         return _default_cmp_for(TYPE, a, b);
 
 /*
@@ -41,7 +41,7 @@
 实现：
     在TYPE.c文件中
 */
-extern int _default_cmp(const void *a,const void *b,size_t itemSize);
+extern int _default_cmp(const void *a,const void *b,const char* typename);
 
 /*
 定义：
@@ -102,16 +102,19 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     _init_type(this,type)，this为当前对象，type为指定的类型
 */
 #define _init_type(this,type) \
-    ({ \
         size_t result = 0; \
         _init_type_for(String) \
         _init_type_for(Book) \
         _init_type_for(Student) \
         _init_type_for(Pair) \
+        _init_type_for(Manager) \
         else{ \
             this->_copy_item=NULL; \
             this->_free_item=NULL; \
             this->_cmp_item=NULL; \
+            this->_init_item=NULL; \
+            this->_data_item=NULL; \
+            this->_in_data_item=NULL; \
             _init_type_for_basic_with_cmp(int) \
             _init_type_for_basic_with_cmp(float) \
             _init_type_for_basic_with_cmp(double) \
@@ -121,8 +124,6 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
                 result = 0; \
             } \
         } \
-        result; \
-    })
 
 /*
 定义：
@@ -162,7 +163,7 @@ extern int _default_cmp(const void *a,const void *b,size_t itemSize);
     /* item拷贝构造函数 */ \
     type (*_copy_##item)(type this,const type other); \
     /* item标准比较函数 */ \
-    int (*_dcmp_##item)(const type this,const type other,size_t itemSize); \
+    int (*_dcmp_##item)(const type this,const type other,const char* typename); \
     /* item比较函数 */ \
     int (*_cmp_##item)(const type this,const type other); \
     /* item析构函数 */ \

@@ -7,13 +7,13 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g -I include
 
 # 链接选项
-LDFLAGS = -lncursesw -lmenuw -lform
+LDFLAGS =
 
 # 目标文件
 TARGET = main
 
 # 查找所有源文件
-SRCS = $(wildcard src/Tools/*.c src/DataBase/*.c src/*.c)
+SRCS = $(wildcard src/models/*c src/Tools/*.c src/DataBase/*.c src/ui/*.c src/*.c)
 
 # 对象文件目录
 OBJDIR = build

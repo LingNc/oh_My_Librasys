@@ -1,7 +1,7 @@
 #include "Tools/Type.h"
-#include "Student.h"
+#include "models/Student.h"
 #include "Tools/String.h"
-#include "Book.h"
+#include "models/Book.h"
 #include "Tools/Vector.h"
 #include "Tools/List.h"
 #include "DataBase/DataBase.h"
@@ -12,11 +12,11 @@
 #include <assert.h>
 
 // 默认比较函数，非自定义结构体的比较函数
-int _default_cmp(const void *a,const void *b,size_t itemSize){
+int _default_cmp(const void *a,const void *b,const char* typename){
     _default_cmp_if_for(int)
-    else _default_cmp_if_for(float)
+    else _default_cmp_if_for(short)
     else _default_cmp_if_for(double)
-    else _default_cmp_if_for(long long)
+    else _default_cmp_if_for(size_t)
     else _default_cmp_if_for(long double)
     else _default_cmp_if_for(char)
     else{
