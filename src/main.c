@@ -15,6 +15,8 @@
 #include <locale.h>
 #include "time.h"
 #include "ui/command.h"
+#include "ui/admin_book.h"
+#include "ui/admin_student.h"
 
 dataBase bookDb, studentDb, borrowDb, managerDb;
 
