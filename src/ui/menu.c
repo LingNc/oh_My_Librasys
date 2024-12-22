@@ -50,14 +50,25 @@ void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void *
 
     while (1) {
         clear_screen();
-        if (funcs[0]) funcs[0](arg[0]); // preInfo
+        // preInfo
+        if(funcs[0]){
+            if(arg){
+                if(arg[0]) funcs[0](arg[0]);
+                else funcs[0](NULL);
+            }
+            else funcs[0](NULL);
+        }
         display_menu(highlight, choices, n_choices);
         bool res = handle_menu_input(&highlight, n_choices, &choice);
         if (choice != -1 && res) {
             for (int i = 1; i < n_choices; i++) {
-                if (choice== i) {
-                    // 执��对应的函数
-                    funcs[i](arg[i]);
+                if (choice == i) {
+                    // 执行对应的函数
+                    if(arg){
+                        if(arg[i]) funcs[i](arg[i]);
+                        else funcs[i](NULL);
+                    }
+                    else funcs[i](NULL);
                 }
             }
             // 最后一个是退出命令
@@ -75,6 +86,13 @@ void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void *
                 execute(NULL);
             }
         }
-        if (funcs[n_choices]) funcs[n_choices](arg[n_choices]); // postInfo
+        // postInfo
+        if (funcs[n_choices]){
+            if(arg){
+                if(arg[n_choices]) funcs[n_choices](arg[n_choices]);
+                else funcs[n_choices](NULL);
+            }
+            else funcs[n_choices](NULL);
+        }
     }
 }

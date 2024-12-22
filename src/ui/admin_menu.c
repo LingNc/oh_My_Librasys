@@ -5,9 +5,10 @@
 #include "DataBase/DataBase.h"
 #include "models/Book.h"
 #include "models/Student.h"
+#include "models/Manager.h"
 #include "function.h"
 
-extern dataBase bookDb, studentDb;
+extern dataBase bookDb, studentDb, managerDb;
 
 void import_books(){
     clear_screen();
@@ -25,64 +26,69 @@ void import_books(){
     clear_screen();
 }
 
-void add_book(void **arg) {
-    clear_screen();
-    printf("增加书功能\n");
-    printf("1. 手动输入\n");
-    printf("2. 批量导入\n");
-    int choice;
-    printf("按q键退出\n");
-    printf("请选择操作: ");
-    scanf("%d", &choice);
-    if (choice == 113)
-        return;
-    putchar('\n');
-    if (choice == 1) {
-        while (1) {
-            size_t id;
-            char ISBN[20], name[50], author[50], publisher[50], time[20];
-            int status;
+void admin_preInfo(void *arg) {
+    const char *info = (const char *)arg;
+    printf("%s\n", info);
+}
 
-            printf("请输入��籍ID: ");
-            scanf("%zu", &id);
-            printf("请输入ISBN: ");
-            scanf("%s", ISBN);
-            printf("请输入书名: ");
-            scanf("%s", name);
-            printf("请输入作者: ");
-            scanf("%s", author);
-            printf("请输入出版社: ");
-            scanf("%s", publisher);
-            printf("请输入出版时间: ");
-            scanf("%s", time);
-            printf("请输入状态(0: 可借, 1: 已借出): ");
-            scanf("%d", &status);
+void add_book_manual(void *arg) {
+    while (1) {
+        size_t id;
+        char ISBN[20], name[50], author[50], publisher[50], time[20];
+        int status;
 
-            book b = new_book();
-            load_book(b, id, ISBN, name, author, publisher, time, status);
-            bookDb->add(bookDb, b);
-            bookDb->save(bookDb);
-            printf("增加书成功\n");
-            printf("是否继续添加? (y/n)\n");
-            // 清空输入缓冲区
-            getchar();
-            char a;
-            scanf("%s", &a);
-            if (a == 'n')
-                break;
-            clear_screen();
-        }
+        printf("请输入书籍ID: ");
+        scanf("%zu", &id);
+        printf("请输入ISBN: ");
+        scanf("%s", ISBN);
+        printf("请输入书名: ");
+        scanf("%s", name);
+        printf("请输入作者: ");
+        scanf("%s", author);
+        printf("请输入出版社: ");
+        scanf("%s", publisher);
+        printf("请输入出版时间: ");
+        scanf("%s", time);
+        printf("请输入状态(0: 可借, 1: 已借出): ");
+        scanf("%d", &status);
 
-    } else if (choice == 2) {
-        import_books();
-    } else {
-        printf("无效选择\n");
+        book b = new_book();
+        load_book(b, id, ISBN, name, author, publisher, time, status);
+        bookDb->add(bookDb, b);
+        bookDb->save(bookDb);
+        printf("增加书成功\n");
+        printf("是否继续添加? (y/n)\n");
+        // 清空输入缓冲区
+        getchar();
+        char a;
+        scanf("%s", &a);
+        if (a == 'n')
+            break;
+        clear_screen();
     }
     getchar(); getchar(); // 等待用户按键
     clear_screen();
 }
 
-void delete_book(void **arg) {
+void add_book(void *arg) {
+    const wchar_t *choices[] = {
+        L"1. 手动输入",
+        L"2. 批量导入",
+        L"3. 退出"
+    };
+    int n_choices = sizeof(choices) / sizeof(choices[0]);
+    void (*funcs[])(void *) = {
+        admin_preInfo, // preInfo
+        add_book_manual,
+        import_books,
+        NULL  // postInfo
+    };
+    const char *info = "增加书功能，请选择一个选项：";
+    void *args[] = { (void *)info, NULL, NULL, NULL };
+    menu(n_choices, choices, funcs, args);
+}
+
+void delete_book(void *arg) {
     clear_screen();
     printf("删除书功能\n");
     size_t book_id;
@@ -102,7 +108,7 @@ void delete_book(void **arg) {
     clear_screen();
 }
 
-void view_book_list(void **arg) {
+void view_book_list(void *arg) {
     clear_screen();
     printf("查看书籍列表功能\n");
     size_t page, page_size;
@@ -137,7 +143,7 @@ void view_book_list(void **arg) {
     clear_screen();
 }
 
-void add_student(void **arg) {
+void add_student(void *arg) {
     clear_screen();
     printf("增加学生功能\n");
     while (1) {
@@ -179,7 +185,7 @@ void add_student(void **arg) {
     clear_screen();
 }
 
-void delete_student(void **arg) {
+void delete_student(void *arg) {
     clear_screen();
     printf("删除学生功能\n");
     size_t student_id;
@@ -199,7 +205,7 @@ void delete_student(void **arg) {
     clear_screen();
 }
 
-void view_student_list(void **arg) {
+void view_student_list(void *arg) {
     clear_screen();
     printf("查看学生列表功能\n");
     size_t page, page_size;
@@ -233,6 +239,60 @@ void view_student_list(void **arg) {
     clear_screen();
 }
 
+void add_manager(void *arg) {
+    clear_screen();
+    printf("增加管理员功能\n");
+    while (1) {
+        size_t id;
+        char name[50], date[20], role[50];
+
+        printf("请输入管理员ID: ");
+        scanf("%zu", &id);
+        printf("请输入姓名: ");
+        scanf("%s", name);
+        printf("请输入创建日期: ");
+        scanf("%s", date);
+        printf("请输入角色: ");
+        scanf("%s", role);
+
+        manager m = new_manager();
+        load_manager(m, id, name, date, role);
+        managerDb->add(managerDb, m);
+        managerDb->save(managerDb);
+        printf("增加管理员成功\n");
+        printf("是否继续添加? (y/n)\n");
+        // 清空输入缓冲区
+        getchar();
+        char a;
+        scanf("%s", &a);
+        if (a == 'n')
+            break;
+        clear_screen();
+    }
+    getchar(); getchar(); // 等待用户按键
+    clear_screen();
+}
+
+void delete_manager(void *arg) {
+    clear_screen();
+    printf("删除管理员功能\n");
+    size_t manager_id;
+    printf("按q退出\n");
+    printf("请输入管理员ID: ");
+    scanf("%zu", &manager_id);
+
+    manager m = managerDb->find_key(managerDb, manager_id);
+    if (m) {
+        managerDb->rm(managerDb, manager_id);
+        managerDb->save(managerDb);
+        printf("删除管理员成功\n");
+    } else {
+        printf("管理员不存在\n");
+    }
+    getchar(); getchar(); // 等待用户按键
+    clear_screen();
+}
+
 void admin_menu(void **arg) {
     const wchar_t *choices[] = {
         L"1. 增加书",
@@ -241,17 +301,24 @@ void admin_menu(void **arg) {
         L"4. 添加学生",
         L"5. 删除学生",
         L"6. 查看学生列表",
-        L"7. 退出"
+        L"7. 增加管理员",
+        L"8. 删除管理员",
+        L"9. 退出"
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
-    void (*funcs[])(void **) = {
+    void (*funcs[])(void *) = {
+        admin_preInfo, // preInfo
         add_book,
         delete_book,
         view_book_list,
         add_student,
         delete_student,
-        view_student_list
+        view_student_list,
+        add_manager,
+        delete_manager,
+        NULL  // postInfo
     };
     const char *info = "管理员菜单，请选择一个选项：";
-    menu(choices, funcs, n_choices, NULL, info);
+    void *args[] = { (void *)info, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+    menu(n_choices, choices, funcs, args);
 }
