@@ -6,6 +6,6 @@
 
 void display_page(vector content, int page, int total_pages, int highlight, void *args[]);
 bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, void **args);
-void page(dataBase db, int pageSize, void (**funcs)(void *), void *arg);
+void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg);
 
 #endif // _page_h

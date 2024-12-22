@@ -59,6 +59,14 @@ void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void *
             else funcs[0](NULL);
         }
         display_menu(highlight, choices, n_choices);
+        // postInfo
+        if (funcs[n_choices]){
+            if(arg){
+                if(arg[n_choices]) funcs[n_choices](arg[n_choices]);
+                else funcs[n_choices](NULL);
+            }
+            else funcs[n_choices](NULL);
+        }
         bool res = handle_menu_input(&highlight, n_choices, &choice);
         if (choice != -1 && res) {
             for (int i = 1; i < n_choices; i++) {
@@ -85,14 +93,6 @@ void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void *
             if (getch() == '/') {
                 execute(NULL);
             }
-        }
-        // postInfo
-        if (funcs[n_choices]){
-            if(arg){
-                if(arg[n_choices]) funcs[n_choices](arg[n_choices]);
-                else funcs[n_choices](NULL);
-            }
-            else funcs[n_choices](NULL);
         }
     }
 }

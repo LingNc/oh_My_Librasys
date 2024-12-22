@@ -42,7 +42,7 @@ void display_book_details(book b) {
 }
 
 void borrow_book(void *arg) {
-    size_t student_id = *(size_t *)arg;
+    student s = (student)arg;
     printf("借书功能\n");
 
     // 刷新图书数据库内容并展示界面
@@ -51,13 +51,13 @@ void borrow_book(void *arg) {
         NULL,
         student_postInfo 
     };
-    page(bookDb, DEFAULT_PAGE_SIZE, funcs, arg);
+    void *args[] = { arg,NULL,arg };
+    page(bookDb, DEFAULT_PAGE_SIZE, funcs, args);
 
     size_t book_id;
     printf("请输入书籍ID: ");
     scanf("%zu", &book_id);
 
-    student s = studentDb->find_key(studentDb, student_id);
     book b = bookDb->find_key(bookDb, book_id);
 
     if (s && b) {

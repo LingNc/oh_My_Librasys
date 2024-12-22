@@ -10,7 +10,6 @@
 #include "ui/command.h"
 
 void display_page(vector content, int page, int total_pages, int highlight, void *args[]) {
-    clear_screen();
     *(int *)args[1] = *(int *)args[0];
     if ((int)content->size(content) < *(int *)args[1]) {
         *(int *)args[1] = (int)content->size(content);
@@ -68,7 +67,7 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
     return direct_jump || ch == '\n';
 }
 
-void page(dataBase db, int pageSize, void (**funcs)(void *), void *arg) {
+void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
     int total_pages = (db->size(db) + pageSize - 1) / pageSize;
     int page = 0;
     int highlight = 0;
@@ -77,8 +76,24 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void *arg) {
     void *args[] = { &pageSize, &lineSize };
     while (1) {
         vector content = db->get(db, page * pageSize, pageSize);
-        if (funcs[0]) funcs[0](arg); // preInfo
+        clear_screen();
+        // preInfo
+        if (funcs[0]){
+            if(arg){
+                if(arg[0]) funcs[0](arg[0]);
+                else funcs[0](NULL);
+            }
+            else funcs[0](NULL);
+        } 
         display_page(content, page, total_pages, highlight, args);
+        // postInfo
+        if (funcs[2]){
+            if(arg){
+                if(arg[0]) funcs[2](arg[0]);
+                else funcs[2](NULL);
+            }
+            else funcs[2](NULL);
+        }
         bool res = handle_page_input(&page, total_pages, &highlight, &choice, args);
         if (choice != -1 && res) {
             if (choice > total_pages) {
@@ -94,6 +109,5 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void *arg) {
         }
         content->free(content);
         total_pages = (db->size(db) + pageSize - 1) / pageSize; // 更新总页数
-        if (funcs[2]) funcs[2](arg); // postInfo
     }
 }
