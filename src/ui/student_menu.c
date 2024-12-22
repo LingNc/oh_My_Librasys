@@ -13,6 +13,20 @@
 
 extern dataBase studentDb, borrowDb, bookDb;
 
+void student_preInfo(void *arg) {
+    student s = (student)arg;
+    printf("学生信息: ID: %zu, 姓名: %s, 班级: %s, 学院: %s, 借阅数量: %d\n",
+           s->id, s->name->c_str(s->name), s->class->c_str(s->class), s->department->c_str(s->department), s->borrowedCount);
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    printf("当前时间: %02d:%02d\n", t->tm_hour, t->tm_min);
+    printf("请选择一个操作:\n");
+}
+
+void student_postInfo(void *arg) {
+    printf("\n按任意键返回，按'q'退出\n");
+}
+
 void display_book_details(book b) {
     clear_screen();
     printf("书籍详情:\n");
@@ -28,25 +42,82 @@ void display_book_details(book b) {
 }
 
 void borrow_book(void *arg) {
-    book b = (book)arg;
-    if (b->status == 0) {
-        b->status = 1;
-        bookDb->save(bookDb);
-        printf("借书成功\n");
+    student s = (student)arg;
+    printf("借书功能\n");
+
+    // 刷新图书数据库内容并展示界面
+    void (*funcs[])(void *) = { 
+        student_preInfo,
+        NULL,
+        student_postInfo 
+    };
+    void *args[] = { arg,NULL,arg };
+    page(bookDb, DEFAULT_PAGE_SIZE, funcs, args);
+
+    size_t book_id;
+    printf("请输入书籍ID: ");
+    scanf("%zu", &book_id);
+
+    book b = bookDb->find_key(bookDb, book_id);
+
+    if (s && b) {
+        if (b->status == 0 && s->borrowedCount < MAX_AVAILABLE) {
+            vector borrow_records = load_borrow_records(borrowDb, s->id);
+            string record = new_string();
+            record->append_n(record, (const char *)&b->id, sizeof(size_t));
+            size_t timestamp = time(NULL);
+            record->append_n(record, (const char *)&timestamp, sizeof(size_t));
+            borrow_records->push_back(borrow_records, record);
+            save_borrow_records(borrowDb, s->id, borrow_records);
+            borrow_records->free(borrow_records);
+
+            s->borrowedCount++;
+            b->status = 1;
+            studentDb->save(studentDb);
+            bookDb->save(bookDb);
+            printf("借书成功\n");
+        } else {
+            printf("无法借书，已达到最大借阅数量或图书已借出。\n");
+        }
     } else {
-        printf("该书已被借出\n");
+        printf("学生或书籍不存在\n");
     }
     getchar();
 }
 
 void return_book(void *arg) {
-    book b = (book)arg;
-    if (b->status == 1) {
-        b->status = 0;
-        bookDb->save(bookDb);
-        printf("还书成功\n");
+    size_t student_id = *(size_t *)arg;
+    printf("还书功能\n");
+
+    size_t book_id;
+    printf("请输入书籍ID: ");
+    scanf("%zu", &book_id);
+
+    student s = studentDb->find_key(studentDb, student_id);
+    book b = bookDb->find_key(bookDb, book_id);
+
+    if (s && b) {
+        vector borrow_records = load_borrow_records(borrowDb, s->id);
+        for (size_t i = 0; i < borrow_records->size(borrow_records); ++i) {
+            string record = (string)borrow_records->at(borrow_records, i);
+            size_t borrowed_book_id;
+            memcpy(&borrowed_book_id, record->c_str(record), sizeof(size_t));
+            if (borrowed_book_id == b->id) {
+                borrow_records->remove(borrow_records, i);
+                save_borrow_records(borrowDb, s->id, borrow_records);
+                borrow_records->free(borrow_records);
+
+                s->borrowedCount--;
+                b->status = 0;
+                studentDb->save(studentDb);
+                bookDb->save(bookDb);
+                printf("还书成功\n");
+                return;
+            }
+        }
+        printf("未找到借阅记录\n");
     } else {
-        printf("该书未被借出\n");
+        printf("学生或书籍不存在\n");
     }
     getchar();
 }
@@ -82,21 +153,6 @@ void view_borrow_info(void **arg) {
     getchar();  // 等待用户按键
     clear_screen();
 }
-
-void student_preInfo(void *arg) {
-    student s = (student)arg;
-    printf("学生信息: ID: %zu, 姓名: %s, 班级: %s, 学院: %s, 借阅数量: %d\n",
-           s->id, s->name->c_str(s->name), s->class->c_str(s->class), s->department->c_str(s->department), s->borrowedCount);
-    time_t now = time(NULL);
-    struct tm *t = localtime(&now);
-    printf("当前时间: %02d:%02d\n", t->tm_hour, t->tm_min);
-    printf("请选择一个操作:\n");
-}
-
-void student_postInfo(void *arg) {
-    printf("\n按任意键返回，按'q'退出\n");
-}
-
 void student_menu(void **arg) {
     size_t student_id = *(size_t *)arg[0];
     student s = studentDb->find_key(studentDb, student_id);

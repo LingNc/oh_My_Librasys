@@ -39,13 +39,13 @@ struct DataBase {
     bool (*change)(dataBase,size_t id,void *new);
     // 保存数据库到文件
     void (*save)(dataBase);
-    // 查找数据
-    Vector* (*find)(dataBase, const void *);
+    // 查找符合条件的前nums的数据，返回下一个键值位置的键值索引
+    size_t (*find)(dataBase, size_t nums, const void *);
     // 通过键查找数据
     void *(*find_key)(dataBase,size_t);
     // 从_find_buffer 得到索引，从第pos开始，nums个东西
     // 如果为空返回size为0的vector
-    Vector *(*get_find)(dataBase,size_t pos,size_t nums);
+    Vector *(*get_find)(dataBase, size_t pos, size_t nums, const void *data);
     // 从数据库根据key 得到索引，从第pos开始，nums个东西
     // 如果为空返回size为0的vector
     Vector *(*get)(dataBase,size_t key,size_t nums);
