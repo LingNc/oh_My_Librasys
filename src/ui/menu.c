@@ -1,26 +1,23 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
-#ifdef _WIN32
-#include <conio.h>
-#else
-#include <termios.h>
-#include <unistd.h>
-#endif
 #include "ui/menu.h"
-#include "ui/line.h"
+#include "ui/list.h"
 #include "ui/func.h"
 #include "DataBase/DataBase.h"
 #include "models/Student.h"
 #include "models/Manager.h"
 #include "ui/admin_menu.h"
 #include "ui/student_menu.h"
-#include "ui/func.h"
+#include "ui/command.h"
 
 extern dataBase studentDb, managerDb;
 
-void display_menu(int highlight, const wchar_t **choices, int n_choices) {
+void display_menu(int highlight, const wchar_t **choices, int n_choices, const char *info) {
     clear_screen();
+    if (info) {
+        printf("%s\n", info);
+    }
     display_wchar(highlight, choices, n_choices);
 }
 
@@ -48,12 +45,12 @@ bool handle_menu_input(int *highlight, int n_choices, int *choice) {
     return direct_jump || ch == '\n';
 }
 
-void menu(const wchar_t **choices, void (**funcs)(void **), int n_choices, void **arg) {
+void menu(const wchar_t **choices, void (**funcs)(void **), int n_choices, void **arg, const char *info) {
     int highlight = 0;
     int choice = -1;
 
     while (1) {
-        display_menu(highlight, choices, n_choices);
+        display_menu(highlight, choices, n_choices, info);
         bool res = handle_menu_input(&highlight, n_choices, &choice);
         if (choice != -1 && res) {
             for (int i = 0; i < n_choices - 1; i++) {
@@ -72,6 +69,10 @@ void menu(const wchar_t **choices, void (**funcs)(void **), int n_choices, void 
                 getchar();
             }
             choice = -1; // 重置选择
+        } else if (res && choice == -1) {
+            if (getch() == '/') {
+                execute(NULL);
+            }
         }
     }
 }

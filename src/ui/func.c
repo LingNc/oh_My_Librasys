@@ -1,11 +1,12 @@
 #include <stdio.h>
-#include "ui/func.h"
+#include <string.h>
 #ifdef _WIN32
 #include <conio.h>
 #else
 #include <termios.h>
 #include <unistd.h>
 #endif
+#include "ui/func.h"
 
 void clear_screen() {
     printf("\033[H\033[J");
@@ -46,4 +47,23 @@ char getch(){
 
     return ch;
 #endif
+}
+
+void backspace(char *input, int *input_index) {
+    if (*input_index > 0) {
+        input[--(*input_index)] = '\0';
+        printf("\b \b");
+    }
+}
+
+void refresh(char *input, int *input_index, const char *new_content) {
+    // 使用退格符删除当前行
+    for (int i = 0; i < *input_index; i++) {
+        printf("\b \b");
+    }
+    // 打印新的内容
+    printf("%s", new_content);
+    // 更新缓冲区
+    strcpy(input, new_content);
+    *input_index = strlen(new_content);
 }

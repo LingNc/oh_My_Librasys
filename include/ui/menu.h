@@ -7,10 +7,8 @@
 
 extern dataBase studentDb, managerDb;
 
-// void display_menu(int highlight, const wchar_t **choices, int n_choices);
-// bool handle_menu_input(int *highlight, int n_choices, int *choice);
 // 菜单组件
-void menu(const wchar_t **choices,void (**funcs)(void **),int n_choices,void **arg);
+void menu(const wchar_t **choices, void (**funcs)(void **), int n_choices, void **arg, const char *info);
 // 登陆组件
 void login(void **arg);
 

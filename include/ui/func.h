@@ -8,5 +8,8 @@
 char getch();
 // 清空屏幕
 void clear_screen();
+// 处理退格键
+void backspace(char *input, int *input_index);
+void refresh(char *input, int *input_index, const char *new_content);
 
 #endif // _func_h
