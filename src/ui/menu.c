@@ -13,11 +13,7 @@
 
 extern dataBase studentDb, managerDb;
 
-void display_menu(int highlight, const wchar_t **choices, int n_choices, const char *info) {
-    clear_screen();
-    if (info) {
-        printf("%s\n", info);
-    }
+void display_menu(int highlight, const wchar_t **choices, int n_choices) {
     display_wchar(highlight, choices, n_choices);
 }
 
@@ -35,6 +31,9 @@ bool handle_menu_input(int *highlight, int n_choices, int *choice) {
     case '\n':
         *choice = *highlight + 1;
         break;
+    case 'q':
+        *choice = n_choices; // 退出
+        break;
     default:
         if (ch >= '0' && ch <= '9') {
             *highlight = ((ch - '0') - 1) % n_choices;
@@ -42,21 +41,23 @@ bool handle_menu_input(int *highlight, int n_choices, int *choice) {
         }
         break;
     }
-    return direct_jump || ch == '\n';
+    return direct_jump || ch == '\n' || ch == 'q';
 }
 
-void menu(const wchar_t **choices, void (**funcs)(void **), int n_choices, void **arg, const char *info) {
+void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void **arg) {
     int highlight = 0;
     int choice = -1;
 
     while (1) {
-        display_menu(highlight, choices, n_choices, info);
+        clear_screen();
+        if (funcs[0]) funcs[0](arg[0]); // preInfo
+        display_menu(highlight, choices, n_choices);
         bool res = handle_menu_input(&highlight, n_choices, &choice);
         if (choice != -1 && res) {
-            for (int i = 0; i < n_choices - 1; i++) {
-                if (choice - 1 == i) {
-                    // 执行对应的函数
-                    funcs[i](&arg[i]);
+            for (int i = 1; i < n_choices; i++) {
+                if (choice== i) {
+                    // 执��对应的函数
+                    funcs[i](arg[i]);
                 }
             }
             // 最后一个是退出命令
@@ -74,5 +75,6 @@ void menu(const wchar_t **choices, void (**funcs)(void **), int n_choices, void 
                 execute(NULL);
             }
         }
+        if (funcs[n_choices]) funcs[n_choices](arg[n_choices]); // postInfo
     }
 }
