@@ -43,7 +43,7 @@ void add_book(void **arg) {
             char ISBN[20], name[50], author[50], publisher[50], time[20];
             int status;
 
-            printf("请输入书籍ID: ");
+            printf("请输入��籍ID: ");
             scanf("%zu", &id);
             printf("请输入ISBN: ");
             scanf("%s", ISBN);
@@ -252,5 +252,6 @@ void admin_menu(void **arg) {
         delete_student,
         view_student_list
     };
-    menu(choices, funcs, n_choices, NULL);
+    const char *info = "管理员菜单，请选择一个选项：";
+    menu(choices, funcs, n_choices, NULL, info);
 }

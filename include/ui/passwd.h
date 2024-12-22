@@ -4,6 +4,6 @@
 
 #include "Tools/String.h"
 
-string getPassword();
+string get_password();
 
 #endif

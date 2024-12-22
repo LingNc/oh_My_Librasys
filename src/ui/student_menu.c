@@ -139,5 +139,6 @@ void student_menu(void **arg) {
         view_borrow_info
     };
     void *args[] = { &student_id };
-    menu(choices, funcs, n_choices, args);
+    const char *info = "学生菜单，请选择一个选项：";
+    menu(choices, funcs, n_choices, args, info);
 }
