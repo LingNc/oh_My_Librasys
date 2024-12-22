@@ -118,7 +118,12 @@
         "ios": "c",
         "queue": "c",
         "cstdbool": "c",
-        "pair.h": "c"
+        "pair.h": "c",
+        "manager.h": "c",
+        "student_menu.h": "c",
+        "func.h": "c",
+        "command.h": "c",
+        "trie.h": "c"
     },
     "makefile.launchConfigurations": [
         {
@@ -152,5 +157,5 @@
             "binaryArgs": []
         }
     ],
-    "makefile.makefilePath": "/home/lea/study/c/oh_My_Librasys/Makefile"
+    "makefile.makefilePath": ""
 }
