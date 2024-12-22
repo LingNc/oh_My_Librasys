@@ -18,20 +18,20 @@
 
 dataBase bookDb, studentDb, borrowDb, managerDb;
 
-void login(void **arg){
+void login(void *arg){
     clear_screen();
-    bool is_admin=*(bool *)arg[0];
+    bool is_admin = *(bool *)arg;
     size_t id;
     if(is_admin){
         printf("管理员登录\n");
         printf("账号: \n");
     }
     else{
-        printf("学生登录");
+        printf("学生登录\n");
         printf("学号: \n");
     }
     scanf("%zu", &id);
-    getchar();//读走回车
+    getchar(); // 读走回车
     void *args[] = { &id };
 
     if (is_admin) {
@@ -53,6 +53,14 @@ void login(void **arg){
     }
 }
 
+void preInfo(void *arg) {
+    printf("欢迎使用图书管理系统\n");
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    printf("当前时间: %02d:%02d\n", t->tm_hour, t->tm_min);
+    printf("请选择一个选项：\n");
+}
+
 void main_menu(){
     const wchar_t *choices[] = {
         L"1. 学生入口",
@@ -60,14 +68,15 @@ void main_menu(){
         L"3. 退出"
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
-    void (*funcs[])(void **) = {
+    void (*funcs[])(void *) = {
+        preInfo, // preInfo
         login,
-        login
+        login,
+        NULL  // postInfo
     };
     bool is_admin[] = { false, true };
-    void *args[] = { &is_admin[0], &is_admin[1] };
-    const char *info = "欢迎使用图书管理系统，请选择一个选项：";
-    menu(choices, funcs, n_choices, args, info);
+    void *args[] = { NULL, &is_admin[0], &is_admin[1], NULL };
+    menu(n_choices, choices, funcs, args);
 }
 
 int main() {
