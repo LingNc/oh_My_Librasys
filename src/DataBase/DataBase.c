@@ -10,12 +10,12 @@ static void _database_add(dataBase this,void *data);
 // static void _database_add_no_key(dataBase this, void* data);
 static void _database_remove(dataBase this,size_t key);
 static void _database_save(dataBase this);
-static vector _database_find(dataBase this,const void *data);
+static size_t _database_find(dataBase this, size_t nums, const void *data);
 static void *_database_find_key(dataBase this,size_t key);
 static void _init_func(dataBase this);
 static size_t _database_size(dataBase this);
 static vector _database_get(dataBase this,size_t key,size_t nums);
-static vector _database_get_find(dataBase this,size_t pos,size_t nums);
+static vector _database_get_find(dataBase this,size_t pos,size_t nums, const void *data);
 static void _database_add_auto(dataBase this,void *data);
 static void _database_add_key(dataBase this,void *data,size_t key);
 static bool _database_change(dataBase this,size_t id,void *new_data);
@@ -97,7 +97,7 @@ static void _database_add(dataBase this,void *data){
 static void _database_add_auto(dataBase this,void *data){
     size_t newKey=*(size_t *)data; // 从数据中读取id
     this->_buffer->push_back(this->_buffer,data);
-    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索引缓冲区
+    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索��缓冲区
 }
 
 // 添加数据,手动索引
@@ -156,54 +156,56 @@ static void _database_save(dataBase this){
 }
 
 // 查找数据
-static vector _database_find(dataBase this,const void *data){
+static size_t _database_find(dataBase this, size_t nums, const void *data) {
     this->_find_buffer->clear(this->_find_buffer);
-    FILE *file=fopen(this->filePath->c_str(this->filePath),"rb");
-    if(!file){
+    FILE *file = fopen(this->filePath->c_str(this->filePath), "rb");
+    if (!file) {
         perror("DataBase: 无法打开文件进行读取");
-        return this->_find_buffer;
+        return 0;
     }
-    fseek(file,sizeof(size_t),SEEK_SET); // 跳过数据数量
+    fseek(file, sizeof(size_t), SEEK_SET); // 跳过数据数量
     char isDeleted;
-    while(fread(&isDeleted,sizeof(char),1,file)==1){
+    size_t found_count = 0;
+    size_t last_key = 0;
+    while (fread(&isDeleted, sizeof(char), 1, file) == 1) {
         size_t dataSize;
-        fread(&dataSize,sizeof(size_t),1,file);
-        // 设置索引的位置由于第一个sizet是后面数据块的大小而数据初始化需要整个块，进行文件指针的移动
-        fseek(file,-sizeof(size_t),SEEK_CUR);
-        dataSize+=sizeof(size_t);
+        fread(&dataSize, sizeof(size_t), 1, file);
+        fseek(file, -sizeof(size_t), SEEK_CUR);
+        dataSize += sizeof(size_t);
 
-        if(isDeleted==1){
-            char *buffer=(char *)malloc(dataSize);
-            fread(buffer,dataSize,1,file);
-            vector buff=this->_find_buffer;
-            void *item=malloc(buff->_itemSize);
-            if(this->_find_buffer->_init_item) this->_find_buffer->_init_item(item);
-            this->_find_buffer->_in_data_item(item,buffer);
-            if(this->_find_buffer->_cmp_item){
-                if(this->_find_buffer->_cmp_item(item,data)>=0){
-                    buff->push_back(buff,item);
+        if (isDeleted == 1) {
+            char *buffer = (char *)malloc(dataSize);
+            fread(buffer, dataSize, 1, file);
+            vector buff = this->_find_buffer;
+            void *item = malloc(buff->_itemSize);
+            if (this->_find_buffer->_init_item) this->_find_buffer->_init_item(item);
+            this->_find_buffer->_in_data_item(item, buffer);
+            if (this->_find_buffer->_cmp_item) {
+                if (this->_find_buffer->_cmp_item(item, data) >= 0) {
+                    buff->push_back(buff, item);
+                    found_count++;
+                } else {
+                    free(item);
                 }
-                else{
+            } else {
+                if (buff->_dcmp_item(item, data, buff->_typename->c_str(buff->_typename)) == 0) {
+                    buff->push_back(buff, item);
+                    found_count++;
+                } else {
                     free(item);
                 }
             }
-            else{
-                if(buff->_dcmp_item(item,data,buff->_typename->c_str(buff->_typename))==0){
-                    buff->push_back(buff,item);
-                }
-                else{
-                    free(item);
-                }
-            }
-
             free(buffer);
-        }
-        else{
-            fseek(file,dataSize,SEEK_CUR);
+            if (found_count >= nums) {
+                last_key = *(size_t *)item;
+                break;
+            }
+        } else {
+            fseek(file, dataSize, SEEK_CUR);
         }
     }
     fclose(file);
-    return this->_find_buffer;
+    return last_key + 1;
 }
 
 // 通过键查找数据
@@ -253,14 +255,32 @@ static vector _database_get(dataBase this,size_t key,size_t nums){
 }
 
 // 从_find_buffer 得到索引，从第pos开始，nums个东西
-static vector _database_get_find(dataBase this,size_t pos,size_t nums){
-    vector result=new_vector(this->_type->c_str(this->_type));
-    size_t count=0;
-    for(size_t i=pos; i<this->_find_buffer->size(this->_find_buffer)&&count<nums; ++i){
-        void *data=this->_find_buffer->at(this->_find_buffer,i);
-        result->push_back(result,data);
+static vector _database_get_find(dataBase this, size_t pos, size_t nums, const void *data) {
+    vector result = new_vector(this->_type->c_str(this->_type));
+    size_t count = 0;
+    size_t buffer_size = this->_find_buffer->size(this->_find_buffer);
+
+    // 从_find_buffer 获取数据
+    for (size_t i = pos; i < buffer_size && count < nums; ++i) {
+        void *item = this->_find_buffer->at(this->_find_buffer, i);
+        result->push_back(result, item);
         ++count;
     }
+
+    // 如果不足nums个，继续查找
+    while (count < nums) {
+        size_t next_key = this->find(this, nums - count, data);
+        if (next_key == 0) {
+            break; // 已经遍历完所有数据
+        }
+        buffer_size = this->_find_buffer->size(this->_find_buffer);
+        for (size_t i = 0; i < buffer_size && count < nums; ++i) {
+            void *item = this->_find_buffer->at(this->_find_buffer, i);
+            result->push_back(result, item);
+            ++count;
+        }
+    }
+
     return result;
 }
 
