@@ -6,11 +6,12 @@
 #include "ui/func.h"
 #include "Tools/Vector.h"
 
-#define NUM_COMMANDS 2
+#define NUM_COMMANDS 3
 
 const char *commands[NUM_COMMANDS]={
     "set",
-    "help"
+    "help",
+    "search"
 };
 
 static trie root;
@@ -140,6 +141,14 @@ void execute(void **args){
         }
         else if(strcmp(input+1,"help")==0){
             printf("\n/set [nums] - 调整每一页显示的数量\n");
+            printf("/search [keyword] - 搜索关键字\n");
+        }
+        else if(strncmp(input+1,"search",6)==0){
+            const char *keyword = input+8;
+            printf("\n搜索关键字: %s\n", keyword);
+            // 调用数据库搜索函数
+            // 示例: vector results = db->search(db, keyword);
+            // 显示搜索结果
         }
     }
     else{
