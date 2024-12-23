@@ -66,7 +66,6 @@ int handle_page_input(int *page, int total_pages, int *highlight, int *choice, v
     if(direct_jump||ch=='\n') return 1;
     else if(ch=='q') return -1;
     else return 0;
-    return direct_jump||ch=='\n'||ch=='q';
 }
 
 void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
@@ -103,10 +102,16 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
             if (choice > total_pages) {
                 printf("无效选择，请重新选择\n");
                 getchar();
-            } else {
-                void *item = content->at(content, choice);
+            }
+            else{
+                struct{
+                    void *from;
+                    void *item;
+                }*itemArgs=malloc(sizeof(*itemArgs));
+                itemArgs->item=content->at(content,choice);
+                itemArgs->from=arg[0];
                 // 传入选中的结构体指针
-                funcs[1](item);
+                funcs[1](itemArgs);
             }
             // 重置选择
             choice = -1;

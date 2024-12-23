@@ -13,7 +13,7 @@ LDFLAGS =
 TARGET = main
 
 # 查找所有源文件
-SRCS = $(wildcard src/models/*c src/Tools/*.c src/DataBase/*.c src/ui/*.c src/*.c)
+SRCS = $(wildcard src/models/*c src/Tools/*.c src/DataBase/*.c src/ui/components/*.c src/ui/*.c src/*.c)
 
 # 对象文件目录
 OBJDIR = build
