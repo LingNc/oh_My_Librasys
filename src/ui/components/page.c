@@ -2,12 +2,16 @@
 #include <wchar.h>
 #include <string.h>
 #include <stdlib.h>
-#include "ui/page.h"
-#include "ui/list.h"
+#include "ui/components/page.h"
+#include "ui/components/list.h"
+#include "ui/components/func.h"
+#include "ui/command.h"
 #include "DataBase/DataBase.h"
 #include "Tools/Vector.h"
-#include "ui/func.h"
-#include "ui/command.h"
+#include "Tools/String.h"
+#include "models/Book.h"
+#include "function.h"
+
 
 void display_page(vector content, int page, int total_pages, int highlight, void *args[]) {
     *(int *)args[1] = *(int *)args[0];
@@ -18,7 +22,7 @@ void display_page(vector content, int page, int total_pages, int highlight, void
     printf("\nPage: %d / %d\n", page + 1, total_pages);
 }
 
-bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, void **args) {
+int handle_page_input(int *page, int total_pages, int *highlight, int *choice, void **args) {
     char ch = getch();
     bool direct_jump = false;
     int pageSize = *(int *)args[0];
@@ -53,7 +57,7 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
         break;
     case '/':
         execute(args);
-        *page = 0; // 重置页码
+        *page = *(int *)args[2]; // 更新页码
         *highlight = 0; // 重置光标位置
         break;
     default:
@@ -63,8 +67,9 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
         }
         break;
     }
-
-    return direct_jump || ch == '\n';
+    if(direct_jump||ch=='\n') return 1;
+    else if(ch=='q') return -1;
+    else return 0;
 }
 
 void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
@@ -73,9 +78,27 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
     int highlight = 0;
     int choice = -1;
     int lineSize = 0;
-    void *args[] = { &pageSize, &lineSize };
-    while (1) {
-        vector content = db->get(db, page * pageSize, pageSize);
+    void *args[] = { &pageSize, &lineSize, &page, &total_pages };
+    while(1){
+        vector content;
+        // 是否显示已借书籍
+        if(*(bool *)arg[3]){
+            dataBase borrowDb=arg[4];
+            vector temp=load_borrow_records(borrowDb,((student)arg[0])->id);
+            for(size_t i=0; i<temp->size(temp); ++i){
+                string t=(string)temp->at(temp,i);
+                size_t book_id;
+                memcpy(&book_id,t->c_str(t),sizeof(size_t));
+                book b=db->find_key(db,book_id);
+                if(b) content->push_back(content,b);
+                // size_t timestamp;
+                // memcpy(&timestamp,t->c_str(t)+sizeof(size_t),sizeof(size_t));
+                // 查看时间无法显示比较复杂，暂时不显示
+            }
+        }
+        else{
+            content=db->get(db,page*pageSize,pageSize);
+        }
         clear_screen();
         // preInfo
         if (funcs[0]){
@@ -84,7 +107,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
                 else funcs[0](NULL);
             }
             else funcs[0](NULL);
-        } 
+        }
         display_page(content, page, total_pages, highlight, args);
         // postInfo
         if (funcs[2]){
@@ -94,15 +117,23 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
             }
             else funcs[2](NULL);
         }
-        bool res = handle_page_input(&page, total_pages, &highlight, &choice, args);
-        if (choice != -1 && res) {
+        int res=handle_page_input(&page,total_pages,&highlight,&choice,args);
+        // 退出
+        if(res==-1) break;
+        if(choice!=-1&&res==1){
             if (choice > total_pages) {
                 printf("无效选择，请重新选择\n");
                 getchar();
-            } else {
-                void *item = content->at(content, choice);
+            }
+            else{
+                struct{
+                    void *from;
+                    void *item;
+                }*itemArgs=malloc(sizeof(*itemArgs));
+                itemArgs->item=content->at(content,choice);
+                itemArgs->from=arg[0];
                 // 传入选中的结构体指针
-                funcs[1](item);
+                funcs[1](itemArgs);
             }
             // 重置选择
             choice = -1;

@@ -5,12 +5,13 @@
 #include "models/Student.h"
 #include "models/uiStudent.h"
 #include "DataBase/DataBase.h"
-
-void load_books_from_file(const char *filePath, dataBase bookDb) {
+// 从文件中批量加载书籍
+bool load_books_from_file(const char *filePath, dataBase bookDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
-        perror("load uibook: 无法打开文件");
-        return;
+        perror("load book 无法打开文件");
+        perror(filePath);
+        return 0;
     }
 
     int count = 0;
@@ -35,13 +36,15 @@ void load_books_from_file(const char *filePath, dataBase bookDb) {
 
     fclose(file);
     bookDb->save(bookDb);
+    return true;
 }
-
-void load_students_from_file(const char *filePath, dataBase studentDb) {
+// 从文件中批量加载学生信息
+bool load_students_from_file(const char *filePath, dataBase studentDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
-        perror("load uistudent: 无���打开文件");
-        return;
+        perror("load student 无法打开文件");
+        perror(filePath);
+        return 0;
     }
 
     int count = 0;
@@ -66,8 +69,9 @@ void load_students_from_file(const char *filePath, dataBase studentDb) {
 
     fclose(file);
     studentDb->save(studentDb);
+    return true;
 }
-
+// 保存一个人的借阅记录
 void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
     string ser_records=new_string();
     size_t allSize=0;
@@ -79,7 +83,7 @@ void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
     ser_records->append_n(ser_records,data,allSize);
     borrowDb->change(borrowDb,student_id,ser_records);
 }
-
+// 从数据库中加载一个人借阅记录
 vector load_borrow_records(dataBase borrowDb, size_t student_id) {
     string ser_records = borrowDb->find_key(borrowDb, student_id);
     if (!ser_records) {

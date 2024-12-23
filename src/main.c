@@ -4,11 +4,11 @@
 #include "models/Student.h"
 #include "models/Manager.h"
 #include "function.h"
-#include "ui/func.h"
-#include "ui/menu.h"
+#include "ui/components/func.h"
+#include "ui/components/menu.h"
 #include "ui/admin_menu.h"
 #include "ui/student_menu.h"
-#include "ui/page.h"
+#include "ui/components/page.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,26 +31,29 @@ void login(void *arg){
         printf("学生登录\n");
         printf("学号: ");
     }
-    scanf("%zu", &id);
-    getchar(); // 读走回车
-    void *args[] = { &id };
+    char idStr[MAX_INPUT];
+    if(!getaline(idStr,"q")){
+        return;
+    }
+    id=(size_t)atoi(idStr);
+    // void *args[] = { &id };
 
     if (is_admin) {
         manager m = managerDb->find_key(managerDb, id);
         if (m) {
-            admin_menu(args);
+            admin_menu(m);
         } else {
             printf("管理员ID不存在，请重新输入\n");
-            getchar();
+            getch();
             // login(arg);
         }
     } else {
         student s = studentDb->find_key(studentDb, id);
         if (s) {
-            student_menu(args);
+            student_menu(s);
         } else {
             printf("学号输入有误，请重新输入\n");
-            getchar();
+            getch();
             // login(arg);
         }
     }

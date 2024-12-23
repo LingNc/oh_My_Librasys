@@ -1,67 +1,68 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <wchar.h>
-#include "ui/menu.h"
-#include "ui/func.h"
+#include "ui/components/menu.h"
+#include "ui/components/func.h"
 #include "DataBase/DataBase.h"
 #include "models/Student.h"
 #include "function.h"
 #include "ui/admin_menu.h"
-#include "ui/page.h"
+#include "ui/components/page.h"
 
 extern dataBase studentDb;
 
-void import_students() {
+void import_students(void* arg) {
     clear_screen();
     printf("按q键退出\n");
     printf("批量导入学生功能\n");
     char file_path[100];
     printf("请输入文件路径: ");
-    scanf("%s", file_path);
-    if (strcmp(file_path, "q") == 0)
+    if(!getaline(file_path,"q")){
         return;
-
-    load_students_from_file(file_path, studentDb);
-    printf("批量导入学生成功\n");
+    }
+    bool res=load_students_from_file(file_path, studentDb);
+    if(res) printf("批量导入学生成功\n");
+    else printf("批量导入学生失败\n");
     getchar(); getchar(); // 等待用户按键
     clear_screen();
 }
 
 void add_student_manual(void *arg) {
-    clear_screen();
-    printf("增加学生功能\n");
-    while (1) {
+    while(1){
+        clear_screen();
+        printf("增加学生功能\n");
         size_t id;
-        char name[50], class[50], department[50];
-        int borrowedCount;
-        char borrowedDate[20], returnDate[20];
-
+        char idStr[MAX_INPUT];
+        char name[50],class[50],department[50];
         printf("请输入学生ID: ");
-        scanf("%zu", &id);
+        if (!getaline(idStr, "q")) {
+            return;
+        }
+        id = (size_t)atoll(idStr);
         printf("请输入姓名: ");
-        scanf("%s", name);
+        if (!getaline(name, "q")) {
+            return;
+        }
         printf("请输入班级: ");
-        scanf("%s", class);
+        if (!getaline(class, "q")) {
+            return;
+        }
         printf("请输入学院: ");
-        scanf("%s", department);
-        printf("请输入借阅数量: ");
-        scanf("%d", &borrowedCount);
-        printf("请输入借阅日期: ");
-        scanf("%s", borrowedDate);
-        printf("请输入归还日期: ");
-        scanf("%s", returnDate);
-
+        if (!getaline(department, "q")) {
+            return;
+        }
         student s = new_student();
-        load_student(s, id, name, class, department, borrowedCount, borrowedDate, returnDate);
+        load_student(s, id, name, class, department, 0, "", "");
         studentDb->add(studentDb, s);
         studentDb->save(studentDb);
         printf("增加学生成功\n");
         printf("是否继续添加? (y/n)\n");
         // 清空输入缓冲区
         getchar();
-        char a;
-        scanf("%s", &a);
-        if (a == 'n')
-            break;
+        char a[MAX_INPUT];
+        if(!getaline(a,"qn")){
+            return;
+        }
         clear_screen();
     }
     getchar(); getchar(); // 等待用户按键
@@ -81,8 +82,7 @@ void add_student(void *arg) {
         import_students,
         NULL  // postInfo
     };
-    const char *info = "增加学生功能，请选择一个选项：";
-    void *args[] = { (void *)info, NULL, NULL, NULL };
+    void *args[] = { arg, NULL, NULL, NULL };
     menu(n_choices, choices, funcs, args);
 }
 
@@ -90,10 +90,13 @@ void delete_student(void *arg) {
     clear_screen();
     printf("删除学生功能\n");
     size_t student_id;
+    char id[MAX_INPUT];
     printf("按q退出\n");
     printf("请输入学生ID: ");
-    scanf("%zu", &student_id);
-
+    if(!getaline(id,"q")){
+        return;
+    }
+    student_id=(size_t)atoi(id);
     student s = studentDb->find_key(studentDb, student_id);
     if (s) {
         studentDb->rm(studentDb, student_id);
@@ -111,7 +114,7 @@ void admin_student_preInfo(void *arg) {
 }
 
 void admin_student_postInfo(void *arg) {
-    printf("\n按任意键返回，按'q'退出\n");
+    printf("\n输入/help重看帮助\n");
 }
 
 void display_student_list(void *arg) {

@@ -1,12 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <wchar.h>
-#include "ui/menu.h"
-#include "ui/func.h"
+#include "ui/components/menu.h"
+#include "ui/components/func.h"
 #include "DataBase/DataBase.h"
 #include "models/Book.h"
 #include "function.h"
 #include "ui/admin_menu.h"
-#include "ui/page.h"
+#include "ui/components/page.h"
 
 extern dataBase bookDb;
 
@@ -16,49 +17,66 @@ void import_books(){
     printf("批量导入书籍功能\n");
     char file_path[100];
     printf("请输入文件路径: ");
-    scanf("%s",file_path);
-    if(strcmp(file_path,"q")==0)
+    if(!getaline(file_path,"q"))
         return;
 
-    load_books_from_file(file_path,bookDb);
-    printf("批量导入书籍成功\n");
+    bool res=load_books_from_file(file_path,bookDb);
+    if(res) printf("批量导入书籍成功\n");
+    else printf("批量导入书籍失败\n");
     getchar(); getchar(); // 等待用户按键
     clear_screen();
 }
 
 void add_book_manual(void *arg) {
-    while (1) {
+    while(1){
+        clear_screen();
+        printf("增加图书功能: \n");
         size_t id;
+        char idStr[MAX_INPUT];
         char ISBN[20], name[50], author[50], publisher[50], time[20];
-        int status;
 
         printf("请输入书籍ID: ");
-        scanf("%zu", &id);
+        if (!getaline(idStr, "q")) {
+            return;
+        }
+        id = (size_t)atoll(idStr);
+
         printf("请输入ISBN: ");
-        scanf("%s", ISBN);
+        if (!getaline(ISBN, "q")) {
+            return;
+        }
+
         printf("请输入书名: ");
-        scanf("%s", name);
+        if (!getaline(name, "q")) {
+            return;
+        }
+
         printf("请输入作者: ");
-        scanf("%s", author);
+        if (!getaline(author, "q")) {
+            return;
+        }
+
         printf("请输入出版社: ");
-        scanf("%s", publisher);
+        if (!getaline(publisher, "q")) {
+            return;
+        }
+
         printf("请输入出版时间: ");
-        scanf("%s", time);
-        printf("请输入状态(0: 可借, 1: 已借出): ");
-        scanf("%d", &status);
+        if (!getaline(time, "q")) {
+            return;
+        }
 
         book b = new_book();
-        load_book(b, id, ISBN, name, author, publisher, time, status);
+        load_book(b, id, ISBN, name, author, publisher, time, 0);
         bookDb->add(bookDb, b);
         bookDb->save(bookDb);
         printf("增加书成功\n");
         printf("是否继续添加? (y/n)\n");
         // 清空输入缓冲区
-        getchar();
-        char a;
-        scanf("%s", &a);
-        if (a == 'n')
-            break;
+        char a[MAX_INPUT];
+        if (!getaline(a, "qn")) {
+            return;
+        }
         clear_screen();
     }
     getchar(); getchar(); // 等待用户按键
@@ -78,8 +96,7 @@ void add_book(void *arg) {
         import_books,
         NULL  // postInfo
     };
-    const char *info = "增加书功能，请选择一个选项：";
-    void *args[] = { (void *)info, NULL, NULL, NULL };
+    void *args[] = { arg, NULL, NULL, NULL };
     menu(n_choices, choices, funcs, args);
 }
 
@@ -108,7 +125,7 @@ void admin_book_preInfo(void *arg) {
 }
 
 void admin_book_postInfo(void *arg) {
-    printf("\n按任意键返回，按'q'退出\n");
+    printf("\n输入/help查看帮助\n");
 }
 
 void display_book_list(void *arg) {

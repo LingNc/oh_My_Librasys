@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
-#include "ui/menu.h"
-#include "ui/list.h"
-#include "ui/func.h"
+#include "ui/components/menu.h"
+#include "ui/components/list.h"
+#include "ui/components/func.h"
 #include "DataBase/DataBase.h"
 #include "models/Student.h"
 #include "models/Manager.h"
@@ -89,10 +89,6 @@ void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void *
                 getchar();
             }
             choice = -1; // 重置选择
-        } else if (res && choice == -1) {
-            if (getch() == '/') {
-                execute(NULL);
-            }
         }
     }
 }
