@@ -31,16 +31,7 @@ void add_book_manual(void *arg) {
     while(1){
         clear_screen();
         printf("增加图书功能: \n");
-        size_t id;
-        char idStr[MAX_INPUT];
         char ISBN[20], name[50], author[50], publisher[50], time[20];
-
-        printf("请输入书籍ID: ");
-        if (!getaline(idStr, "q")) {
-            return;
-        }
-        id = (size_t)atoll(idStr);
-
         printf("请输入ISBN: ");
         if (!getaline(ISBN, "q")) {
             return;
@@ -67,7 +58,7 @@ void add_book_manual(void *arg) {
         }
 
         book b = new_book();
-        load_book(b, id, ISBN, name, author, publisher, time, 0);
+        load_book(b, 0, ISBN, name, author, publisher, time, 0);
         bookDb->add(bookDb, b);
         bookDb->save(bookDb);
         printf("增加书成功\n");
@@ -142,7 +133,17 @@ void display_book_list(void *arg) {
 }
 
 void view_book_list(void *arg) {
-    void (*funcs[])(void *) = { admin_book_preInfo, display_book_list, admin_book_postInfo };
-    void *args[] = { arg };
-    page(bookDb, 10, funcs, args);
+    void (*funcs[])(void *)={
+        admin_book_preInfo,
+        display_book_list,
+        admin_book_postInfo
+    };
+    bool show=false;
+    void *args[]={
+        arg,
+        NULL,
+        arg,
+        &show //控制不显示已借书籍
+    };
+    page(bookDb,10,funcs,args);
 }

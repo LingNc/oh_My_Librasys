@@ -77,7 +77,7 @@ void delete_manager(void *arg) {
     } else {
         printf("管理员不存在\n");
     }
-    getchar(); getchar(); // 等待用户按键
+    getch(); // 等待用户按键
     clear_screen();
 }
 
@@ -85,7 +85,7 @@ void change_password(void *arg) {
     clear_screen();
     printf("修改密码功能\n");
     // 实现修改密码的逻辑
-    getchar(); getchar(); // 等待用户按键
+    getch(); // 等待用户按键
     clear_screen();
 }
 
@@ -102,9 +102,19 @@ void display_manager_list(void *arg) {
 }
 
 void view_manager_list(void *arg) {
-    void (*funcs[])(void *) = { admin_preInfo, display_manager_list, NULL };
-    void *args[] = { arg,arg };
-    page(managerDb, 10, funcs, args);
+    void (*funcs[])(void *)={
+        admin_preInfo,
+        display_manager_list,
+        NULL
+    };
+    bool show=false;
+    void *args[]={
+        arg,
+        arg,
+        NULL,
+        &show // 不显示已借书籍
+    };
+    page(managerDb,10,funcs,args);
 }
 
 void admin_menu(void *arg) {

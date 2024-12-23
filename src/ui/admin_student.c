@@ -27,7 +27,7 @@ void import_students(void* arg) {
     clear_screen();
 }
 
-void add_student_manual(void *arg) {
+void add_student_manual(void *arg){
     while(1){
         clear_screen();
         printf("增加学生功能\n");
@@ -35,38 +35,43 @@ void add_student_manual(void *arg) {
         char idStr[MAX_INPUT];
         char name[50],class[50],department[50];
         printf("请输入学生ID: ");
-        if (!getaline(idStr, "q")) {
+        if(!getaline(idStr,"q")){
             return;
         }
-        id = (size_t)atoll(idStr);
+        id=(size_t)atoll(idStr);
         printf("请输入姓名: ");
-        if (!getaline(name, "q")) {
+        if(!getaline(name,"q")){
             return;
         }
         printf("请输入班级: ");
-        if (!getaline(class, "q")) {
+        if(!getaline(class,"q")){
             return;
         }
         printf("请输入学院: ");
-        if (!getaline(department, "q")) {
+        if(!getaline(department,"q")){
             return;
         }
-        student s = new_student();
-        load_student(s, id, name, class, department, 0, "", "");
-        studentDb->add(studentDb, s);
+        student s=new_student();
+        load_student(s,id,name,class,department,0,"","");
+        studentDb->add_key(studentDb,s,id);
         studentDb->save(studentDb);
         printf("增加学生成功\n");
         printf("是否继续添加? (y/n)\n");
+        // getch();
         // 清空输入缓冲区
-        getchar();
         char a[MAX_INPUT];
-        if(!getaline(a,"qn")){
+        if(!getaline(a,"qny")){
+            if(a[0]!='y') return;
+            else printf("继续添加\n");
+        }
+        if(strlen(a)!=1){
+            printf("无效输入\n");
+            getch();
             return;
         }
+        getch(); // 等待用户按键
         clear_screen();
     }
-    getchar(); getchar(); // 等待用户按键
-    clear_screen();
 }
 
 void add_student(void *arg) {
@@ -130,7 +135,14 @@ void display_student_list(void *arg) {
 }
 
 void view_student_list(void *arg) {
-    void (*funcs[])(void *) = { admin_student_preInfo, display_student_list, admin_student_postInfo };
-    void *args[] = { arg };
+    void (*funcs[])(void *)={
+        admin_student_preInfo,
+        display_student_list,
+        admin_student_postInfo
+    };
+    bool show=false;
+    void *args[]={ arg,NULL,arg,
+        &show // 是否显示已借书籍
+    };
     page(studentDb, 10, funcs, args);
 }

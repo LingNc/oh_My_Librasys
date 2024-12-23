@@ -37,9 +37,10 @@ void return_book(void *arg) {
 
                 s->borrowedCount--;
                 b->status = 0;
-                studentDb->save(studentDb);
-                bookDb->save(bookDb);
+                studentDb->change(studentDb, s->id, s);
+                bookDb->change(bookDb, b->id, b);
                 printf("还书成功\n");
+                getch();
                 return;
             }
         }

@@ -127,13 +127,14 @@ static const char *_vector_data(vector this){
     for(size_t i=0; i<this->_size; ++i){
         void *item=(char *)this->_data+i*this->_itemSize;
         // 获得元素序列化数据
-        temp->append_cstr(temp,this->_data_item(item));
+        const void *ser_item=this->_data_item(item);
+        temp->append_n(temp,(const char *)ser_item,*(size_t *)ser_item+sizeof(size_t));
     }
     totalSize=temp->size(temp);
     this->_serialize->append_n(this->_serialize,(const char*)&totalSize,sizeof(size_t));
     // 储存有多少个
     this->_serialize->append_n(this->_serialize,(const char*)&this->_size,sizeof(size_t));
-    this->_serialize->append(this->_serialize,temp);
+    this->_serialize->append_n(this->_serialize,temp->c_str(temp),totalSize);
     return this->_serialize->c_str(this->_serialize);
 }
 
@@ -146,12 +147,16 @@ static void _vector_in_data(vector this,const char *data){
 
     size_t newSize=0;
     memcpy(&newSize,data+offset,sizeof(size_t));
+    offset+=sizeof(newSize);
     if(newSize!=0) _vector_resize(this,newSize);
 
     for(size_t i=0; i<newSize; ++i){
         void *item=(char *)this->_data+i*this->_itemSize;
-        memcpy(item,data+offset,this->_itemSize);
-        offset+=this->_itemSize;
+        this->_init_item(item);
+        this->_in_data_item(item,data+offset);
+        offset+=sizeof(size_t)+*(size_t *)data;
+        this->_size++;
+        // memcpy(item,data+offset,this->_itemSize);
     }
 
     // this->_size=newSize;

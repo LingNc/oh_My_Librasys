@@ -41,7 +41,9 @@ bool handle_menu_input(int *highlight, int n_choices, int *choice) {
         }
         break;
     }
-    return direct_jump || ch == '\n' || ch == 'q';
+    if(direct_jump||ch=='\n') return 1;
+    else if(ch=='q') return -1;
+    else return 0;
 }
 
 void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void **arg) {
