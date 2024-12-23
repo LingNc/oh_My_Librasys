@@ -6,11 +6,12 @@
 #include "models/uiStudent.h"
 #include "DataBase/DataBase.h"
 
-void load_books_from_file(const char *filePath, dataBase bookDb) {
+bool load_books_from_file(const char *filePath, dataBase bookDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
-        perror("load uibook: 无法打开文件");
-        return;
+        perror("load book 无法打开文件");
+        perror(filePath);
+        return 0;
     }
 
     int count = 0;
@@ -35,13 +36,15 @@ void load_books_from_file(const char *filePath, dataBase bookDb) {
 
     fclose(file);
     bookDb->save(bookDb);
+    return true;
 }
 
-void load_students_from_file(const char *filePath, dataBase studentDb) {
+bool load_students_from_file(const char *filePath, dataBase studentDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
-        perror("load uistudent: 无���打开文件");
-        return;
+        perror("load student 无法打开文件");
+        perror(filePath);
+        return 0;
     }
 
     int count = 0;
@@ -66,6 +69,7 @@ void load_students_from_file(const char *filePath, dataBase studentDb) {
 
     fclose(file);
     studentDb->save(studentDb);
+    return true;
 }
 
 void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {

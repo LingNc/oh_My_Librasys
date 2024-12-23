@@ -18,7 +18,7 @@ void display_page(vector content, int page, int total_pages, int highlight, void
     printf("\nPage: %d / %d\n", page + 1, total_pages);
 }
 
-bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, void **args) {
+int handle_page_input(int *page, int total_pages, int *highlight, int *choice, void **args) {
     char ch = getch();
     bool direct_jump = false;
     int pageSize = *(int *)args[0];
@@ -53,7 +53,7 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
         break;
     case '/':
         execute(args);
-        *page = 0; // 重置页码
+        *page = *(int *)args[2]; // 更新页码
         *highlight = 0; // 重置光标位置
         break;
     default:
@@ -63,8 +63,10 @@ bool handle_page_input(int *page, int total_pages, int *highlight, int *choice, 
         }
         break;
     }
-
-    return direct_jump || ch == '\n';
+    if(direct_jump||ch=='\n') return 1;
+    else if(ch=='q') return -1;
+    else return 0;
+    return direct_jump||ch=='\n'||ch=='q';
 }
 
 void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
@@ -73,7 +75,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
     int highlight = 0;
     int choice = -1;
     int lineSize = 0;
-    void *args[] = { &pageSize, &lineSize };
+    void *args[] = { &pageSize, &lineSize, &page, &total_pages };
     while (1) {
         vector content = db->get(db, page * pageSize, pageSize);
         clear_screen();
@@ -84,7 +86,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
                 else funcs[0](NULL);
             }
             else funcs[0](NULL);
-        } 
+        }
         display_page(content, page, total_pages, highlight, args);
         // postInfo
         if (funcs[2]){
@@ -94,8 +96,10 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
             }
             else funcs[2](NULL);
         }
-        bool res = handle_page_input(&page, total_pages, &highlight, &choice, args);
-        if (choice != -1 && res) {
+        int res=handle_page_input(&page,total_pages,&highlight,&choice,args);
+        // 退出
+        if(res==-1) break;
+        if(choice!=-1&&res==1){
             if (choice > total_pages) {
                 printf("无效选择，请重新选择\n");
                 getchar();

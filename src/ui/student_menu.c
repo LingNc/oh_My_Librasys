@@ -46,12 +46,13 @@ void borrow_book(void *arg) {
     printf("借书功能\n");
 
     // 刷新图书数据库内容并展示界面
-    void (*funcs[])(void *) = { 
+    void (*funcs[])(void *) = {
         student_preInfo,
         NULL,
-        student_postInfo 
+        student_postInfo
     };
-    void *args[] = { arg,NULL,arg };
+    int pageNums = 0;
+    void *args[] = { arg, &pageNums, arg };
     page(bookDb, DEFAULT_PAGE_SIZE, funcs, args);
 
     size_t book_id;
@@ -153,9 +154,8 @@ void view_borrow_info(void **arg) {
     getchar();  // 等待用户按键
     clear_screen();
 }
-void student_menu(void **arg) {
-    size_t student_id = *(size_t *)arg[0];
-    student s = studentDb->find_key(studentDb, student_id);
+void student_menu(void *arg) {
+    student s=(student)arg;
     if (!s) {
         printf("学生不存在\n");
         return;

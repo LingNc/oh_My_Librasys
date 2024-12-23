@@ -6,12 +6,13 @@
 #include "ui/func.h"
 #include "Tools/Vector.h"
 
-#define NUM_COMMANDS 3
+#define NUM_COMMANDS 4
 
 const char *commands[NUM_COMMANDS]={
     "set",
     "help",
-    "search"
+    "search",
+    "page"
 };
 
 static trie root;
@@ -104,6 +105,8 @@ void autocomplete(trie root,char *input,bool *show_matches,int *index,char *pref
 
 void execute(void **args){
     int *page_size=(int *)args[0];
+    int *now_page = (int *)args[2];
+    int *total_pages = (int *)args[3];
 
     char input[MAX_COMMAND_LENGTH]={ 0 };
     int index=0;
@@ -140,8 +143,10 @@ void execute(void **args){
             printf("\n每页显示数量已设置为 %d\n",*page_size);
         }
         else if(strcmp(input+1,"help")==0){
-            printf("\n/set [nums] - 调整每一页显示的数量\n");
+            printf("\n输入q退出\n");
+            printf("/set [nums] - 调��每一页显示的数量\n");
             printf("/search [keyword] - 搜索关键字\n");
+            printf("/page [nums] - 跳转到指定页码\n");
         }
         else if(strncmp(input+1,"search",6)==0){
             const char *keyword = input+8;
@@ -150,9 +155,18 @@ void execute(void **args){
             // 示例: vector results = db->search(db, keyword);
             // 显示搜索结果
         }
+        else if (strncmp(input + 1, "page", 4) == 0) {
+            int target_page = atoi(input + 6) - 1;
+            if (target_page >= 0 && target_page < *total_pages) {
+                *now_page = target_page;
+                printf("\n跳转到第 %d 页\n", target_page + 1);
+            } else {
+                printf("\n无效页码\n");
+            }
+        }
     }
     else{
         printf("\n无效命令，输入 /help 查看帮助\n");
     }
-    getchar();
+    getch();
 }

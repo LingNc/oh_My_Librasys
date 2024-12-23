@@ -7,7 +7,7 @@
 #include <unistd.h>
 #endif
 #include "ui/func.h"
-
+#include <stdbool.h>
 void clear_screen(){
     printf("\033[H\033[J");
 }
@@ -70,6 +70,8 @@ char getch(){
 #endif
 }
 
+
+
 void backspace(char *input,int *input_index){
     if(*input_index>0){
         input[--(*input_index)]='\0';
@@ -87,4 +89,18 @@ void refresh(char *input,int *input_index,const char *new_content){
     // 更新缓冲区
     strcpy(input,new_content);
     *input_index=strlen(new_content);
+}
+
+bool getaline(char str[],char eof[]){
+    scanf("%s",str);
+    getchar();
+    if(strlen(str)==1){
+        int len=strlen(eof);
+        for(int i=0;i<len;i++){
+            if(str[0]==eof[i]){
+                return false;
+            }
+        }
+    }
+    return true;
 }

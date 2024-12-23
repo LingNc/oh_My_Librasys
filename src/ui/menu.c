@@ -89,10 +89,6 @@ void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void *
                 getchar();
             }
             choice = -1; // 重置选择
-        } else if (res && choice == -1) {
-            if (getch() == '/') {
-                execute(NULL);
-            }
         }
     }
 }
