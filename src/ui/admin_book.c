@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <wchar.h>
 #include "ui/components/menu.h"
 #include "ui/components/func.h"
