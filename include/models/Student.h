@@ -12,6 +12,7 @@ typedef Student *student;
 
 struct Student {
     size_t id;
+    size_t studentID;
     string name;
     string class;
     string department;
@@ -24,7 +25,7 @@ struct Student {
     _init_default_func(student);
 };
 
-void load_student(student this, size_t id, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate);
+void load_student(student this, size_t id, size_t studentID, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate);
 
 // 初始化 Student 对象
 student __init_Student();

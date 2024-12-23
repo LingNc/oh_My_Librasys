@@ -52,6 +52,7 @@ void add_manager(void *arg){
         if (!getaline(a, "qn")) {
             return;
         }
+        if (a[0] != 'y') break;
         clear_screen();
     }
     getchar(); getchar(); // 等待用户按键
@@ -91,6 +92,10 @@ void change_password(void *arg) {
 
 void display_manager_list(void *arg) {
     vector managers = (vector)arg;
+    if (managers->size(managers) == 0) {
+        printf("没有管理员信息\n");
+        return;
+    }
     printf("%-10s %-20s %-20s %-20s\n", "管理员ID", "姓名", "注册日期", "注册人");
     for (size_t i = 0; i < managers->size(managers); i++) {
         manager m = managers->at(managers, i);

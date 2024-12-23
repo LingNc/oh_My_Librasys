@@ -52,8 +52,8 @@ void add_student_manual(void *arg){
             return;
         }
         student s=new_student();
-        load_student(s,id,name,class,department,0,"","");
-        studentDb->add_key(studentDb,s,id);
+        load_student(s,0,id,name,class,department,0,"","");
+        studentDb->add(studentDb,s);
         studentDb->save(studentDb);
         printf("增加学生成功\n");
         printf("是否继续添加? (y/n)\n");
@@ -124,6 +124,10 @@ void admin_student_postInfo(void *arg) {
 
 void display_student_list(void *arg) {
     vector students = (vector)arg;
+    if (students->size(students) == 0) {
+        printf("没有学生信息\n");
+        return;
+    }
     printf("%-10s %-20s %-12s %-12s %-10s\n", "学生ID", "姓名", "班级", "学院", "借阅数量");
     for (size_t i = 0; i < students->size(students); i++) {
         student s = students->at(students, i);
