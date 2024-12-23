@@ -87,17 +87,21 @@ static void _init_all(dataBase this,const char *inPath){
 
 // 添加数据,自动索引
 static void _database_add(dataBase this,void *data){
-    size_t newKey=get_new_key(this->_index,this->_buffer); // 获取第一个未使用的唯一编号id
-    *(size_t *)data=newKey;
-    this->_buffer->push_back(this->_buffer,data);
-    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索引缓冲区
+    size_t newKey = get_new_key(this->_index); // 获取第一个未使用的唯一编号id
+    *(size_t *)data = newKey;
+    this->_buffer->push_back(this->_buffer, data);
+    this->_buffer_index->push_back(this->_buffer_index, &newKey); // 将新键值对存入索引缓冲区
+    // this->_index->_last_key = newKey; // 更新_last_key
 }
 
 // 添加数据,根据读入数据自动索引
 static void _database_add_auto(dataBase this,void *data){
-    size_t newKey=*(size_t *)data; // 从数据中读取id
-    this->_buffer->push_back(this->_buffer,data);
-    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索引缓冲区
+    size_t newKey = *(size_t *)data; // 从数据中读取id
+    this->_buffer->push_back(this->_buffer, data);
+    this->_buffer_index->push_back(this->_buffer_index, &newKey); // 将新键值对存入索引缓冲区
+    // if (newKey > this->_index->_last_key) {
+    //     this->_index->_last_key = newKey; // 更新_last_key
+    // }
 }
 
 // 添加数据,手动索引
@@ -149,7 +153,7 @@ static void _database_save(dataBase this){
     }
     fclose(file);
     this->_buffer->clear(this->_buffer);
-    this->_buffer_index->clear(this->_buffer_index); // 清空索引缓冲区
+    this->_buffer_index->clear(this->_buffer_index); // 清空索引缓冲��
 
     // 保存索引到单独的文件
     save_index(this->_index);
@@ -339,7 +343,7 @@ void clean_database(dataBase this){
 }
 
 // 获取取下标个索引键
-size_t get_new_key(database_index index,vector buffer);
+size_t get_new_key(database_index index);
 
 // 修改数据
 static bool _database_change(dataBase this,size_t id,void *new_data){

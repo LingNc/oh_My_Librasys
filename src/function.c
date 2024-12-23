@@ -5,6 +5,14 @@
 #include "models/Student.h"
 #include "models/uiStudent.h"
 #include "DataBase/DataBase.h"
+#include "ui/components/func.h"
+
+#define TEMP_NUMS 1
+
+void clock_times(const char *msg,size_t nums){
+    clear_screen();
+    printf("%s%zu\n",msg,nums);
+}
 // 从文件中批量加载书籍
 bool load_books_from_file(const char *filePath, dataBase bookDb) {
     FILE *file = fopen(filePath, "r");
@@ -27,9 +35,9 @@ bool load_books_from_file(const char *filePath, dataBase bookDb) {
         book newBook = new_book();
         load_book(newBook, id, ISBN, name, author, publisher, time, status);
         bookDb->add(bookDb, newBook);
-
         count++;
-        if (count % 5000 == 0) {
+        clock_times("加载书籍数量:",count);
+        if(count%TEMP_NUMS==0){
             bookDb->save(bookDb);
         }
     }
@@ -62,7 +70,8 @@ bool load_students_from_file(const char *filePath, dataBase studentDb) {
         studentDb->add(studentDb, newStudent);
 
         count++;
-        if (count % 5000 == 0) {
+        clock_times("加载学生数量:",count);
+        if(count%TEMP_NUMS==0){
             studentDb->save(studentDb);
         }
     }

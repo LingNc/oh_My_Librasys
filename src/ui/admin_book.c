@@ -12,8 +12,14 @@
 
 extern dataBase bookDb;
 
-void admin_book_preInfo(void *arg) {
-    admin_preInfo(arg);
+void admin_book_preInfo(void *arg){
+    struct{
+        manager m;
+        book b;
+    }*args=arg;
+    manager m=args->m;
+    book b=args->b;
+    admin_preInfo(m);
     printf("查看书籍列表功能\n");
 }
 
@@ -175,7 +181,7 @@ void book_menu(void *arg) {
         delete_book,
         NULL
     };
-    void *args_ptr[] = { m, b, b, NULL };
+    void *args_ptr[] = { args, b, b, NULL };
     menu(n_choices, choices, funcs, args_ptr);
 }
 

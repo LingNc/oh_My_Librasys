@@ -16,6 +16,7 @@ void init_index(database_index index, const char *filePath, size_t bucket_count)
     index->hash = default_hash_func;
     index->bucket_count = bucket_count;
     index->nums = 0; // 初始化索引数量
+    index->_last_key = 0; // 初始化_last_key
     index->buckets = (vector *)malloc(bucket_count * sizeof(vector));
     if (!index->buckets) {
         perror("Index: buckets 指针分配失败");
@@ -64,6 +65,9 @@ void add_index(database_index index, size_t key, size_t offset) {
     init_pairs(p, key, offset);
     bucket->push_back(bucket, p);
     index->nums++; // 增加索引数量
+    if (key > index->_last_key) {
+        index->_last_key = key; // 更新_last_key
+    }
 }
 
 // 删除键值对
@@ -82,36 +86,9 @@ void remove_index(database_index index, size_t key) {
     }
 }
 
-// 获取第一个未使用的索引键
-size_t get_new_key(database_index index, vector buffer) {
-    size_t nextKey = 1; // 从1开始，因为0有特殊用途
-    while (1) {
-        bool found = false;
-        // 检查索引中是否存在
-        for (size_t i = 0; i < index->bucket_count; ++i) {
-            vector bucket = index->buckets[i];
-            for (size_t j = 0; j < bucket->size(bucket); ++j) {
-                pair p = (pair)bucket->at(bucket, j);
-                if (p->key == nextKey) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found) break;
-        }
-        // 检查缓冲区中是否存在
-        if (!found) {
-            for (size_t i = 0; i < buffer->size(buffer); ++i) {
-                size_t key = *(size_t *)buffer->at(buffer, i);
-                if (key == nextKey) {
-                    found = true;
-                    break;
-                }
-            }
-        }
-        if (!found) return nextKey;
-        nextKey++;
-    }
+// 获取下一个未使用的索引键
+size_t get_new_key(database_index index){
+    return index->_last_key + 1;
 }
 
 // 从文件加载索引

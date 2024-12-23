@@ -14,6 +14,7 @@ struct DataBase_Index {
     size_t bucket_count; // 哈希桶数量
     vector *buckets; // 哈希桶数组
     size_t nums; // 索引数量
+    size_t _last_key; //最后一个索引
 };
 
 // 初始化索引
@@ -44,6 +45,6 @@ void remove_index(database_index index, size_t key);
 void rebuild_index(database_index index, const char *filePath);
 
 // 获取第一个未使用的索引键
-size_t get_new_key(database_index index, vector buffer);
+size_t get_new_key(database_index index);
 
 #endif

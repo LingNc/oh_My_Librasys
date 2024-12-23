@@ -12,8 +12,8 @@ extern dataBase managerDb;
 
 void admin_preInfo(void *arg) {
     manager m = (manager)arg;
-    printf("管理员信息: ID: %zu, 姓名: %s, 注册日期: %s, 注册人: %s\n",
-           m->id, m->name->c_str(m->name), m->registration_date->c_str(m->registration_date), m->registered_by->c_str(m->registered_by));
+    printf("当前账号: ID: %zu, 姓名: %s, 注册日期: %s, 注册人: %s\n管理员总数: %zu\n",
+           m->id, m->name->c_str(m->name), m->registration_date->c_str(m->registration_date), m->registered_by->c_str(m->registered_by), managerDb->size(managerDb));
 }
 
 void admin_postInfo(void *arg) {
