@@ -23,7 +23,7 @@ void clean_database(dataBase this);
 
 #define _max_item 100
 
-// 获���数据库的实际储存大小
+// 获取数据库的实际储存大小
 static size_t _database_size(dataBase this){
     return this->_index->nums;
 }
@@ -97,7 +97,7 @@ static void _database_add(dataBase this,void *data){
 static void _database_add_auto(dataBase this,void *data){
     size_t newKey=*(size_t *)data; // 从数据中读取id
     this->_buffer->push_back(this->_buffer,data);
-    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索��缓冲区
+    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索引缓冲区
 }
 
 // 添加数据,手动索引
@@ -111,7 +111,7 @@ static void _database_add_key(dataBase this,void *data,size_t key){
 //     this->_buffer->push_back(this->_buffer, data);
 // }
 
-// �����数据
+// 获取数据
 static void _database_remove(dataBase this,size_t key){
     size_t offset=find_index(this->_index,key);
     if(offset!=0){
@@ -239,7 +239,7 @@ static void *_database_find_key(dataBase this,size_t key){
     return NULL;
 }
 
-// 从数���库根据key 得到索引，从���pos开始，nums个东西
+// 从数据库根据key 得到索引，从pos开始，nums个东西
 static vector _database_get(dataBase this,size_t key,size_t nums){
     vector result=new_vector(this->_type->c_str(this->_type));
     size_t count=0;
@@ -284,7 +284,7 @@ static vector _database_get_find(dataBase this, size_t pos, size_t nums, const v
     return result;
 }
 
-// 关闭��据库
+// 关闭数据库
 void close_database(dataBase this){
     _database_save(this);
     this->_buffer->clear(this->_buffer);
@@ -338,7 +338,7 @@ void clean_database(dataBase this){
     rebuild_index(this->_index,this->filePath->c_str(this->filePath));
 }
 
-// 获取取下��个索引键
+// 获取取下标个索引键
 size_t get_new_key(database_index index,vector buffer);
 
 // 修改数据

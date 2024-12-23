@@ -42,7 +42,7 @@ void add_book_manual(void *arg) {
             return;
         }
 
-        printf("����输入作者: ");
+        printf("请输入作者: ");
         if (!getaline(author, "q")) {
             return;
         }

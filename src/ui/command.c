@@ -144,7 +144,7 @@ void execute(void **args){
         }
         else if(strcmp(input+1,"help")==0){
             printf("\n输入q退出\n");
-            printf("/set [nums] - 调��每一页显示的数量\n");
+            printf("/set [nums] - 调整每一页显示的数量\n");
             printf("/search [keyword] - 搜索关键字\n");
             printf("/page [nums] - 跳转到指定页码\n");
         }
