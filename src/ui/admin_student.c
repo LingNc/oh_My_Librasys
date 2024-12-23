@@ -8,10 +8,20 @@
 #include "function.h"
 #include "ui/admin_menu.h"
 #include "ui/components/page.h"
+#include "models/Manager.h"
 
 extern dataBase studentDb;
 
-void import_students(void* arg) {
+void admin_student_preInfo(void *arg){
+    admin_preInfo(arg);
+    printf("查看学生列表功能\n");
+}
+
+void admin_student_postInfo(void *arg){
+    printf("\n输入/help重看帮助\n");
+}
+
+void import_students(void *arg){
     clear_screen();
     printf("按q键退出\n");
     printf("批量导入学生功能\n");
@@ -91,57 +101,81 @@ void add_student(void *arg) {
     menu(n_choices, choices, funcs, args);
 }
 
-void delete_student(void *arg) {
-    clear_screen();
-    printf("删除学生功能\n");
-    size_t student_id;
-    char id[MAX_INPUT];
-    printf("按q退出\n");
-    printf("请输入学生ID: ");
-    if(!getaline(id,"q")){
-        return;
-    }
-    student_id=(size_t)atoi(id);
-    student s = studentDb->find_key(studentDb, student_id);
+void edit_student(void *arg) {
+    student s = (student)arg;
+
     if (s) {
-        studentDb->rm(studentDb, student_id);
+        clear_screen();
+        printf("修改学生功能\n");
+        char name[50], class[50], department[50];
+
+        printf("当前姓名: %s\n", s->name->c_str(s->name));
+        printf("请输入新的姓名: ");
+        if (!getaline(name, "q")) {
+            return;
+        }
+
+        printf("\n当前班级: %s\n", s->class->c_str(s->class));
+        printf("请输入新的班级: ");
+        if (!getaline(class, "q")) {
+            return;
+        }
+
+        printf("\n当前学院: %s\n", s->department->c_str(s->department));
+        printf("请输入新的学院: ");
+        if (!getaline(department, "q")) {
+            return;
+        }
+        s->name->assign_cstr(s->name,name);
+        s->class->assign_cstr(s->class,class);
+        s->department->assign_cstr(s->department,department);
+        studentDb->change(studentDb, s->id, s);
+        printf("\n修改学生成功\n");
+    } else {
+        printf("\n学生不存在\n");
+    }
+    getch();
+}
+
+void delete_student(void *arg) {
+    student s = (student)arg;
+    if (s) {
+        studentDb->rm(studentDb, s->id);
         studentDb->save(studentDb);
         printf("删除学生成功\n");
     } else {
         printf("学生不存在\n");
     }
-    getchar(); getchar(); // 等待用户按键
-    clear_screen();
+    getchar();
 }
 
-void admin_student_preInfo(void *arg) {
-    printf("查看学生列表功能\n");
-}
-
-void admin_student_postInfo(void *arg) {
-    printf("\n输入/help重看帮助\n");
-}
-
-void display_student_list(void *arg) {
-    vector students = (vector)arg;
-    if (students->size(students) == 0) {
-        printf("没有学生信息\n");
-        return;
-    }
-    printf("%-10s %-20s %-12s %-12s %-10s\n", "学生ID", "姓名", "班级", "学院", "借阅数量");
-    for (size_t i = 0; i < students->size(students); i++) {
-        student s = students->at(students, i);
-        if (s) {
-            printf("%-10zu %-20s %-12.12s %-12.12s %-10d\n",
-                   s->id, s->name->c_str(s->name), s->class->c_str(s->class), s->department->c_str(s->department), s->borrowedCount);
-        }
-    }
+void admin_student_manu(void *arg) {
+    struct{
+        manager m;
+        student s;
+    }*args=arg;
+    student s=args->s;
+    manager m=args->m;
+    const wchar_t *choices[]={
+        L"1. 修改学生",
+        L"2. 删除学生",
+        L"3. 返回"
+    };
+    int n_choices = sizeof(choices) / sizeof(choices[0]);
+    void (*funcs[])(void *)={
+        admin_preInfo,
+        edit_student,
+        delete_student,
+        NULL
+    };
+    void *args_ptr[] = { m,s, s, NULL };
+    menu(n_choices, choices, funcs, args_ptr);
 }
 
 void view_student_list(void *arg) {
     void (*funcs[])(void *)={
         admin_student_preInfo,
-        display_student_list,
+        admin_student_manu,
         admin_student_postInfo
     };
     bool show=false;

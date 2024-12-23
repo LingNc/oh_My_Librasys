@@ -16,6 +16,10 @@ void admin_preInfo(void *arg) {
            m->id, m->name->c_str(m->name), m->registration_date->c_str(m->registration_date), m->registered_by->c_str(m->registered_by));
 }
 
+void admin_postInfo(void *arg) {
+    printf("\n输入/help查看帮助\n");
+}
+
 void add_manager(void *arg){
     manager m=(manager)arg;
     while(1){
@@ -59,27 +63,61 @@ void add_manager(void *arg){
     clear_screen();
 }
 
-void delete_manager(void *arg) {
-    clear_screen();
-    printf("删除管理员功能\n");
-    char idStr[MAX_INPUT];
-    size_t manager_id;
-    printf("按q退出\n");
-    printf("请输入管理员ID: ");
-    if(!getaline(idStr,"q")){
-        return;
-    }
-    manager_id = (size_t)atoll(idStr);
-    manager m = managerDb->find_key(managerDb, manager_id);
+void edit_manager(void *arg) {
+    manager m = (manager)arg;
+
     if (m) {
-        managerDb->rm(managerDb, manager_id);
+        clear_screen();
+        printf("修改管理员功能\n");
+        char name[50];
+
+        printf("当前姓名: %s\n", m->name->c_str(m->name));
+        printf("请输入新的姓名: ");
+        if (!getaline(name, "q")) {
+            return;
+        }
+
+        m->name->assign_cstr(m->name, name);
+        managerDb->change(managerDb, m->id, m);
+        printf("\n修改管理员成功\n");
+    } else {
+        printf("\n管理员不存在\n");
+    }
+    getch();
+}
+
+void delete_manager(void *arg) {
+    manager m = (manager)arg;
+
+    if (m) {
+        managerDb->rm(managerDb, m->id);
         managerDb->save(managerDb);
         printf("删除管理员成功\n");
     } else {
         printf("管理员不存在\n");
     }
-    getch(); // 等待用户按键
-    clear_screen();
+    getchar();
+}
+
+void manager_menu(void *arg) {
+    struct {
+        manager m;
+    } *args = arg;
+    manager m = args->m;
+    const wchar_t *choices[] = {
+        L"1. 修改管理员",
+        L"2. 删除管理员",
+        L"3. 返回"
+    };
+    int n_choices = sizeof(choices) / sizeof(choices[0]);
+    void (*funcs[])(void *) = {
+        admin_preInfo,
+        edit_manager,
+        delete_manager,
+        NULL
+    };
+    void *args_ptr[] = { m, m, m, NULL };
+    menu(n_choices, choices, funcs, args_ptr);
 }
 
 void change_password(void *arg) {
@@ -107,19 +145,14 @@ void display_manager_list(void *arg) {
 }
 
 void view_manager_list(void *arg) {
-    void (*funcs[])(void *)={
+    void (*funcs[])(void *) = {
         admin_preInfo,
-        display_manager_list,
-        NULL
+        manager_menu,
+        admin_postInfo
     };
-    bool show=false;
-    void *args[]={
-        arg,
-        arg,
-        NULL,
-        &show // 不显示已借书籍
-    };
-    page(managerDb,10,funcs,args);
+    bool show = false;
+    void *args[] = { arg, NULL, arg, &show };
+    page(managerDb, 10, funcs, args);
 }
 
 void admin_menu(void *arg) {
