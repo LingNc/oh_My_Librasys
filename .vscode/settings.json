@@ -123,7 +123,9 @@
         "student_menu.h": "c",
         "func.h": "c",
         "command.h": "c",
-        "trie.h": "c"
+        "trie.h": "c",
+        "student_return.h": "c",
+        "wchar.h": "c"
     },
     "makefile.launchConfigurations": [
         {
