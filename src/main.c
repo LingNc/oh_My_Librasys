@@ -43,7 +43,7 @@ void login(void *arg){
         if (m) {
             admin_menu(m);
         } else {
-            printf("管理员ID不存在，���重新输入\n");
+            printf("管理员ID不存在请重新输入\n");
             getch();
             // login(arg);
         }
@@ -98,8 +98,10 @@ int main() {
 
     // 初始化根管理用户
     manager root = managerDb->find_key(managerDb, 1);
-    if (!root) {
-        root = new_manager();
+    if(!root){
+        printf("正在初始化管理员\n");
+        printf("默认管理员id为1\n");
+        root=new_manager();
         time_t now = time(NULL);
         struct tm *t = localtime(&now);
         char date[20];

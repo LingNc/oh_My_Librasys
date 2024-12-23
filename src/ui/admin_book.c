@@ -102,11 +102,11 @@ void edit_book(void *arg) {
 
     if (b) {
         clear_screen();
-        printf("修改图书��能\n");
+        printf("修改图书功能\n");
         char ISBN[20], name[50], author[50], publisher[50], time[20];
 
         printf("当前ISBN: %s\n", b->ISBN->c_str(b->ISBN));
-        printf("���输入新的ISBN: ");
+        printf("请输入新的ISBN: ");
         if (!getaline(ISBN, "q")) {
             return;
         }
