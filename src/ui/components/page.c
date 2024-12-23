@@ -47,7 +47,7 @@ int handle_page_input(int *page, int total_pages, int *highlight, int *choice, v
         }
         break;
     case 'w':
-        *highlight = (*highlight - 1) % lineSize; // 上移光标
+        *highlight = (*highlight - 1 + lineSize) % lineSize; // 上移光标
         break;
     case 's':
         *highlight = (*highlight + 1) % lineSize; // 下移光标

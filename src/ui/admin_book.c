@@ -13,14 +13,8 @@
 extern dataBase bookDb;
 
 void admin_book_preInfo(void *arg){
-    struct{
-        manager m;
-        book b;
-    }*args=arg;
-    manager m=args->m;
-    book b=args->b;
-    admin_preInfo(m);
-    printf("查看书籍列表功能\n");
+    admin_preInfo(arg);
+    printf("查看书籍列表功能  图书总数:%zu\n",bookDb->size(bookDb));
 }
 
 void admin_book_postInfo(void *arg) {

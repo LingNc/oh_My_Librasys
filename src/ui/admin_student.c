@@ -14,7 +14,7 @@ extern dataBase studentDb;
 
 void admin_student_preInfo(void *arg){
     admin_preInfo(arg);
-    printf("查看学生列表功能\n");
+    printf("查看学生列表功能  学生总数:%zu\n",studentDb->size(studentDb));
 }
 
 void admin_student_postInfo(void *arg){

@@ -27,9 +27,15 @@ void display_book_details(void *arg){
     printf("当前时间: %02d:%02d\n",t->tm_hour,t->tm_min);
     printf("学生信息: ID: %zu, 姓名: %s, 班级: %s, 学院: %s, 借阅数量: %d\n\n",
         s->id,s->name->c_str(s->name),s->class->c_str(s->class),s->department->c_str(s->department),s->borrowedCount);
-    printf("书籍详情: \n书名: %s  作者: %s, 出版社: %s  出版日期: %s  状态: %s\n",
+    if(b->id==0){
+        printf("未选择图书信息\n");
+        return;
+    }
+    else{
+        printf("书籍详情: \n书名: %s  作者: %s, 出版社: %s  出版日期: %s  状态: %s\n",
         b->name->c_str(b->name),b->author->c_str(b->author),b->publisher->c_str(b->publisher),b->time->c_str(b->time),b->status==0?"可借":"已借出");
     printf("请选择:\n");
+    }
 }
 
 void borrow_book(void *arg){
