@@ -80,7 +80,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
     int lineSize = 0;
     void *args[] = { &pageSize, &lineSize, &page, &total_pages };
     while(1){
-        vector content;
+        vector content=new_vector(db->_type->c_str(db->_type));
         // 是否显示已借书籍
         if(*(bool *)arg[3]){
             dataBase borrowDb=arg[4];
@@ -121,7 +121,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
         // 退出
         if(res==-1) break;
         if(choice!=-1&&res==1){
-            if (choice > total_pages) {
+            if (choice > content->size(content)+1) {
                 printf("无效选择，请重新选择\n");
                 getchar();
             }
@@ -130,7 +130,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
                     void *from;
                     void *item;
                 }*itemArgs=malloc(sizeof(*itemArgs));
-                itemArgs->item=content->at(content,choice);
+                itemArgs->item=content->at(content,choice-1);
                 itemArgs->from=arg[0];
                 // 传入选中的结构体指针
                 funcs[1](itemArgs);
