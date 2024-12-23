@@ -79,7 +79,7 @@ void remove_index(database_index index, size_t key) {
         pair p = (pair)bucket->at(bucket, i);
         if (p->key == key) {
             bucket->remove(bucket, i);
-            free_pair(p);
+            // free_pair(p);
             index->nums--; // 减少索引数量
             return;
         }
