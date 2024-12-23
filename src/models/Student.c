@@ -14,13 +14,14 @@ static student _student_init(student this);
 static const char *_student_data(student this);
 static void _student_free(student this);
 static void _student_in_data(student this,const char *data);
-void load_student(student this,size_t id,const char *name,const char *class,const char *department,int borrowedCount,const char *borrowedDate,const char *returnDate);
+void load_student(student this,size_t id, size_t studentID, const char *name,const char *class,const char *department,int borrowedCount,const char *borrowedDate,const char *returnDate);
 void free_student(student this);
 static student _student_copy(student this, student other);
 static int _student_cmp(student this, student other);
 
 student _student_init(student this){
     this->id=0;
+    this->studentID=0;
     this->name=new_string();
     this->class=new_string();
     this->department=new_string();
@@ -48,56 +49,17 @@ student new_student(){
     return this;
 }
 
-// // 借书
-// void borrow_book(dataBase borrowDb, student this, book b) {
-//     if (this->borrowedCount < MAX_AVAILABLE && b->status == 0) {
-//         // 更新借书记录数据库
-//         vector borrow_records = load_borrow_records(borrowDb, this->id);
-//         string record = new_string();
-//         record->append_n(record, (const char*)&b->id, sizeof(size_t));
-//         size_t timestamp = time(NULL);
-//         record->append_n(record, (const char*)&timestamp, sizeof(size_t));
-//         borrow_records->push_back(borrow_records, record);
-//         save_borrow_records(borrowDb, this->id, borrow_records);
-//         borrow_records->free(borrow_records);
-
-//         this->borrowedCount++;
-//         b->status = 1;
-//     } else {
-//         printf("无法借书，已达到最大借阅数量或图书已借出。\n");
-//     }
-// }
-
-// // 还书
-// void return_book(dataBase borrowDb, student this, book b) {
-//     vector borrow_records = load_borrow_records(borrowDb, this->id);
-//     for (size_t i = 0; i < borrow_records->size(borrow_records); ++i) {
-//         string record = (string)borrow_records->at(borrow_records, i);
-//         size_t book_id;
-//         memcpy(&book_id, record->c_str(record), sizeof(size_t));
-//         if (book_id == b->id) {
-//             borrow_records->remove(borrow_records, i);
-//             save_borrow_records(borrowDb, this->id, borrow_records);
-//             borrow_records->free(borrow_records);
-//             this->borrowedCount--;
-//             b->status = 0;
-//             return;
-//         }
-//     }
-//     printf("未找到借阅的图书。\n");
-//     borrow_records->free(borrow_records);
-// }
-
 // 序列化学生数据
 const char *_student_data(student this){
     this->_serialize->clear(this->_serialize);
-    size_t len = sizeof(this->id) + sizeof(size_t) + this->name->length(this->name) +
+    size_t len = sizeof(this->id) + sizeof(this->studentID) + sizeof(size_t) + this->name->length(this->name) +
                  sizeof(size_t) + this->class->length(this->class) + sizeof(size_t) + this->department->length(this->department) +
                  sizeof(this->borrowedCount) + sizeof(size_t) + this->borrowedDate->length(this->borrowedDate) +
                  sizeof(size_t) + this->returnDate->length(this->returnDate);
     this->_serialize->append_n(this->_serialize, (const char*)&len, sizeof(len));
 
     this->_serialize->append_n(this->_serialize, (const char*)&this->id, sizeof(this->id));
+    this->_serialize->append_n(this->_serialize, (const char*)&this->studentID, sizeof(this->studentID));
 
     size_t str_len = this->name->length(this->name);
     this->_serialize->append_n(this->_serialize, (const char*)&str_len, sizeof(str_len));
@@ -132,6 +94,9 @@ void _student_in_data(student this, const char *data) {
     memcpy(&this->id,data+ptr,sizeof(this->id));
     ptr += sizeof(this->id);
 
+    memcpy(&this->studentID, data + ptr, sizeof(this->studentID));
+    ptr += sizeof(this->studentID);
+
     size_t str_len = 0;
     memcpy(&str_len, data + ptr, sizeof(str_len));
     ptr += sizeof(str_len);
@@ -162,8 +127,9 @@ void _student_in_data(student this, const char *data) {
     ptr += str_len;
 }
 
-void load_student(student this,size_t id,const char *name,const char *class,const char *department,int borrowedCount,const char *borrowedDate,const char *returnDate){
+void load_student(student this, size_t id, size_t studentID, const char *name, const char *class, const char *department, int borrowedCount, const char *borrowedDate, const char *returnDate){
     this->id=id;
+    this->studentID=studentID;
     this->name->assign_cstr(this->name,name);
     this->class->assign_cstr(this->class,class);
     this->department->assign_cstr(this->department,department);
@@ -196,6 +162,7 @@ void free_student(student this){
 
 static student _student_copy(student this, student other) {
     this->id = other->id;
+    this->studentID = other->studentID;
     this->name->assign_cstr(this->name, other->name->c_str(other->name));
     this->class->assign_cstr(this->class, other->class->c_str(other->class));
     this->department->assign_cstr(this->department, other->department->c_str(other->department));
@@ -207,6 +174,7 @@ static student _student_copy(student this, student other) {
 
 int _student_cmp(student this, student other) {
     if (this->id != other->id) return this->id - other->id;
+    if (this->studentID != other->studentID) return this->studentID - other->studentID;
     int name_cmp = strcmp(this->name->c_str(this->name), other->name->c_str(other->name));
     if (name_cmp != 0) return name_cmp;
     int class_cmp = strcmp(this->class->c_str(this->class), other->class->c_str(other->class));

@@ -43,7 +43,7 @@ void login(void *arg){
         if (m) {
             admin_menu(m);
         } else {
-            printf("管理员ID不存在，请重新输入\n");
+            printf("管理员ID不存在请重新输入\n");
             getch();
             // login(arg);
         }
@@ -97,11 +97,20 @@ int main() {
     init_autocomplete();
 
     // 初始化根管理用户
-    manager root = new_manager();
-    load_manager(root, 1, "root", "2024-01-01", "system");
-    managerDb->add(managerDb, root);
-    managerDb->save(managerDb);
-    free_manager(root);
+    manager root = managerDb->find_key(managerDb, 1);
+    if(!root){
+        printf("正在初始化管理员\n");
+        printf("默认管理员id为1\n");
+        root=new_manager();
+        time_t now = time(NULL);
+        struct tm *t = localtime(&now);
+        char date[20];
+        strftime(date, sizeof(date), "%Y-%m-%d", t);
+        load_manager(root, 1, "root", date, "system");
+        managerDb->add(managerDb, root);
+        managerDb->save(managerDb);
+        free_manager(root);
+    }
 
     main_menu();
 

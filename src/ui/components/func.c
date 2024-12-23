@@ -80,7 +80,7 @@ void backspace(char *input,int *input_index){
 }
 
 void refresh(char *input,int *input_index,const char *new_content){
-    // 使用退格符删除��前行
+    // 使用退格符删除index行
     for(int i=0; i<*input_index; i++){
         printf("\b \b");
     }

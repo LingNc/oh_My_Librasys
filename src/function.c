@@ -50,15 +50,15 @@ bool load_students_from_file(const char *filePath, dataBase studentDb) {
     int count = 0;
     char line[1024];
     while (fgets(line, sizeof(line), file)) {
-        size_t id;
+        size_t studentID;
         char name[50], class[50], department[50], borrowedDate[20], returnDate[20];
         int borrowedCount;
 
         sscanf(line, "%zu,%49[^,],%49[^,],%49[^,],%d,%19[^,],%19[^,]",
-               &id, name, class, department, &borrowedCount, borrowedDate, returnDate);
+               &studentID, name, class, department, &borrowedCount, borrowedDate, returnDate);
 
         student newStudent = new_student();
-        load_student(newStudent, id, name, class, department, borrowedCount, borrowedDate, returnDate);
+        load_student(newStudent, 0, studentID, name, class, department, borrowedCount, borrowedDate, returnDate);
         studentDb->add(studentDb, newStudent);
 
         count++;
