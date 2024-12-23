@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <time.h>
-#include "ui/menu.h"
-#include "ui/func.h"
-#include "ui/page.h"
+#include "ui/components/menu.h"
+#include "ui/components/func.h"
+#include "ui/components/page.h"
 #include "DataBase/DataBase.h"
 #include "models/Book.h"
 #include "models/Student.h"

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "ui/command.h"
 #include "Tools/Trie.h"
-#include "ui/func.h"
+#include "ui/components/func.h"
 #include "Tools/Vector.h"
 
 #define NUM_COMMANDS 4

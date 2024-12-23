@@ -6,7 +6,7 @@
 #include <termios.h>
 #include <unistd.h>
 #endif
-#include "ui/func.h"
+#include "ui/components/func.h"
 #include <stdbool.h>
 void clear_screen(){
     printf("\033[H\033[J");

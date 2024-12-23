@@ -4,11 +4,11 @@
 #include "models/Student.h"
 #include "models/Manager.h"
 #include "function.h"
-#include "ui/func.h"
-#include "ui/menu.h"
+#include "ui/components/func.h"
+#include "ui/components/menu.h"
 #include "ui/admin_menu.h"
 #include "ui/student_menu.h"
-#include "ui/page.h"
+#include "ui/components/page.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

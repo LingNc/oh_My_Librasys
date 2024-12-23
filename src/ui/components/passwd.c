@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "Tools/String.h"
-#include "ui/passwd.h"
-#include "ui/func.h"
+#include "ui/components/passwd.h"
+#include "ui/components/func.h"
 
 string get_password(){
     int i=0;

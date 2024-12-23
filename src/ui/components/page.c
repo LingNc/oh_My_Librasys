@@ -2,11 +2,11 @@
 #include <wchar.h>
 #include <string.h>
 #include <stdlib.h>
-#include "ui/page.h"
-#include "ui/list.h"
+#include "ui/components/page.h"
+#include "ui/components/list.h"
 #include "DataBase/DataBase.h"
 #include "Tools/Vector.h"
-#include "ui/func.h"
+#include "ui/components/func.h"
 #include "ui/command.h"
 
 void display_page(vector content, int page, int total_pages, int highlight, void *args[]) {

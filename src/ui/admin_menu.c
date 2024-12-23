@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <wchar.h>
-#include "ui/menu.h"
-#include "ui/func.h"
+#include "ui/components/menu.h"
+#include "ui/components/func.h"
 #include "ui/admin_book.h"
 #include "ui/admin_student.h"
 #include "DataBase/DataBase.h"
