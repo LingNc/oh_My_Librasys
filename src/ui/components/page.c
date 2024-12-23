@@ -4,10 +4,14 @@
 #include <stdlib.h>
 #include "ui/components/page.h"
 #include "ui/components/list.h"
-#include "DataBase/DataBase.h"
-#include "Tools/Vector.h"
 #include "ui/components/func.h"
 #include "ui/command.h"
+#include "DataBase/DataBase.h"
+#include "Tools/Vector.h"
+#include "Tools/String.h"
+#include "models/Book.h"
+#include "function.h"
+
 
 void display_page(vector content, int page, int total_pages, int highlight, void *args[]) {
     *(int *)args[1] = *(int *)args[0];
@@ -75,8 +79,26 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
     int choice = -1;
     int lineSize = 0;
     void *args[] = { &pageSize, &lineSize, &page, &total_pages };
-    while (1) {
-        vector content = db->get(db, page * pageSize, pageSize);
+    while(1){
+        vector content;
+        // 是否显示已借书籍
+        if(*(bool *)arg[3]){
+            dataBase borrowDb=arg[4];
+            vector temp=load_borrow_records(borrowDb,((student)arg[0])->id);
+            for(size_t i=0; i<temp->size(temp); ++i){
+                string t=(string)temp->at(temp,i);
+                size_t book_id;
+                memcpy(&book_id,t->c_str(t),sizeof(size_t));
+                book b=db->find_key(db,book_id);
+                if(b) content->push_back(content,b);
+                // size_t timestamp;
+                // memcpy(&timestamp,t->c_str(t)+sizeof(size_t),sizeof(size_t));
+                // 查看时间无法显示比较复杂，暂时不显示
+            }
+        }
+        else{
+            content=db->get(db,page*pageSize,pageSize);
+        }
         clear_screen();
         // preInfo
         if (funcs[0]){

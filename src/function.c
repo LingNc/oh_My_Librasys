@@ -5,7 +5,7 @@
 #include "models/Student.h"
 #include "models/uiStudent.h"
 #include "DataBase/DataBase.h"
-
+// 从文件中批量加载书籍
 bool load_books_from_file(const char *filePath, dataBase bookDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
@@ -38,7 +38,7 @@ bool load_books_from_file(const char *filePath, dataBase bookDb) {
     bookDb->save(bookDb);
     return true;
 }
-
+// 从文件中批量加载学生信息
 bool load_students_from_file(const char *filePath, dataBase studentDb) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
@@ -71,7 +71,7 @@ bool load_students_from_file(const char *filePath, dataBase studentDb) {
     studentDb->save(studentDb);
     return true;
 }
-
+// 保存一个人的借阅记录
 void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
     string ser_records=new_string();
     size_t allSize=0;
@@ -83,7 +83,7 @@ void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
     ser_records->append_n(ser_records,data,allSize);
     borrowDb->change(borrowDb,student_id,ser_records);
 }
-
+// 从数据库中加载一个人借阅记录
 vector load_borrow_records(dataBase borrowDb, size_t student_id) {
     string ser_records = borrowDb->find_key(borrowDb, student_id);
     if (!ser_records) {

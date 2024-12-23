@@ -52,8 +52,8 @@ void borrow_book(void *arg){
 
         s->borrowedCount++;
         b->status=1;
-        studentDb->save(studentDb);
-        bookDb->save(bookDb);
+        studentDb->change(studentDb,s->id,s);
+        bookDb->change(bookDb,b->id,b);
         printf("借书成功\n");
         getch();
     }
@@ -106,6 +106,7 @@ void borrow_book_menu(void *arg){
         borrow_book_config,
         student_postInfo
     };
-    void *args[]={ s,NULL,s };
+    bool show=false;
+    void *args[]={ s,NULL,s,&show };
     page(bookDb,DEFAULT_PAGE_SIZE,funcs,args);
 }

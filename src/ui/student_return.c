@@ -92,6 +92,10 @@ void return_book_menu(void *arg) {
         return_book_config,
         student_postInfo
     };
-    void *args[] = { s, NULL, s };
-    page(bookDb, DEFAULT_PAGE_SIZE, funcs, args);
+    bool show=true;
+    void *args[]={ s,NULL,s,
+        &show, // 是否显示已借书籍
+        borrowDb // 数据库
+    };
+    page(bookDb,DEFAULT_PAGE_SIZE,funcs,args);
 }
