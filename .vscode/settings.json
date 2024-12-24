@@ -129,7 +129,8 @@
         "time.h": "c",
         "admin_book.h": "c",
         "page.h": "c",
-        "admin_menu.h": "c"
+        "admin_menu.h": "c",
+        "admin_student.h": "c"
     },
     "makefile.launchConfigurations": [
         {
