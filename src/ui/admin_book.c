@@ -110,22 +110,22 @@ void edit_book(void *arg) {
         if (!getaline(ISBN, "q")) {
             return;
         }
-        printf("\n当前书名: %s\n", b->name->c_str(b->name));
+        printf("当前书名: %s\n", b->name->c_str(b->name));
         printf("请输入新的书名: ");
         if (!getaline(name, "q")) {
             return;
         }
-        printf("\n当前作者: %s\n", b->author->c_str(b->author));
+        printf("当前作者: %s\n", b->author->c_str(b->author));
         printf("请输入新的作者: ");
         if (!getaline(author, "q")) {
             return;
         }
-        printf("\n当前出版社: %s\n", b->publisher->c_str(b->publisher));
+        printf("当前出版社: %s\n", b->publisher->c_str(b->publisher));
         printf("请输入新的出版社: ");
         if (!getaline(publisher, "q")) {
             return;
         }
-        printf("\n当前出版时间: %s\n", b->time->c_str(b->time));
+        printf("当前出版时间: %s\n", b->time->c_str(b->time));
         printf("请输入新的出版时间: ");
         if (!getaline(time, "q")) {
             return;
@@ -136,9 +136,9 @@ void edit_book(void *arg) {
         b->publisher->assign_cstr(b->publisher,publisher);
         b->time->assign_cstr(b->time,time);
         bookDb->change(bookDb,b->id,b);
-        printf("\n修改图书成功\n");
+        printf("修改图书成功\n");
     } else {
-        printf("\n图书不存在\n");
+        printf("图书不存在\n");
     }
     getch();
 }
@@ -175,7 +175,7 @@ void book_menu(void *arg) {
         delete_book,
         NULL
     };
-    void *args_ptr[] = { args, b, b, NULL };
+    void *args_ptr[] = { m, b, b, NULL };
     menu(n_choices, choices, funcs, args_ptr);
 }
 

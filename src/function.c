@@ -84,11 +84,9 @@ bool load_students_from_file(const char *filePath, dataBase studentDb) {
 void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
     string ser_records=new_string();
     size_t allSize=0;
-    size_t offset=0;
     const char *data=(const char *)records->data(records);
     allSize+=*(size_t *)data;
-    offset+=sizeof(size_t);
-    allSize+=2*sizeof(size_t);
+    allSize+=sizeof(size_t);
     ser_records->append_n(ser_records,data,allSize);
     borrowDb->change(borrowDb,student_id,ser_records);
 }

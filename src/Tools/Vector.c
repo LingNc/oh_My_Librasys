@@ -130,7 +130,7 @@ static const char *_vector_data(vector this){
         const void *ser_item=this->_data_item(item);
         temp->append_n(temp,(const char *)ser_item,*(size_t *)ser_item+sizeof(size_t));
     }
-    totalSize=temp->size(temp);
+    totalSize+=temp->size(temp);
     this->_serialize->append_n(this->_serialize,(const char*)&totalSize,sizeof(size_t));
     // 储存有多少个
     this->_serialize->append_n(this->_serialize,(const char*)&this->_size,sizeof(size_t));
@@ -151,10 +151,11 @@ static void _vector_in_data(vector this,const char *data){
     if(newSize!=0) _vector_resize(this,newSize);
 
     for(size_t i=0; i<newSize; ++i){
+        const char *item_data=data+offset;
         void *item=(char *)this->_data+i*this->_itemSize;
         this->_init_item(item);
-        this->_in_data_item(item,data+offset);
-        offset+=sizeof(size_t)+*(size_t *)data;
+        this->_in_data_item(item,item_data);
+        offset+=sizeof(size_t)+*(size_t *)item_data;
         this->_size++;
         // memcpy(item,data+offset,this->_itemSize);
     }
