@@ -83,7 +83,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
         // 是否显示已借书籍
         if(*(bool *)arg[3]){
             dataBase borrowDb=arg[4];
-            vector temp=load_borrow_records(borrowDb,((student)arg[0])->id);
+            vector temp=load_borrow_records(borrowDb,((student)arg[5])->id);
             for(size_t i=0; i<temp->size(temp); ++i){
                 string t=(string)temp->at(temp,i);
                 size_t book_id;

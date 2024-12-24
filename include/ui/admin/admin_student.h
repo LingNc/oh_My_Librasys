@@ -6,7 +6,7 @@ void delete_student(void *arg);
 void view_student_list(void *arg);
 void import_students(void *arg);
 void add_student_manual(void *arg);
-void edit_student(void *arg); // 新增
-void student_menu(void *arg); // 新增
+void edit_student(void *arg);
+void student_menu(void *arg);
 
 #endif // _admin_student_h

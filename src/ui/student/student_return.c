@@ -96,7 +96,8 @@ void return_book_menu(void *arg) {
     bool show=true;
     void *args[]={ s,NULL,s,
         &show, // 是否显示已借书籍
-        borrowDb // 数据库
+        borrowDb, // 数据库
+        s // 当前学生
     };
     page(bookDb,DEFAULT_PAGE_SIZE,funcs,args);
 }
