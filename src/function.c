@@ -37,7 +37,7 @@ bool load_books_from_file(const char *filePath, dataBase bookDb) {
                &id, ISBN, name, author, publisher, time, &status);
 
         book newBook = new_book();
-        load_book(newBook, id, ISBN, name, author, publisher, time, status);
+        load_book(newBook, id, ISBN, name, author, publisher, time, 0);
         bookDb->add(bookDb, newBook);
         count++;
         clock_times("加载书籍数量:",count);
