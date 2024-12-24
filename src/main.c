@@ -19,6 +19,7 @@
 #include "ui/admin_student.h"
 
 dataBase bookDb, studentDb, borrowDb, managerDb;
+database_index btos; // 声明索引库
 
 void login(void *arg){
     clear_screen();
@@ -85,32 +86,24 @@ void main_menu() {
     menu(n_choices, choices, funcs, args);
 }
 
-int main() {
-    setlocale(LC_ALL, "");
+int main(){
+    // 使用系统默认语言
+    setlocale(LC_ALL,"");
 
+    // 初始化数据库
     bookDb = database("db/book", Book);
     studentDb = database("db/student", Student);
     borrowDb = database("db/borrow_records", String);
-    managerDb = database("db/manager", Manager);
+    managerDb=database("db/manager",Manager);
+
+    // 初始化bookid到studentid 索引库
+    btos=new_index("db/btos");
 
     // 初始化自动补全
     init_autocomplete();
 
     // 初始化根管理用户
-    manager root = managerDb->find_key(managerDb, 1);
-    if(!root){
-        printf("正在初始化管理员\n");
-        printf("默认管理员id为1\n");
-        root=new_manager();
-        time_t now = time(NULL);
-        struct tm *t = localtime(&now);
-        char date[20];
-        strftime(date, sizeof(date), "%Y-%m-%d", t);
-        load_manager(root, 1, "root", date, "system");
-        managerDb->add(managerDb, root);
-        managerDb->save(managerDb);
-        free_manager(root);
-    }
+    init_root();
 
     main_menu();
 

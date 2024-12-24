@@ -4,12 +4,14 @@
 #include "models/uiBook.h"
 #include "models/Student.h"
 #include "models/uiStudent.h"
+#include "models/Manager.h"
 #include "DataBase/DataBase.h"
 #include "ui/components/func.h"
 
 #define TEMP_NUMS 1
 
 extern database_index btos; // 声明外部索引库
+extern dataBase managerDb; //声明外部数据库
 
 void clock_times(const char *msg,size_t nums){
     clear_screen();
@@ -116,3 +118,22 @@ vector load_borrow_records(dataBase borrowDb, size_t student_id) {
     return records;
 }
 
+// 初始化根管理用户
+void init_root(){
+    // 检测root是否存在
+    manager root=managerDb->find_key(managerDb,1);
+    if(!root){
+        printf("正在初始化管理员\n");
+        printf("默认管理员id为1\n");
+        root=new_manager();
+        time_t now = time(NULL);
+        struct tm *t = localtime(&now);
+        char date[20];
+        strftime(date, sizeof(date), "%Y-%m-%d", t);
+        load_manager(root, 1, "root", date, "system");
+        managerDb->add(managerDb, root);
+        managerDb->save(managerDb);
+        free_manager(root);
+        printf("初始化完毕\n按任意键继续...");
+    }
+}
