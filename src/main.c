@@ -5,6 +5,8 @@
 #include "models/Student.h"
 #include "models/Manager.h"
 #include "ui/main_menu.h"
+#include "ui/command.h"
+#include "function.h"
 
 dataBase bookDb, studentDb, borrowDb, managerDb;
 database_index btos; // 声明索引库
@@ -31,14 +33,14 @@ int main(){
     // 进入主菜单
     main_menu();
 
-    // 释放数据库
-    close_database(bookDb);
-    close_database(studentDb);
-    close_database(borrowDb);
-    close_database(managerDb);
+    // // 释放数据库
+    // close_database(bookDb);
+    // close_database(studentDb);
+    // close_database(borrowDb);
+    // close_database(managerDb);
 
-    // 释放索引库
-    free_index(btos);
+    // // 释放索引库
+    // close_index(btos);
 
     return 0;
 }

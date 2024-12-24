@@ -3,14 +3,18 @@
 #include <wchar.h>
 #include "ui/components/menu.h"
 #include "ui/components/func.h"
+#include "ui/components/page.h"
 #include "DataBase/DataBase.h"
 #include "models/Book.h"
+#include "models/Manager.h"
 #include "function.h"
 #include "ui/admin/admin_menu.h"
-#include "ui/components/page.h"
-#include "models/Manager.h"
+#include "ui/student/student_return.h"
 
-extern dataBase bookDb;
+
+
+extern dataBase bookDb, studentDb, borrowDb;
+extern database_index btos;
 
 void admin_book_preInfo(void *arg){
     admin_preInfo(arg);
@@ -143,17 +147,95 @@ void edit_book(void *arg) {
     getch();
 }
 
-void delete_book(void *arg) {
-    book b = (book)arg;
-
-    if (b) {
-        bookDb->rm(bookDb, b->id);
-        bookDb->save(bookDb);
-        printf("删除图书成功\n");
-    } else {
-        printf("图书不存在\n");
+void delete_book(void *arg){
+    book b=(book)arg;
+    if(b){
+        if(b->status==1){
+            printf("书籍已被借出，是否自动归还?(y/n)\n");
+            char a[MAX_INPUT];
+            if(!getaline(a,"qyn")){
+                if(a[0]=='y'){
+                    size_t student_id=find_index(btos,b->id);
+                    student s=studentDb->find_key(studentDb,student_id);
+                    if(s){
+                        printf("强制还书成功\n");
+                        vector borrow_records=load_borrow_records(borrowDb,s->id);
+                        for(size_t i=0; i<borrow_records->size(borrow_records); ++i){
+                            string record=(string)borrow_records->at(borrow_records,i);
+                            size_t borrowed_book_id;
+                            memcpy(&borrowed_book_id,record->c_str(record),sizeof(size_t));
+                            if(borrowed_book_id==b->id){
+                                borrow_records->remove(borrow_records,i);
+                                save_borrow_records(borrowDb,s->id,borrow_records);
+                                borrow_records->free(borrow_records);
+                                s->borrowedCount--;
+                                studentDb->change(studentDb,s->id,s);
+                                break;
+                            }
+                        }
+                    }
+                }
+                bookDb->rm(bookDb,b->id);
+                bookDb->save(bookDb);
+                printf("删除图书成功\n");
+            }
+            else{
+                printf("图书不存在\n");
+            }
+            getch();
+        }
     }
-    getchar();
+}
+
+void view_borrow_info(void *arg){
+    struct{
+        manager m;
+        book b;
+    }*args=arg;
+    book b=args->b;
+    manager m=args->m;
+    admin_preInfo(m);
+
+    if(b->status==1){
+        size_t student_id = find_index(btos, b->id);
+        student s = studentDb->find_key(studentDb, student_id);
+        if (s) {
+            printf("书籍已被借出\n");
+            printf("借阅学生ID: %zu\n", s->id);
+            printf("姓名: %s\n", s->name->c_str(s->name));
+            printf("班级: %s\n", s->class->c_str(s->class));
+            printf("学院: %s\n", s->department->c_str(s->department));
+        } else {
+            printf("未找到借阅学生信息\n");
+        }
+    } else {
+        printf("当前图书书籍未被借出\n");
+    }
+}
+void admin_book_borrow_menu(void *arg){
+    struct{
+        manager m;
+        book b;
+    }*in_args=arg;
+    struct{
+        student s;
+        book b;
+    }out_arg;
+    out_arg.b=in_args->b;
+    size_t student_id=find_index(btos,in_args->b->id);
+    out_arg.s=studentDb->find_key(studentDb,student_id);
+    const wchar_t *choices[]={
+        L"1. 强制还书",
+        L"2. 返回"
+    };
+    int n_choices = sizeof(choices) / sizeof(choices[0]);
+    void (*funcs[])(void *)={
+        view_borrow_info,
+        return_book,
+        NULL
+    };
+    void *args_ptr[] = { arg, &out_arg, NULL };
+    menu(n_choices, choices, funcs, args_ptr);
 }
 
 void book_menu(void *arg) {
@@ -166,16 +248,18 @@ void book_menu(void *arg) {
     const wchar_t *choices[] = {
         L"1. 修改图书",
         L"2. 删除图书",
-        L"3. 返回"
+        L"3. 借阅管理",
+        L"4. 返回"
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
     void (*funcs[])(void *) = {
         admin_preInfo,
         edit_book,
         delete_book,
+        admin_book_borrow_menu,
         NULL
     };
-    void *args_ptr[] = { m, b, b, NULL };
+    void *args_ptr[] = { m, b, b, args, NULL };
     menu(n_choices, choices, funcs, args_ptr);
 }
 
