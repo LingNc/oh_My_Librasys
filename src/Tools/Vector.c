@@ -181,7 +181,7 @@ static vector _vector_init_func(vector this){
     this->at=_vector_at;
     this->size=_vector_size;
     this->find=_vector_find;
-    this->free=_vector_delete;
+    this->free=_vector_clear;
     this->clear=_vector_clear;
     this->data=_vector_data;
     this->in_data=_vector_in_data;

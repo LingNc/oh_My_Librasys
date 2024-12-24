@@ -31,11 +31,7 @@ void init_index(database_index index, const char *filePath, size_t bucket_count)
 void close_index(database_index index) {
     for (size_t i = 0; i < index->bucket_count; ++i) {
         vector bucket = index->buckets[i];
-        for (size_t j = 0; j < bucket->size(bucket); ++j) {
-            pair p = (pair)bucket->at(bucket, j);
-            free_pair(p);
-        }
-        bucket->free(bucket);
+        delete_vector(bucket);
     }
     free(index->buckets);
     delete_string(index->filePath);
@@ -167,10 +163,9 @@ void rebuild_index(database_index index, const char *filePath) {
 void clear_index(database_index index) {
     for (size_t i = 0; i < index->bucket_count; ++i) {
         vector bucket = index->buckets[i];
-        for (size_t j = 0; j < bucket->size(bucket); ++j) {
-            pair p = (pair)bucket->at(bucket, j);
-            free_pair(p);
-        }
+        // for (size_t j = 0; j < bucket->size(bucket); ++j) {
+        //     pair p = (pair)bucket->at(bucket, j);
+        // }
         bucket->clear(bucket);
     }
 }

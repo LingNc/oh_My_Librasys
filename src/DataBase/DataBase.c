@@ -291,9 +291,10 @@ static vector _database_get_find(dataBase this, size_t pos, size_t nums, const v
 // 关闭数据库
 void close_database(dataBase this){
     _database_save(this);
-    this->_buffer->clear(this->_buffer);
-    this->_temp->clear(this->_temp);
-    this->_find_buffer->clear(this->_find_buffer);
+    delete_vector(this->_buffer);
+    delete_vector(this->_buffer_index);
+    delete_vector(this->_temp);
+    delete_vector(this->_find_buffer);
     close_index(this->_index);
     delete_string(this->filePath);
     delete_string(this->_type);
