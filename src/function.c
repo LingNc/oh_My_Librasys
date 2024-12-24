@@ -7,11 +7,12 @@
 #include "models/Manager.h"
 #include "DataBase/DataBase.h"
 #include "ui/components/func.h"
+#include "Tools/Hash.h"
 
 #define TEMP_NUMS 1
 
-extern database_index btos; // 声明外部索引库
-extern dataBase managerDb; //声明外部数据库
+extern database_index btos;
+extern dataBase managerDb,passwordDb;
 
 void clock_times(const char *msg,size_t nums){
     clear_screen();
@@ -125,7 +126,7 @@ void init_root(){
     manager root=managerDb->find_key(managerDb,1);
     if(!root){
         printf("正在初始化管理员\n");
-        printf("默认管理员id为1\n");
+        printf("默认管理员id为 1\n");
         root=new_manager();
         time_t now = time(NULL);
         struct tm *t = localtime(&now);
@@ -134,7 +135,18 @@ void init_root(){
         load_manager(root, 1, "root", date, "system");
         managerDb->add(managerDb, root);
         managerDb->save(managerDb);
+
+        // 初始化密码为"admin"
+        printf("初始化密码为 admin\n");
+        printf("请尽快修改密码\n");
+        string default_password=new_string();
+        default_password->assign_cstr(default_password, "admin");
+        string hashed_password = sha256(default_password);
+        passwordDb->add_key(passwordDb, hashed_password, 1);
+        passwordDb->save(passwordDb);
+
         free_manager(root);
         printf("初始化完毕\n按任意键继续...");
+        getch();
     }
 }

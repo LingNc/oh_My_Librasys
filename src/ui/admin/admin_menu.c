@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <wchar.h>
 #include "ui/components/menu.h"
+#include "ui/components/page.h"
 #include "ui/components/func.h"
+#include "ui/components/passwd.h"
 #include "ui/admin/admin_book.h"
 #include "ui/admin/admin_student.h"
 #include "DataBase/DataBase.h"
 #include "models/Manager.h"
+#include "Tools/Hash.h"
 #include "function.h"
 
-extern dataBase managerDb;
+extern dataBase managerDb,passwordDb;
 
 void admin_preInfo(void *arg){
     manager m = (manager)arg;
@@ -99,33 +102,83 @@ void delete_manager(void *arg) {
     getchar();
 }
 
+bool admin_vertify_password(size_t id) {
+    string stored_hash = passwordDb->find_key(passwordDb, id);
+    if (!stored_hash) {
+        return false;
+    }
+    string input_password = get_password("请验证您的密码: ");
+    string input_hash = sha256(input_password);
+    return strcmp(stored_hash->c_str(stored_hash), input_hash->c_str(input_hash)) == 0;
+}
+
+void edit_password(void *arg) {
+    struct{
+        manager me;
+        manager it;
+    } *args=arg;
+    manager me=args->me;
+    manager it=args->it;
+    clear_screen();
+    printf("修改密码功能\n");
+    // root 账户绝对权限
+    string system=new_string();
+    system->assign_cstr(system,"system");
+    if(it->registered_by->cmp(it->registered_by,system)!=0){
+        // 验证管理员权限
+        if(it->registered_by->cmp(it->registered_by,me->name)!=0){
+            printf("权限不足,该管理员由 %s 管理\n",it->registered_by->c_str(it->registered_by));
+            printf("按任意键继续\n");
+            getch();
+            return;
+        }
+        // 验证管理员密码
+        if (!admin_vertify_password(me->id)) {
+            printf("密码验证失败\n");
+            printf("按任意键继续\n");
+            getch();
+            return;
+        }
+    }
+    string new_password=get_password("请输入新密码: ");
+    string confirm_password = get_password("请再次输入新密码: ");
+    if (strcmp(new_password->c_str(new_password), confirm_password->c_str(confirm_password)) == 0) {
+        string new_hash = sha256(new_password);
+        passwordDb->change(passwordDb, me->id, new_hash);
+        passwordDb->save(passwordDb);
+        printf("密码修改成功\n");
+    } else {
+        printf("两次输入的密码不一致\n");
+    }
+    printf("按任意键继续\n");
+    getch(); // 等待用户按键
+    clear_screen();
+}
+
 void manager_menu(void *arg) {
-    struct {
-        manager m;
+    struct{
+        manager me;
+        manager it;
     } *args = arg;
-    manager m = args->m;
-    const wchar_t *choices[] = {
-        L"1. 修改管理员",
-        L"2. 删除管理员",
-        L"3. 返回"
+    manager me=args->me;
+    manager it=args->it;
+    const wchar_t *choices[]={
+        L"1. 修改信息",
+        L"2. 修改密码",
+        L"3. 删除管理员",
+        L"4. 返回"
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
     void (*funcs[])(void *) = {
         admin_preInfo,
         edit_manager,
+        edit_password,
         delete_manager,
         NULL
     };
-    void *args_ptr[] = { m, m, m, NULL };
-    menu(n_choices, choices, funcs, args_ptr);
-}
 
-void change_password(void *arg) {
-    clear_screen();
-    printf("修改密码功能\n");
-    // 实现修改密码的逻辑
-    getch(); // 等待用户按键
-    clear_screen();
+    void *args_ptr[]={ it,it,args,it,NULL };
+    menu(n_choices, choices, funcs, args_ptr);
 }
 
 void display_manager_list(void *arg) {
@@ -176,9 +229,13 @@ void admin_menu(void *arg) {
         add_book,
         view_manager_list,
         add_manager,
-        change_password,
+        edit_password,
         NULL  // postInfo
     };
-    void *args[] = { m, m, m, m, m, m, m, m, m };
+    struct{
+        manager m0;
+        manager m1;
+    }out_args={m,m};
+    void *args[]={ m,m,m,m,m,m,m,&out_args,m };
     menu(n_choices, choices, funcs, args);
 }

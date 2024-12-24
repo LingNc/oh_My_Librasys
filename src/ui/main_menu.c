@@ -1,11 +1,33 @@
 #include "ui/components/func.h"
+#include "ui/components/passwd.h"
+#include "ui/components/menu.h"
 #include "ui/admin/admin_menu.h"
 #include "ui/student/student_menu.h"
 #include "DataBase/DataBase.h"
 #include "models/Manager.h"
 #include "models/Student.h"
+#include "Tools/Hash.h"
 
-extern dataBase managerDb,studentDb;
+extern dataBase managerDb, studentDb, passwordDb;
+
+bool verify_password(size_t id) {
+    string stored_hash = passwordDb->find_key(passwordDb, id);
+    if (!stored_hash) {
+        printf("密码未设置\n");
+        return false;
+    }
+
+    for (int attempts = 0; attempts < 3; attempts++) {
+        string input_password = get_password("请输入密码: ");
+        string input_hash=sha256(input_password);
+        if(input_hash->cmp(input_hash,stored_hash)==0){
+            return true;
+        } else {
+            printf("密码错误，请重试\n");
+        }
+    }
+    return false;
+}
 
 void login(void *arg){
     clear_screen();
@@ -13,8 +35,8 @@ void login(void *arg){
     size_t id;
     if(is_admin){
         printf("管理员登录\n");
-        printf("账号: ");    }
-    else{
+        printf("账号: ");
+    } else {
         printf("学生登录\n");
         printf("学号: ");
     }
@@ -23,16 +45,19 @@ void login(void *arg){
         return;
     }
     id=(size_t)atoi(idStr);
-    // void *args[] = { &id };
 
     if (is_admin) {
         manager m = managerDb->find_key(managerDb, id);
         if (m) {
-            admin_menu(m);
+            if (verify_password(id)) {
+                admin_menu(m);
+            } else {
+                printf("密码验证失败\n");
+                getch();
+            }
         } else {
             printf("管理员ID不存在请重新输入\n");
             getch();
-            // login(arg);
         }
     } else {
         student s = studentDb->find_key(studentDb, id);
@@ -41,7 +66,6 @@ void login(void *arg){
         } else {
             printf("学号输入有误，请重新输入\n");
             getch();
-            // login(arg);
         }
     }
 }
