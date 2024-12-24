@@ -9,7 +9,6 @@
 dataBase bookDb, studentDb, borrowDb, managerDb;
 database_index btos; // 声明索引库
 
-
 int main(){
     // 使用系统默认语言
     setlocale(LC_ALL,"");
@@ -31,6 +30,15 @@ int main(){
 
     // 进入主菜单
     main_menu();
+
+    // 释放数据库
+    close_database(bookDb);
+    close_database(studentDb);
+    close_database(borrowDb);
+    close_database(managerDb);
+
+    // 释放索引库
+    free_index(btos);
 
     return 0;
 }

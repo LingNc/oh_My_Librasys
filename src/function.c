@@ -99,7 +99,8 @@ void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
         string record = (string)records->at(records, i);
         size_t book_id;
         memcpy(&book_id, record->c_str(record), sizeof(size_t));
-        add_index(btos, book_id, student_id);
+        add_index(btos,book_id,student_id);
+        save_index(btos);
     }
 }
 // 从数据库中加载一个人借阅记录
