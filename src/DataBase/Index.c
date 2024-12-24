@@ -98,9 +98,11 @@ void load_index(database_index index) {
         return;
     }
     size_t indexCount;
-    fread(&indexCount, sizeof(size_t), 1, indexFile);
-    // index->nums = indexCount; // 设置索引数量
-    for (size_t i = 0; i < indexCount; ++i) {
+    // 读取索引数量
+    fread(&indexCount,sizeof(size_t),1,indexFile);
+    // 读取last_key
+    fread(&index->_last_key,sizeof(size_t),1,indexFile);
+    for(size_t i=0; i<indexCount; ++i){
         size_t key, offset;
         fread(&key, sizeof(size_t), 1, indexFile);
         fread(&offset, sizeof(size_t), 1, indexFile);
@@ -118,9 +120,13 @@ void save_index(database_index index) {
         perror("index: 不能打开index文件,可能文件夹不存在\n");
         return;
     }
-    fwrite(&index->nums, sizeof(size_t), 1, indexFile); // 写入索引数量
-    for (size_t i = 0; i < index->bucket_count; ++i) {
-        vector bucket = index->buckets[i];
+    // 写入索引数量
+    fwrite(&index->nums,sizeof(size_t),1,indexFile);
+    // 写入last_key
+    fwrite(&index->_last_key, sizeof(size_t), 1, indexFile);
+    // 写入索引数据
+    for(size_t i=0; i<index->bucket_count; ++i){
+        vector bucket=index->buckets[i];
         for (size_t j = 0; j < bucket->size(bucket); ++j) {
             pair p = (pair)bucket->at(bucket, j);
             size_t key = p->key;

@@ -153,7 +153,7 @@ static void _database_save(dataBase this){
     }
     fclose(file);
     this->_buffer->clear(this->_buffer);
-    this->_buffer_index->clear(this->_buffer_index); // 清空索引缓冲��
+    this->_buffer_index->clear(this->_buffer_index); // 清空索引缓冲区
 
     // 保存索引到单独的文件
     save_index(this->_index);
@@ -247,7 +247,7 @@ static void *_database_find_key(dataBase this,size_t key){
 static vector _database_get(dataBase this,size_t key,size_t nums){
     vector result=new_vector(this->_type->c_str(this->_type));
     size_t count=0;
-    for(size_t i=key; (i<=this->_index->nums)&&(count<nums); ++i){
+    for(size_t i=key; (count<nums)&&(count<this->size(this)); ++i){
         // size_t key=get_index_key(this->_index,i);
         void *data=_database_find_key(this,i);
         if(data){
