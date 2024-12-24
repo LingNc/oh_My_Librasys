@@ -197,7 +197,8 @@ void edit_password(void *arg){
     printf("修改密码功能\n");
     // 鉴权
     if(!admin_authenticate(arg)) return;
-
+    // 验证密码
+    if(!admin_vertify_password(me->id)) return;
     string new_password=get_password("请输入新密码: ");
     string confirm_password = get_password("请再次输入新密码: ");
     if (strcmp(new_password->c_str(new_password), confirm_password->c_str(confirm_password)) == 0) {
