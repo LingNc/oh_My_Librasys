@@ -46,7 +46,7 @@ void return_book(void *arg){
         }
         printf("未找到借阅记录\n");
     } else {
-        printf("学生或书籍不存在\n");
+        printf("该条目不存在，或者书籍或学生不存在\n");
     }
     getch();
 }

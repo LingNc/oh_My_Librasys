@@ -55,9 +55,11 @@ void autocomplete(trie root,char *input,bool *show_matches,int *index,char *pref
         node=node->children[idx];
     }
 
+    // 刷新补全到分支的内容
+    refresh(input-1,index,input-1);
+    // 如果无须补全直接返回
     if(node->is_end_of_word)
-        refresh(input-1,index,input-1);
-
+        return;
     char last_char;
     int children_count=count_children(node,&last_char);
 
@@ -65,17 +67,17 @@ void autocomplete(trie root,char *input,bool *show_matches,int *index,char *pref
         input[(*index)-1]=last_char;
         input[*index]='\0';
         *index+=1;
-        autocomplete(node,input,show_matches,index,prefix+1);
+        autocomplete(node,input,show_matches,index,prefix+len);
     }
     else{
         if(*show_matches){
             // 忽略第一个字符 '/'
             vector matches=find_words(node,input,strlen(input));
-            char oldContent[MAX_COMMAND_LENGTH];
-            strcpy(oldContent,input);
+            char oldContent[MAX_COMMAND_LENGTH]={0};
+            strcpy(oldContent,input-1);
             if(matches->size(matches)>0){
                 char newContent[MAX_COMMAND_LENGTH]={ 0 };
-                strcpy(newContent,input);
+                strcpy(newContent,input-1);
                 strcat(newContent,"\n");
                 for(size_t i=0; i<matches->size(matches); i++){
                     string match=(string)matches->at(matches,i);
@@ -83,16 +85,11 @@ void autocomplete(trie root,char *input,bool *show_matches,int *index,char *pref
                     strcat(newContent,match->c_str(match));
                     strcat(newContent," ");
                 }
-                refresh(input,index,newContent);
+                refresh(input-1,index,newContent);
                 char temp;
-                while(1){
-                    temp=getch();
-                    if(temp!='\t'){
-                        oldContent[*index++]=temp;
-                        refresh(input,index,oldContent);
-                        break;
-                    }
-                }
+                // 按任意键返回
+                getch();
+                refresh(input-1,index,oldContent);
             }
             matches->free(matches);
             *show_matches=false;
@@ -139,8 +136,16 @@ void execute(void **args){
 
     if(search(root,input+1)){ // 忽略第一个字符 '/'
         if(strncmp(input+1,"set",3)==0){
-            *page_size=atoi(input+5);
-            printf("\n每页显示数量已设置为 %d\n",*page_size);
+            int new_size=atoi(input+5);
+            if(new_size>0){
+                *page_size=new_size;
+                *now_page=0;
+                *total_pages=(*total_pages+*page_size-1)/(*page_size);
+                printf("\n每页显示数量已设置为 %d\n",*page_size);
+            }
+            else{
+                printf("\n无效参数 [nums]\n");
+            }
         }
         else if(strcmp(input+1,"help")==0){
             printf("\n输入q退出\n");
@@ -161,7 +166,7 @@ void execute(void **args){
                 *now_page = target_page;
                 printf("\n跳转到第 %d 页\n", target_page + 1);
             } else {
-                printf("\n无效页码\n");
+                printf("\n无效页码 [nums]\n");
             }
         }
     }
