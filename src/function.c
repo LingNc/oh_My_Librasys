@@ -11,7 +11,7 @@
 
 #define TEMP_NUMS 1
 
-extern database_index btos;
+extern database_index btos,stoid;
 extern dataBase managerDb,passwordDb;
 
 void clock_times(const char *msg,size_t nums){
@@ -78,6 +78,8 @@ bool load_students_from_file(const char *filePath, dataBase studentDb) {
         clock_times("加载学生数量:",count);
         if(count%TEMP_NUMS==0){
             studentDb->save(studentDb);
+            // 添加id索引到学号
+            add_index(stoid,studentID,newStudent->id);
         }
     }
 

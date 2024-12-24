@@ -13,7 +13,7 @@
 
 
 extern dataBase studentDb,managerDb,borrowDb,bookDb;
-extern database_index btos;
+extern database_index btos,stoid;
 
 void admin_student_preInfo(void *arg){
     admin_preInfo(arg);
@@ -68,6 +68,8 @@ void add_student_manual(void *arg){
         load_student(s,0,id,name,class,department,0,"","");
         studentDb->add(studentDb,s);
         studentDb->save(studentDb);
+        // 添加id索引到学号
+        add_index(stoid,s->studentID,s->id);
         printf("增加学生成功\n");
         printf("是否继续添加? (y/n)\n");
         // getch();

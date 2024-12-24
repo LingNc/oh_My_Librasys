@@ -9,6 +9,7 @@
 #include "Tools/Hash.h"
 
 extern dataBase managerDb, studentDb, passwordDb;
+extern database_index stoid;
 
 bool verify_password(size_t id) {
     string stored_hash = passwordDb->find_key(passwordDb, id);
@@ -44,8 +45,7 @@ void login(void *arg){
     if(!getaline(idStr,"q")){
         return;
     }
-    id=(size_t)atoi(idStr);
-
+    id=(size_t)atoll(idStr);
     if (is_admin) {
         manager m = managerDb->find_key(managerDb, id);
         if (m) {
@@ -60,6 +60,7 @@ void login(void *arg){
             getch();
         }
     } else {
+        id=find_index(stoid,id);
         student s = studentDb->find_key(studentDb, id);
         if (s) {
             student_menu(s);
