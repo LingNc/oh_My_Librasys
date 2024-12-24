@@ -8,8 +8,10 @@
 #include "ui/command.h"
 #include "function.h"
 
-dataBase bookDb, studentDb, borrowDb, managerDb;
-database_index btos; // 声明索引库
+// 数据库
+dataBase bookDb,studentDb,borrowDb,managerDb,passwordDb;
+// 索引库
+database_index btos;
 
 int main(){
     // 使用系统默认语言
@@ -20,6 +22,7 @@ int main(){
     studentDb = database("db/student", Student);
     borrowDb = database("db/borrow_records", String);
     managerDb=database("db/manager",Manager);
+    passwordDb = database("db/password", String);
 
     // 初始化bookid到studentid 索引库
     btos=new_index("db/btos");
