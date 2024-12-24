@@ -175,3 +175,11 @@ void clear_index(database_index index) {
     }
 }
 
+// 新建索引
+database_index new_index(const char filePath[]){
+    database_index this=(database_index)malloc(sizeof(DataBase_Index));
+    init_index(this,filePath,BUCKET_NUMS);
+    load_index(this);
+    return this;
+}
+

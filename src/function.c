@@ -9,6 +9,8 @@
 
 #define TEMP_NUMS 1
 
+extern database_index btos; // 声明外部索引库
+
 void clock_times(const char *msg,size_t nums){
     clear_screen();
     printf("%s%zu\n",msg,nums);
@@ -89,6 +91,14 @@ void save_borrow_records(dataBase borrowDb, size_t student_id, vector records) {
     allSize+=sizeof(size_t);
     ser_records->append_n(ser_records,data,allSize);
     borrowDb->change(borrowDb,student_id,ser_records);
+
+    // 更新书籍ID到学生ID的索引
+    for (size_t i = 0; i < records->size(records); ++i) {
+        string record = (string)records->at(records, i);
+        size_t book_id;
+        memcpy(&book_id, record->c_str(record), sizeof(size_t));
+        add_index(btos, book_id, student_id);
+    }
 }
 // 从数据库中加载一个人借阅记录
 vector load_borrow_records(dataBase borrowDb, size_t student_id) {

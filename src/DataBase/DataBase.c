@@ -80,7 +80,7 @@ static void _init_all(dataBase this,const char *inPath){
     this->_temp=new_vector(this->_type->c_str(this->_type));
     this->_find_buffer=new_vector(this->_type->c_str(this->_type));
     this->_index=(database_index)malloc(sizeof(DataBase_Index));
-    init_index(this->_index,inPath,100000);
+    init_index(this->_index,inPath,BUCKET_NUMS);
     load_index(this->_index);
     this->_buffer_index=new_vector("size_t"); // 初始化索引缓冲区
 }

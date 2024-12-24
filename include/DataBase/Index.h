@@ -4,6 +4,9 @@
 #include "Tools/Vector.h"
 #include <stdbool.h>
 
+// 默认哈希桶数量
+#define BUCKET_NUMS 100000
+
 typedef struct DataBase_Index DataBase_Index;
 typedef DataBase_Index *database_index;
 
@@ -46,5 +49,8 @@ void rebuild_index(database_index index, const char *filePath);
 
 // 获取第一个未使用的索引键
 size_t get_new_key(database_index index);
+
+// 快速新建以及初始化索引
+database_index new_index(const char filePath[]);
 
 #endif
