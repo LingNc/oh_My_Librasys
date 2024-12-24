@@ -12,7 +12,6 @@
 #include "models/Book.h"
 #include "function.h"
 
-
 void display_page(vector content, int page, int total_pages, int highlight, void *args[]) {
     *(int *)args[1] = *(int *)args[0];
     if ((int)content->size(content) < *(int *)args[1]) {

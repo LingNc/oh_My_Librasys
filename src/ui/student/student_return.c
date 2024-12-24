@@ -15,7 +15,7 @@
 
 extern dataBase studentDb,borrowDb,bookDb;
 
-void return_book(void *arg) {
+void return_book(void *arg){
     struct {
         student s;
         book b;
@@ -48,7 +48,7 @@ void return_book(void *arg) {
     } else {
         printf("学生或书籍不存在\n");
     }
-    getchar();
+    getch();
 }
 
 void return_book_config(void *arg) {

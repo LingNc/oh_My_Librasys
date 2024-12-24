@@ -11,8 +11,6 @@
 #include "ui/student/student_borrow.h"
 #include "ui/student/student_return.h"
 
-#define DEFAULT_PAGE_SIZE 10
-
 extern dataBase studentDb,borrowDb,bookDb;
 
 void display_book_details(void *arg){
