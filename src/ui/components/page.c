@@ -120,7 +120,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
         // 退出
         if(res==-1) break;
         if(choice!=-1&&res==1){
-            if (choice > content->size(content)+1) {
+            if (choice>=0 && (size_t)choice > content->size(content)+1) {
                 printf("无效选择，请重新选择\n");
                 getchar();
             }
