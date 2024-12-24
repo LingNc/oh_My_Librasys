@@ -80,6 +80,7 @@ bool load_students_from_file(const char *filePath, dataBase studentDb) {
             studentDb->save(studentDb);
             // 添加id索引到学号
             add_index(stoid,studentID,newStudent->id);
+            save_index(stoid);
         }
     }
 

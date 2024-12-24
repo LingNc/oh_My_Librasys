@@ -201,7 +201,7 @@ void view_borrow_info(void *arg){
         student s = studentDb->find_key(studentDb, student_id);
         if (s) {
             printf("书籍已被借出\n");
-            printf("借阅学生ID: %zu\n", s->id);
+            printf("借阅学生学号: %zu\n", s->studentID);
             printf("姓名: %s\n", s->name->c_str(s->name));
             printf("班级: %s\n", s->class->c_str(s->class));
             printf("学院: %s\n", s->department->c_str(s->department));
