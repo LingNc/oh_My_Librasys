@@ -4,6 +4,6 @@
 
 #include "Tools/String.h"
 
-string get_password();
+string get_password(const char msg[]);
 
 #endif
