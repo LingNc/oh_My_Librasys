@@ -125,7 +125,11 @@
         "command.h": "c",
         "trie.h": "c",
         "student_return.h": "c",
-        "wchar.h": "c"
+        "wchar.h": "c",
+        "time.h": "c",
+        "admin_book.h": "c",
+        "page.h": "c",
+        "admin_menu.h": "c"
     },
     "makefile.launchConfigurations": [
         {

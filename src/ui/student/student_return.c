@@ -8,8 +8,8 @@
 #include "models/Book.h"
 #include "models/Student.h"
 #include "function.h"
-#include "ui/student_return.h"
-#include "ui/student_borrow.h"
+#include "ui/student/student_return.h"
+#include "ui/student/student_borrow.h"
 
 #define DEFAULT_PAGE_SIZE 10
 

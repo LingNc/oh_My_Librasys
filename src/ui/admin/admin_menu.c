@@ -2,8 +2,8 @@
 #include <wchar.h>
 #include "ui/components/menu.h"
 #include "ui/components/func.h"
-#include "ui/admin_book.h"
-#include "ui/admin_student.h"
+#include "ui/admin/admin_book.h"
+#include "ui/admin/admin_student.h"
 #include "DataBase/DataBase.h"
 #include "models/Manager.h"
 #include "function.h"

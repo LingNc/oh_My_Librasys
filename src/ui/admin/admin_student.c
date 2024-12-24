@@ -6,7 +6,7 @@
 #include "DataBase/DataBase.h"
 #include "models/Student.h"
 #include "function.h"
-#include "ui/admin_menu.h"
+#include "ui/admin/admin_menu.h"
 #include "ui/components/page.h"
 #include "models/Manager.h"
 

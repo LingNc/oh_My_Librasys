@@ -1,6 +1,6 @@
 #include "ui/components/func.h"
-#include "ui/admin_menu.h"
-#include "ui/student_menu.h"
+#include "ui/admin/admin_menu.h"
+#include "ui/student/student_menu.h"
 #include "DataBase/DataBase.h"
 #include "models/Manager.h"
 #include "models/Student.h"
