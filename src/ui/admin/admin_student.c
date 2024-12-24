@@ -213,7 +213,7 @@ void admin_student_borrow_config_preInfo(void *arg){
     manager m=args->m;
     admin_preInfo(m);
     printf("学生信息\n");
-    printf("学生ID: %zu  ",s->id);
+    printf("学号: %zu  ",s->studentID);
     printf("姓名: %s  ",s->name->c_str(s->name));
     printf("班级: %s  ",s->class->c_str(s->class));
     printf("学院: %s  ",s->department->c_str(s->department));

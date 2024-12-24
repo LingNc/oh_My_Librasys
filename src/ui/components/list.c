@@ -26,7 +26,7 @@ void display_one_line(bool isHighlight, string type, void* data) {
 
     if (strcmp(type->c_str(type), "Student") == 0) {
         student temp = (student)data;
-        printf("%-10zu %-20s %-12s %-12s %-10d\n", temp->id, temp->name->c_str(temp->name), temp->class->c_str(temp->class), temp->department->c_str(temp->department), temp->borrowedCount);
+        printf("%-10zu %-20s %-12s %-12s %-10d\n", temp->studentID, temp->name->c_str(temp->name), temp->class->c_str(temp->class), temp->department->c_str(temp->department), temp->borrowedCount);
     } else if (strcmp(type->c_str(type), "Book") == 0) {
         book temp = (book)data;
         printf("%-20s %-30s %-24s %-24s %-10s\n", temp->ISBN->c_str(temp->ISBN), temp->name->c_str(temp->name), temp->author->c_str(temp->author), temp->publisher->c_str(temp->publisher), temp->status==0?"可借":"已借出");
