@@ -162,14 +162,12 @@ void delete_student(void *arg) {
                         }
                     }
                     borrow_records->free(borrow_records);
-                    studentDb->rm(studentDb,s->id);
-                    studentDb->save(studentDb);
-                    printf("删除学生成功\n");
-                    getch();
                 }
             }
-            return;
         }
+        studentDb->rm(studentDb,s->id);
+        studentDb->save(studentDb);
+        printf("删除学生成功\n");
     } else {
         printf("学生不存在\n");
     }

@@ -175,16 +175,16 @@ void delete_book(void *arg){
                         }
                     }
                 }
-                bookDb->rm(bookDb,b->id);
-                bookDb->save(bookDb);
-                printf("删除图书成功\n");
             }
-            else{
-                printf("图书不存在\n");
-            }
-            getch();
         }
+        bookDb->rm(bookDb,b->id);
+        bookDb->save(bookDb);
+        printf("删除图书成功\n");
     }
+    else{
+        printf("图书不存在\n");
+    }
+    getch();
 }
 
 void view_borrow_info(void *arg){
