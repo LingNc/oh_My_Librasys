@@ -23,6 +23,48 @@ void admin_postInfo(void *arg) {
     printf("\n输入/help查看帮助\n");
 }
 
+bool admin_vertify_password(size_t id) {
+    string stored_hash = passwordDb->find_key(passwordDb, id);
+    if (!stored_hash) {
+        return false;
+    }
+    string input_password = get_password("请验证您的密码: ");
+    string input_hash=sha256(input_password);
+    int res=strcmp(stored_hash->c_str(stored_hash),input_hash->c_str(input_hash));
+    if(res==0){
+        return true;
+    }
+    else{
+        printf("密码验证失败\n");
+        printf("按任意键继续\n");
+        getch();
+        return false;
+    }
+}
+
+// 权限认证
+bool admin_authenticate(void* arg){
+    struct{
+        manager me;
+        manager it;
+    }*args=arg;
+    manager me=args->me;
+    manager it=args->it;
+    // root 账户绝对权限
+    string system=new_string();
+    system->assign_cstr(system,"system");
+    if(me->registered_by->cmp(me->registered_by,system)!=0){
+        // 验证管理员权限
+        if(it->registered_by->cmp(it->registered_by,me->name)!=0){
+            printf("权限不足,该管理员由 %s 管理\n",it->registered_by->c_str(it->registered_by));
+            printf("按任意键继续\n");
+            getch();
+            return false;
+        }
+    }
+    return true;
+}
+
 void add_manager(void *arg){
     manager m=(manager)arg;
     while(1){
@@ -52,7 +94,30 @@ void add_manager(void *arg){
         load_manager(newM, id, name, date, m->name->c_str(m->name));
         managerDb->add(managerDb, newM);
         managerDb->save(managerDb);
-        printf("增加管理员成功\n");
+
+        // 设置密码
+        bool password_set = false;
+        for (int attempts = 0; attempts < 3; attempts++) {
+            string password = get_password("请输入密码: ");
+            string confirm_password = get_password("请确认密码: ");
+            if (strcmp(password->c_str(password), confirm_password->c_str(confirm_password)) == 0) {
+                string hashed_password = sha256(password);
+                passwordDb->add_key(passwordDb, hashed_password, id);
+                passwordDb->save(passwordDb);
+                printf("增加管理员成功\n");
+                password_set = true;
+                break;
+            } else {
+                printf("两次输入的密码不一致，请重试\n");
+            }
+        }
+
+        if (!password_set) {
+            printf("密码设置失败，管理员添加失败\n");
+            managerDb->rm(managerDb, id);
+            managerDb->save(managerDb);
+        }
+
         printf("是否继续添加? (y/n)\n");
         // 清空输入缓冲区
         char a[MAX_INPUT];
@@ -67,21 +132,30 @@ void add_manager(void *arg){
 }
 
 void edit_manager(void *arg) {
-    manager m = (manager)arg;
+    struct{
+        manager me;
+        manager it;
+    } *args = arg;
+    manager me=args->me;
+    manager it=args->it;
 
-    if (m) {
-        clear_screen();
+    if (it) {
         printf("修改管理员功能\n");
         char name[50];
 
-        printf("当前姓名: %s\n", m->name->c_str(m->name));
+        // 鉴权
+        if(!admin_authenticate(arg)) return;
+        // 验证密码
+        if(!admin_vertify_password(me->id)) return;
+
+        printf("当前姓名: %s\n",it->name->c_str(it->name));
         printf("请输入新的姓名: ");
         if (!getaline(name, "q")) {
             return;
         }
 
-        m->name->assign_cstr(m->name, name);
-        managerDb->change(managerDb, m->id, m);
+        it->name->assign_cstr(it->name, name);
+        managerDb->change(managerDb, it->id, it);
         printf("\n修改管理员成功\n");
     } else {
         printf("\n管理员不存在\n");
@@ -90,10 +164,19 @@ void edit_manager(void *arg) {
 }
 
 void delete_manager(void *arg) {
-    manager m = (manager)arg;
+    struct{
+        manager me;
+        manager it;
+    } *args=arg;
+    manager me=args->me;
+    manager it=args->it;
 
-    if (m) {
-        managerDb->rm(managerDb, m->id);
+    if(it){
+        // 鉴权
+        if(!admin_authenticate(arg)) return;
+        // 验证密码
+        if(!admin_vertify_password(me->id)) return;
+        managerDb->rm(managerDb,it->id);
         managerDb->save(managerDb);
         printf("删除管理员成功\n");
     } else {
@@ -102,17 +185,8 @@ void delete_manager(void *arg) {
     getchar();
 }
 
-bool admin_vertify_password(size_t id) {
-    string stored_hash = passwordDb->find_key(passwordDb, id);
-    if (!stored_hash) {
-        return false;
-    }
-    string input_password = get_password("请验证您的密码: ");
-    string input_hash = sha256(input_password);
-    return strcmp(stored_hash->c_str(stored_hash), input_hash->c_str(input_hash)) == 0;
-}
 
-void edit_password(void *arg) {
+void edit_password(void *arg){
     struct{
         manager me;
         manager it;
@@ -121,30 +195,14 @@ void edit_password(void *arg) {
     manager it=args->it;
     clear_screen();
     printf("修改密码功能\n");
-    // root 账户绝对权限
-    string system=new_string();
-    system->assign_cstr(system,"system");
-    if(it->registered_by->cmp(it->registered_by,system)!=0){
-        // 验证管理员权限
-        if(it->registered_by->cmp(it->registered_by,me->name)!=0){
-            printf("权限不足,该管理员由 %s 管理\n",it->registered_by->c_str(it->registered_by));
-            printf("按任意键继续\n");
-            getch();
-            return;
-        }
-        // 验证管理员密码
-        if (!admin_vertify_password(me->id)) {
-            printf("密码验证失败\n");
-            printf("按任意键继续\n");
-            getch();
-            return;
-        }
-    }
+    // 鉴权
+    if(!admin_authenticate(arg)) return;
+
     string new_password=get_password("请输入新密码: ");
     string confirm_password = get_password("请再次输入新密码: ");
     if (strcmp(new_password->c_str(new_password), confirm_password->c_str(confirm_password)) == 0) {
         string new_hash = sha256(new_password);
-        passwordDb->change(passwordDb, me->id, new_hash);
+        passwordDb->change(passwordDb, it->id, new_hash);
         passwordDb->save(passwordDb);
         printf("密码修改成功\n");
     } else {
@@ -152,7 +210,6 @@ void edit_password(void *arg) {
     }
     printf("按任意键继续\n");
     getch(); // 等待用户按键
-    clear_screen();
 }
 
 void manager_menu(void *arg) {
@@ -177,7 +234,7 @@ void manager_menu(void *arg) {
         NULL
     };
 
-    void *args_ptr[]={ it,it,args,it,NULL };
+    void *args_ptr[]={ it,args,args,args,NULL };
     menu(n_choices, choices, funcs, args_ptr);
 }
 
