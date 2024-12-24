@@ -16,7 +16,9 @@ database_index btos,stoid;
 int main(){
     // 使用系统默认语言
     setlocale(LC_ALL,"");
-
+    // 初始化数据库文件夹
+    create_folder("db");
+    
     // 初始化数据库
     bookDb = database("db/book", Book);
     studentDb = database("db/student", Student);

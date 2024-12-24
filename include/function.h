@@ -20,4 +20,7 @@ void save_borrow_records(dataBase borrowDb, size_t student_id, vector records);
 // 初始化root账户
 void init_root();
 
+// 创建文件夹
+void create_folder(const char *path);
+
 #endif
