@@ -19,6 +19,19 @@ void admin_preInfo(void *arg){
            m->id, m->name->c_str(m->name), m->registration_date->c_str(m->registration_date), m->registered_by->c_str(m->registered_by), managerDb->size(managerDb));
 }
 
+void admin_other_preInfo(void *arg){
+    struct{
+        manager me;
+        manager it;
+    }*args=arg;
+    manager me=args->me;
+    manager it=args->it;
+    admin_preInfo(me);
+
+    printf("选中账号: \nID: %zu, 姓名: %s, 注册日期: %s, 注册人: %s\n",
+           it->id, it->name->c_str(it->name), it->registration_date->c_str(it->registration_date), it->registered_by->c_str(it->registered_by));
+}
+
 void admin_postInfo(void *arg) {
     printf("\n输入/help查看帮助\n");
 }
@@ -79,6 +92,11 @@ void add_manager(void *arg){
         }
         id = (size_t)atoll(idStr);
 
+        if(managerDb->find_key(managerDb, id)){
+            printf("管理员ID已存在，请重新输入\n");
+            getch();
+            continue;
+        }
         printf("请输入姓名: ");
         if (!getaline(name, "q")) {
             return;
@@ -138,7 +156,7 @@ void edit_manager(void *arg) {
     } *args = arg;
     manager me=args->me;
     manager it=args->it;
-
+    clear_screen();
     if (it) {
         printf("修改管理员功能\n");
         char name[50];
@@ -170,7 +188,7 @@ void delete_manager(void *arg) {
     } *args=arg;
     manager me=args->me;
     manager it=args->it;
-
+    clear_screen();
     if(it){
         // 鉴权
         if(!admin_authenticate(arg)) return;
@@ -182,7 +200,8 @@ void delete_manager(void *arg) {
     } else {
         printf("管理员不存在\n");
     }
-    getchar();
+    printf("按任意键继续\n");
+    getch();
 }
 
 
@@ -228,14 +247,14 @@ void manager_menu(void *arg) {
     };
     int n_choices = sizeof(choices) / sizeof(choices[0]);
     void (*funcs[])(void *) = {
-        admin_preInfo,
+        admin_other_preInfo,
         edit_manager,
         edit_password,
         delete_manager,
         NULL
     };
 
-    void *args_ptr[]={ it,args,args,args,NULL };
+    void *args_ptr[]={ args,args,args,args,NULL };
     menu(n_choices, choices, funcs, args_ptr);
 }
 
