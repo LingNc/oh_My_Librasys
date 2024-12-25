@@ -247,7 +247,7 @@ static void *_database_find_key(dataBase this,size_t key){
 static vector _database_get(dataBase this,size_t key,size_t nums){
     vector result=new_vector(this->_type->c_str(this->_type));
     size_t count=0;
-    for(size_t i=key; (count<nums)&&(count<this->size(this)); ++i){
+    for(size_t i=key; (count<nums)&&(count<this->size(this))&&i<=this->size(this); ++i){
         // size_t key=get_index_key(this->_index,i);
         void *data=_database_find_key(this,i);
         if(data){
