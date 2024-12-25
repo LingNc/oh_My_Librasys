@@ -14,6 +14,7 @@ struct Book {
     string publisher;
     string time;
     int status; // 1: 可借, 0: 已借出
+    size_t borrowData;
 
     // 序列化数据
     string _serialize;

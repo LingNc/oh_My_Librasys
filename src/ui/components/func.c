@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #ifdef _WIN32
 #include <conio.h>
 #else
@@ -103,4 +104,13 @@ bool getaline(char str[],char eof[]){
         }
     }
     return true;
+}
+
+const char* str_time(const char* format, time_t timestamp) {
+    static char buffer[100];
+    struct tm *tm_info;
+    time_t t = timestamp;
+    tm_info = localtime(&t);
+    strftime(buffer, 100, format, tm_info);
+    return buffer;
 }
