@@ -7,8 +7,8 @@
 #include "DataBase/DataBase.h"
 #include "models/Student.h"
 #include "models/Manager.h"
-#include "ui/admin_menu.h"
-#include "ui/student_menu.h"
+#include "ui/admin/admin_menu.h"
+#include "ui/student/student_menu.h"
 #include "ui/command.h"
 
 extern dataBase studentDb, managerDb;

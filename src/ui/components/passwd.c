@@ -3,12 +3,12 @@
 #include "ui/components/passwd.h"
 #include "ui/components/func.h"
 
-string get_password(){
+string get_password(const char msg[]){
     int i=0;
     char ch;
     string password=new_string();
 
-    printf("请输入密码: ");
+    printf("%s",msg);
     while(1){
         // 禁用回显读取字符
         ch=getch();

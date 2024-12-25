@@ -1,118 +1,53 @@
+#include <stdio.h>
+#include <locale.h>
 #include "DataBase/DataBase.h"
-#include "models/uiBook.h"
 #include "models/Book.h"
 #include "models/Student.h"
 #include "models/Manager.h"
-#include "function.h"
-#include "ui/components/func.h"
-#include "ui/components/menu.h"
-#include "ui/admin_menu.h"
-#include "ui/student_menu.h"
-#include "ui/components/page.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <locale.h>
-#include "time.h"
+#include "ui/main_menu.h"
 #include "ui/command.h"
-#include "ui/admin_book.h"
-#include "ui/admin_student.h"
+#include "function.h"
 
-dataBase bookDb, studentDb, borrowDb, managerDb;
+// 数据库
+dataBase bookDb,studentDb,borrowDb,managerDb,passwordDb;
+// 索引库
+database_index btos,stoid;
 
-void login(void *arg){
-    clear_screen();
-    bool is_admin = *(bool *)arg;
-    size_t id;
-    if(is_admin){
-        printf("管理员登录\n");
-        printf("账号: ");    }
-    else{
-        printf("学生登录\n");
-        printf("学号: ");
-    }
-    char idStr[MAX_INPUT];
-    if(!getaline(idStr,"q")){
-        return;
-    }
-    id=(size_t)atoi(idStr);
-    // void *args[] = { &id };
-
-    if (is_admin) {
-        manager m = managerDb->find_key(managerDb, id);
-        if (m) {
-            admin_menu(m);
-        } else {
-            printf("管理员ID不存在请重新输入\n");
-            getch();
-            // login(arg);
-        }
-    } else {
-        student s = studentDb->find_key(studentDb, id);
-        if (s) {
-            student_menu(s);
-        } else {
-            printf("学号输入有误，请重新输入\n");
-            getch();
-            // login(arg);
-        }
-    }
-}
-
-void preInfo(void *arg) {
-    printf("欢迎使用图书管理系统\n");
-    time_t now = time(NULL);
-    struct tm *t = localtime(&now);
-    printf("当前时间: %02d:%02d\n", t->tm_hour, t->tm_min);
-    printf("请选择一个选项：\n");
-}
-
-void main_menu() {
-    const wchar_t *choices[] = {
-        L"1. 学生入口",
-        L"2. 管理员入口",
-        L"3. 退出"
-    };
-    int n_choices = sizeof(choices) / sizeof(choices[0]);
-    void (*funcs[])(void *) = {
-        preInfo, // preInfo
-        login,
-        login,
-        NULL  // postInfo
-    };
-    bool is_admin[] = { false, true };
-    void *args[] = { NULL, &is_admin[0], &is_admin[1], NULL };
-    menu(n_choices, choices, funcs, args);
-}
-
-int main() {
-    setlocale(LC_ALL, "");
-
+int main(){
+    // 使用系统默认语言
+    setlocale(LC_ALL,"");
+    // 初始化数据库文件夹
+    create_folder("db");
+    
+    // 初始化数据库
     bookDb = database("db/book", Book);
     studentDb = database("db/student", Student);
     borrowDb = database("db/borrow_records", String);
-    managerDb = database("db/manager", Manager);
+    managerDb=database("db/manager",Manager);
+    passwordDb = database("db/password", String);
+
+    // 初始化bookid到studentid索引库
+    btos=new_index("db/btos");
+    // 初始化id到studentid索引库
+    stoid=new_index("db/stoid");
 
     // 初始化自动补全
     init_autocomplete();
 
     // 初始化根管理用户
-    manager root = managerDb->find_key(managerDb, 1);
-    if(!root){
-        printf("正在初始化管理员\n");
-        printf("默认管理员id为1\n");
-        root=new_manager();
-        time_t now = time(NULL);
-        struct tm *t = localtime(&now);
-        char date[20];
-        strftime(date, sizeof(date), "%Y-%m-%d", t);
-        load_manager(root, 1, "root", date, "system");
-        managerDb->add(managerDb, root);
-        managerDb->save(managerDb);
-        free_manager(root);
-    }
+    init_root();
 
+    // 进入主菜单
     main_menu();
+
+    // // 释放数据库
+    // close_database(bookDb);
+    // close_database(studentDb);
+    // close_database(borrowDb);
+    // close_database(managerDb);
+
+    // // 释放索引库
+    // close_index(btos);
 
     return 0;
 }

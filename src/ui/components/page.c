@@ -12,7 +12,6 @@
 #include "models/Book.h"
 #include "function.h"
 
-
 void display_page(vector content, int page, int total_pages, int highlight, void *args[]) {
     *(int *)args[1] = *(int *)args[0];
     if ((int)content->size(content) < *(int *)args[1]) {
@@ -47,7 +46,7 @@ int handle_page_input(int *page, int total_pages, int *highlight, int *choice, v
         }
         break;
     case 'w':
-        *highlight = (*highlight - 1) % lineSize; // 上移光标
+        *highlight = (*highlight - 1 + lineSize) % lineSize; // 上移光标
         break;
     case 's':
         *highlight = (*highlight + 1) % lineSize; // 下移光标
@@ -84,7 +83,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
         // 是否显示已借书籍
         if(*(bool *)arg[3]){
             dataBase borrowDb=arg[4];
-            vector temp=load_borrow_records(borrowDb,((student)arg[0])->id);
+            vector temp=load_borrow_records(borrowDb,((student)arg[5])->id);
             for(size_t i=0; i<temp->size(temp); ++i){
                 string t=(string)temp->at(temp,i);
                 size_t book_id;
@@ -121,7 +120,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
         // 退出
         if(res==-1) break;
         if(choice!=-1&&res==1){
-            if (choice > content->size(content)+1) {
+            if (choice>=0 && (size_t)choice > content->size(content)+1) {
                 printf("无效选择，请重新选择\n");
                 getchar();
             }

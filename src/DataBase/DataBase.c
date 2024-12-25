@@ -80,24 +80,28 @@ static void _init_all(dataBase this,const char *inPath){
     this->_temp=new_vector(this->_type->c_str(this->_type));
     this->_find_buffer=new_vector(this->_type->c_str(this->_type));
     this->_index=(database_index)malloc(sizeof(DataBase_Index));
-    init_index(this->_index,inPath,100000);
+    init_index(this->_index,inPath,BUCKET_NUMS);
     load_index(this->_index);
     this->_buffer_index=new_vector("size_t"); // 初始化索引缓冲区
 }
 
 // 添加数据,自动索引
 static void _database_add(dataBase this,void *data){
-    size_t newKey=get_new_key(this->_index,this->_buffer); // 获取第一个未使用的唯一编号id
-    *(size_t *)data=newKey;
-    this->_buffer->push_back(this->_buffer,data);
-    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索引缓冲区
+    size_t newKey = get_new_key(this->_index); // 获取第一个未使用的唯一编号id
+    *(size_t *)data = newKey;
+    this->_buffer->push_back(this->_buffer, data);
+    this->_buffer_index->push_back(this->_buffer_index, &newKey); // 将新键值对存入索引缓冲区
+    // this->_index->_last_key = newKey; // 更新_last_key
 }
 
 // 添加数据,根据读入数据自动索引
 static void _database_add_auto(dataBase this,void *data){
-    size_t newKey=*(size_t *)data; // 从数据中读取id
-    this->_buffer->push_back(this->_buffer,data);
-    this->_buffer_index->push_back(this->_buffer_index,&newKey); // 将新键值对存入索引缓冲区
+    size_t newKey = *(size_t *)data; // 从数据中读取id
+    this->_buffer->push_back(this->_buffer, data);
+    this->_buffer_index->push_back(this->_buffer_index, &newKey); // 将新键值对存入索引缓冲区
+    // if (newKey > this->_index->_last_key) {
+    //     this->_index->_last_key = newKey; // 更新_last_key
+    // }
 }
 
 // 添加数据,手动索引
@@ -243,7 +247,7 @@ static void *_database_find_key(dataBase this,size_t key){
 static vector _database_get(dataBase this,size_t key,size_t nums){
     vector result=new_vector(this->_type->c_str(this->_type));
     size_t count=0;
-    for(size_t i=key; (i<=this->_index->nums)&&(count<nums); ++i){
+    for(size_t i=key; (count<nums)&&(count<this->size(this)); ++i){
         // size_t key=get_index_key(this->_index,i);
         void *data=_database_find_key(this,i);
         if(data){
@@ -287,9 +291,10 @@ static vector _database_get_find(dataBase this, size_t pos, size_t nums, const v
 // 关闭数据库
 void close_database(dataBase this){
     _database_save(this);
-    this->_buffer->clear(this->_buffer);
-    this->_temp->clear(this->_temp);
-    this->_find_buffer->clear(this->_find_buffer);
+    delete_vector(this->_buffer);
+    delete_vector(this->_buffer_index);
+    delete_vector(this->_temp);
+    delete_vector(this->_find_buffer);
     close_index(this->_index);
     delete_string(this->filePath);
     delete_string(this->_type);
@@ -339,7 +344,7 @@ void clean_database(dataBase this){
 }
 
 // 获取取下标个索引键
-size_t get_new_key(database_index index,vector buffer);
+size_t get_new_key(database_index index);
 
 // 修改数据
 static bool _database_change(dataBase this,size_t id,void *new_data){
