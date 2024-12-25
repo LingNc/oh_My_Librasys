@@ -52,6 +52,11 @@ void add_student_manual(void *arg){
             return;
         }
         id=(size_t)atoll(idStr);
+        if(studentDb->find_key(studentDb,id)){
+            printf("学生ID已存在，请重新输入\n");
+            getch();
+            continue;
+        }
         printf("请输入姓名: ");
         if(!getaline(name,"q")){
             return;
@@ -71,7 +76,7 @@ void add_student_manual(void *arg){
         // 添加id索引到学号
         add_index(stoid,s->studentID,s->id);
         save_index(stoid);
-        
+
         printf("增加学生成功\n");
         printf("是否继续添加? (y/n)\n");
         // getch();
@@ -236,11 +241,16 @@ void admin_student_config(void *arg){
     book b=args->b;
 
     struct{
-        student s;
-        book b;
-    }return_args;
-    return_args.s=s;
-    return_args.b=b;
+        manager from;
+        struct{
+            student s;
+            book b;
+        }*info;
+    }*return_args=malloc(sizeof(*return_args));
+    return_args->from=m;
+    return_args->info=malloc(sizeof(*return_args->info));
+    return_args->info->s=s;
+    return_args->info->b=b;
 
     const wchar_t *choices[]={
         L"1. 强制还书",
@@ -253,7 +263,7 @@ void admin_student_config(void *arg){
         NULL
     };
 
-    void *args_ptr[]={ m,&return_args,NULL };
+    void *args_ptr[]={ m,return_args,NULL };
     menu(n_choices, choices, funcs, args_ptr);
 }
 

@@ -64,9 +64,7 @@ bool admin_authenticate(void* arg){
     manager me=args->me;
     manager it=args->it;
     // root 账户绝对权限
-    string system=new_string();
-    system->assign_cstr(system,"system");
-    if(me->registered_by->cmp(me->registered_by,system)!=0){
+    if(me->id!=1){
         // 验证管理员权限
         if(it->registered_by->cmp(it->registered_by,me->name)!=0){
             printf("权限不足,该管理员由 %s 管理\n",it->registered_by->c_str(it->registered_by));

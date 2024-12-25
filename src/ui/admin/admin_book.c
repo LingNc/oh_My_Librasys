@@ -217,13 +217,20 @@ void admin_book_borrow_menu(void *arg){
         manager m;
         book b;
     }*in_args=arg;
-    struct{
-        student s;
-        book b;
-    }out_arg;
-    out_arg.b=in_args->b;
     size_t student_id=find_index(btos,in_args->b->id);
-    out_arg.s=studentDb->find_key(studentDb,student_id);
+    student s=studentDb->find_key(studentDb,student_id);
+    struct{
+        manager from;
+        struct{
+            student s;
+            book b;
+        }*info;
+    }*return_args=malloc(sizeof(*return_args));
+    return_args->from=in_args->m;
+    return_args->info=malloc(sizeof(*return_args->info));
+    return_args->info->s=s;
+    return_args->info->b=in_args->b;
+
     const wchar_t *choices[]={
         L"1. 强制还书",
         L"2. 返回"
@@ -234,7 +241,7 @@ void admin_book_borrow_menu(void *arg){
         return_book,
         NULL
     };
-    void *args_ptr[] = { arg, &out_arg, NULL };
+    void *args_ptr[] = { arg, return_args, NULL };
     menu(n_choices, choices, funcs, args_ptr);
 }
 
