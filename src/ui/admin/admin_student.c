@@ -13,7 +13,7 @@
 
 
 extern dataBase studentDb,managerDb,borrowDb,bookDb;
-extern database_index btos;
+extern database_index btos,stoid;
 
 void admin_student_preInfo(void *arg){
     admin_preInfo(arg);
@@ -68,6 +68,10 @@ void add_student_manual(void *arg){
         load_student(s,0,id,name,class,department,0,"","");
         studentDb->add(studentDb,s);
         studentDb->save(studentDb);
+        // 添加id索引到学号
+        add_index(stoid,s->studentID,s->id);
+        save_index(stoid);
+        
         printf("增加学生成功\n");
         printf("是否继续添加? (y/n)\n");
         // getch();
@@ -160,14 +164,12 @@ void delete_student(void *arg) {
                         }
                     }
                     borrow_records->free(borrow_records);
-                    studentDb->rm(studentDb,s->id);
-                    studentDb->save(studentDb);
-                    printf("删除学生成功\n");
-                    getch();
                 }
             }
-            return;
         }
+        studentDb->rm(studentDb,s->id);
+        studentDb->save(studentDb);
+        printf("删除学生成功\n");
     } else {
         printf("学生不存在\n");
     }
@@ -213,7 +215,7 @@ void admin_student_borrow_config_preInfo(void *arg){
     manager m=args->m;
     admin_preInfo(m);
     printf("学生信息\n");
-    printf("学生ID: %zu  ",s->id);
+    printf("学号: %zu  ",s->studentID);
     printf("姓名: %s  ",s->name->c_str(s->name));
     printf("班级: %s  ",s->class->c_str(s->class));
     printf("学院: %s  ",s->department->c_str(s->department));

@@ -8,10 +8,17 @@
 #include "DataBase/DataBase.h"
 #include "ui/components/func.h"
 #include "Tools/Hash.h"
+#ifdef _WIN32
+#include <direct.h>  // Windows 系统
+#include <io.h>      // Windows 系统
+#else
+#include <sys/stat.h>  // POSIX 系统
+#include <unistd.h>    // POSIX 系统
+#endif
 
 #define TEMP_NUMS 1
 
-extern database_index btos;
+extern database_index btos,stoid;
 extern dataBase managerDb,passwordDb;
 
 void clock_times(const char *msg,size_t nums){
@@ -78,6 +85,9 @@ bool load_students_from_file(const char *filePath, dataBase studentDb) {
         clock_times("加载学生数量:",count);
         if(count%TEMP_NUMS==0){
             studentDb->save(studentDb);
+            // 添加id索引到学号
+            add_index(stoid,studentID,newStudent->id);
+            save_index(stoid);
         }
     }
 
@@ -149,4 +159,37 @@ void init_root(){
         printf("初始化完毕\n按任意键继续...");
         getch();
     }
+}
+
+
+
+// 创建文件夹的函数
+void create_folder(const char *path) {
+    // 检查目录是否存在
+#ifdef _WIN32
+    if (_access(path, 0) == 0) {
+        printf("文件夹 '%s' 已存在。\n", path);
+        return;
+    }
+#else
+    if (access(path, F_OK) == 0) {
+        printf("文件夹 '%s' 已存在。\n", path);
+        return;
+    }
+#endif
+
+    // 创建目录
+#ifdef _WIN32
+    if (_mkdir(path) == 0) {
+        printf("文件夹 %s 创建成功。\n", path);
+    } else {
+        perror("创建 %s 文件夹失败",path);
+    }
+#else
+    if (mkdir(path, 0755) == 0) {
+        printf("文件夹 %s 创建成功。\n", path);
+    } else {
+        perror("创建 %s 文件夹失败");
+    }
+#endif
 }

@@ -23,8 +23,8 @@ void display_book_details(void *arg){
     time_t now=time(NULL);
     struct tm *t=localtime(&now);
     printf("当前时间: %02d:%02d\n",t->tm_hour,t->tm_min);
-    printf("学生信息: ID: %zu, 姓名: %s, 班级: %s, 学院: %s, 借阅数量: %d\n\n",
-        s->id,s->name->c_str(s->name),s->class->c_str(s->class),s->department->c_str(s->department),s->borrowedCount);
+    printf("学生信息: 学号: %zu, 姓名: %s, 班级: %s, 学院: %s, 借阅数量: %d\n\n",
+        s->studentID,s->name->c_str(s->name),s->class->c_str(s->class),s->department->c_str(s->department),s->borrowedCount);
     if(b->id==0){
         printf("未选择图书信息\n");
         return;
