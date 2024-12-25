@@ -42,11 +42,12 @@ void display_one_line(bool isHighlight, string type, void* data) {
             time_t overTime=(returnTime-nowTime);
             if(overTime<0) overTime=-overTime;
             time_t days=overTime/86400;
+            time_t hours=(overTime-days*86400)/3600;
             if(nowTime>returnTime){
-                printf("%-10s %zu天%s\n","已逾期",days,str_time("%H小时",overTime));
+                printf("%-10s %zu天%zu小时\n","已逾期",days,hours);
             }
             else{
-                printf("%-10s 剩余%zu天%s\n","已借出",days,str_time("%H小时归还",overTime));
+                printf("%-10s 剩余%zu天%zu小时归还\n","已借出",days,hours);
             }
         }
         else{

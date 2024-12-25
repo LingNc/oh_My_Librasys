@@ -98,7 +98,8 @@ book _book_copy(book this,book other){
     this->author->assign(this->author, other->author);
     this->publisher->assign(this->publisher, other->publisher);
     this->time->assign(this->time, other->time);
-    this->status = other->status;
+    this->status=other->status;
+    this->borrowData=other->borrowData;
     return this;
 }
 
