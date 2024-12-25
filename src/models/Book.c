@@ -21,7 +21,7 @@ const char *_book_data(book this) {
     size_t len = sizeof(this->id) + sizeof(size_t) + this->ISBN->length(this->ISBN) +
                  sizeof(size_t) + this->name->length(this->name) + sizeof(size_t) + this->author->length(this->author) +
                  sizeof(size_t) + this->publisher->length(this->publisher) + sizeof(size_t) + this->time->length(this->time) +
-                 sizeof(this->status);
+                 sizeof(this->status) + sizeof(this->borrowData);
     this->_serialize->append_n(this->_serialize, (const char*)&len, sizeof(len));
     this->_serialize->append_n(this->_serialize, (const char*)&this->id, sizeof(this->id));
 
@@ -46,6 +46,7 @@ const char *_book_data(book this) {
     this->_serialize->append_n(this->_serialize, this->time->c_str(this->time), str_len);
 
     this->_serialize->append_n(this->_serialize, (const char*)&this->status, sizeof(this->status));
+    this->_serialize->append_n(this->_serialize, (const char*)&this->borrowData, sizeof(this->borrowData));
 
     return this->_serialize->c_str(this->_serialize);
 }
@@ -84,6 +85,8 @@ void _book_in_data(book this, const char *data) {
 
     memcpy(&this->status, data + ptr, sizeof(this->status));
     ptr += sizeof(this->status);
+    memcpy(&this->borrowData, data + ptr, sizeof(this->borrowData));
+    ptr += sizeof(this->borrowData);
 
 }
 
@@ -136,8 +139,9 @@ book _book_init(book this) {
     this->publisher = new_string();
     this->time = new_string();
     this->_serialize = new_string();
-    this->status = 0;
-    this->init = _book_init;
+    this->status=0;
+    this->borrowData=0;
+    this->init=_book_init;
     this->data = _book_data;
     this->in_data = _book_in_data;
     this->copy = _book_copy;
