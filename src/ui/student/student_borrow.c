@@ -56,6 +56,7 @@ void borrow_book(void *arg){
 
         s->borrowedCount++;
         b->status=1;
+        b->borrowData=timestamp;
         studentDb->change(studentDb,s->id,s);
         bookDb->change(bookDb,b->id,b);
         printf("借书成功\n");

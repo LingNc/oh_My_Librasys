@@ -7,6 +7,7 @@
 #include "DataBase/DataBase.h"
 #include "models/Book.h"
 #include "models/Student.h"
+#include "models/Manager.h"
 #include "function.h"
 #include "ui/student/student_return.h"
 #include "ui/student/student_borrow.h"
@@ -17,12 +18,15 @@ extern dataBase studentDb,borrowDb,bookDb;
 
 void return_book(void *arg){
     struct {
-        student s;
-        book b;
+        manager from;
+        struct{
+            student s;
+            book b;
+        }*info;
     } *args = arg;
-
-    student s = args->s;
-    book b = args->b;
+    manager from = args->from;
+    student s = args->info->s;
+    book b = args->info->b;
 
     if (s && b) {
         vector borrow_records = load_borrow_records(borrowDb, s->id);
@@ -30,14 +34,24 @@ void return_book(void *arg){
             string record = (string)borrow_records->at(borrow_records, i);
             size_t borrowed_book_id;
             memcpy(&borrowed_book_id, record->c_str(record), sizeof(size_t));
-            if (borrowed_book_id == b->id) {
-                borrow_records->remove(borrow_records, i);
+            if(borrowed_book_id==b->id){
+                if(!from&&b->borrowData+MAX_BORROW_TIME<(size_t)time(NULL)){
+                    size_t overTime=(time(NULL)-b->borrowData)/86400;
+                    printf("已经逾期%zu天，无法归还，请联系管理员\n",overTime);
+                    size_t price=overTime/10;
+                    printf("并缴纳管理费用：%zu元\n",price);
+                    printf("按任意键继续\n");
+                    getch();
+                    return;
+                }
+                borrow_records->remove(borrow_records,i);
                 save_borrow_records(borrowDb, s->id, borrow_records);
                 borrow_records->free(borrow_records);
 
                 s->borrowedCount--;
-                b->status = 0;
-                studentDb->change(studentDb, s->id, s);
+                b->status=0;
+                b->borrowData=0;
+                studentDb->change(studentDb,s->id,s);
                 bookDb->change(bookDb, b->id, b);
                 printf("还书成功\n");
                 getch();
@@ -72,10 +86,18 @@ void return_book_config(void *arg) {
             student_postInfo
         };
         struct {
-            student s;
-            book b;
-        } args = { s, b };
-        void *args_ptr[] = { &args, &args, s };
+            manager from;
+            struct{
+                student s;
+                book b;
+            }*info;
+        }*return_args=malloc(sizeof(*return_args));
+        return_args->from=NULL;
+        return_args->info=malloc(sizeof(*return_args->info));
+        return_args->info->s=s;
+        return_args->info->b=b;
+
+        void *args_ptr[]={ args,return_args,s };
         menu(n_choices, choices, funcs, args_ptr);
     } else {
         printf("学生或书籍不存在\n");
