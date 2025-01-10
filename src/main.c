@@ -1,74 +1,53 @@
-#include "UI/menu.h"
-#include "UI/screen.h"
-#include "UI/utils.h"
+#include <stdio.h>
+#include <locale.h>
 #include "DataBase/DataBase.h"
-#include "uiBook.h"
-#include "Book.h"
+#include "models/Book.h"
+#include "models/Student.h"
+#include "models/Manager.h"
+#include "ui/main_menu.h"
+#include "ui/command.h"
+#include "function.h"
 
+// 数据库
+dataBase bookDb,studentDb,borrowDb,managerDb,passwordDb;
+// 索引库
+database_index btos,stoid;
 
-extern Screen (*screen_functions[])();
-
-// dataBase bookDb,studentDb;
-// uibook *bookArray ;
-// uistudent *studentArray;
 int main(){
-    bookDb=database("db/book.bin",Book);
-    studentDb=database("db/student.bin",Student);
-    //dataBase test=database("db/test.bin",Book);
+    // 使用系统默认语言
+    setlocale(LC_ALL,"");
+    // 初始化数据库文件夹
+    create_folder("db");
+    
+    // 初始化数据库
+    bookDb = database("db/book", Book);
+    studentDb = database("db/student", Student);
+    borrowDb = database("db/borrow_records", String);
+    managerDb=database("db/manager",Manager);
+    passwordDb = database("db/password", String);
 
-    // 取前1000个图书信息
-    size_t bookIndexCount = bookDb->_index->nums;
+    // 初始化bookid到studentid索引库
+    btos=new_index("db/btos");
+    // 初始化id到studentid索引库
+    stoid=new_index("db/stoid");
 
-    size_t bookReadCount = bookIndexCount < 1000 ? bookIndexCount : 1000;
+    // 初始化自动补全
+    init_autocomplete();
 
-    if (bookReadCount > 0)
-    {
-        bookArray = (uibook *)malloc(bookReadCount * sizeof(uibook));
-        for (size_t i = 0; i < bookReadCount; ++i)
-        {
-            book data=bookDb->find_key(bookDb,i);
-            if(data)
-            {
-                bookArray[i] = new_from_book(data);
-            }
-        }
-    }
+    // 初始化根管理用户
+    init_root();
 
-    // 读取前1000个学生信息
-    size_t studentIndexCount = studentDb->_index->nums;
-    size_t studentReadCount = studentIndexCount < 1000 ? studentIndexCount : 1000;
-    if (studentReadCount > 0)
-    {
-        studentArray = (uistudent *)malloc(studentReadCount * sizeof(uistudent));
-        for (size_t i = 0; i < studentReadCount; ++i)
-        {
-            student data = studentDb->find_key(studentDb, i);
-            if (data)
-            {
-                studentArray[i] = new_from_student(data);
-            }
-        }
-    }
-    Stack *stack=(Stack *)calloc(1,sizeof(Stack));
-    stack->top=-1;
-    Screen cur_screen=MAIN;
-    init_all();
-    while (1)
-    {
-        Screen next_screen = screen_functions[cur_screen]();
-        switch(next_screen)
-        {
-        case BACK:
-            cur_screen = pop_screen(stack);
-            break;
-        case EXIT:
-            free(stack);
-            endwin();
-            return 0;
-        default:
-            push_screen(stack, cur_screen);
-            cur_screen = next_screen;
-            break;
-        }
-    }
+    // 进入主菜单
+    main_menu();
+
+    // // 释放数据库
+    // close_database(bookDb);
+    // close_database(studentDb);
+    // close_database(borrowDb);
+    // close_database(managerDb);
+
+    // // 释放索引库
+    // close_index(btos);
+
+    return 0;
 }

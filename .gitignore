@@ -16,14 +16,16 @@
 test/
 
 !**/*.md
+!assets/
+!assets/**/*
+!image.png
+
 
 # 必须排除的部分
 **/test.c
+copilot/
 # windows编译文件
 */*.exe
 # 密钥文件
 */*key*
 
-!assets/
-!assets/**/*
-!image.png

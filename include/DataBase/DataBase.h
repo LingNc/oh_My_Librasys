@@ -15,8 +15,11 @@ struct DataBase {
     string _type;
     // 数据库文件路径
     string filePath;
+    string _inPath;
     // 数据录入缓冲区
     vector _buffer;
+    // 数据录入索引缓冲区
+    vector _buffer_index;
     // 临时缓冲区
     vector _temp;
     // 查找结果缓冲区
@@ -24,22 +27,28 @@ struct DataBase {
     // 数据库索引
     database_index _index;
 
-    // 添加数据
+    // 添加数据,自动分配键值对
     void (*add)(dataBase, void *);
+    // 自动根据,id作为键值对
+    void (*add_auto)(dataBase,void*);
+    // 自定义键值对添加
+    void (*add_key)(dataBase,void*,size_t key);
     // 删除数据
-    void (*rm)(dataBase, size_t);
+    void (*rm)(dataBase,size_t);
+    // 修改数据
+    bool (*change)(dataBase,size_t id,void *new);
     // 保存数据库到文件
     void (*save)(dataBase);
-    // 查找数据
-    Vector* (*find)(dataBase, const void *);
+    // 查找符合条件的前nums的数据，返回下一个键值位置的键值索引
+    size_t (*find)(dataBase, size_t nums, const void *);
     // 通过键查找数据
     void *(*find_key)(dataBase,size_t);
     // 从_find_buffer 得到索引，从第pos开始，nums个东西
     // 如果为空返回size为0的vector
-    Vector *(*get_find)(dataBase,size_t pos,size_t nums);
+    Vector *(*get_find)(dataBase, size_t pos, size_t nums, const void *data);
     // 从数据库根据key 得到索引，从第pos开始，nums个东西
     // 如果为空返回size为0的vector
-    Vector *(*get)(dataBase,size_t pos,size_t nums);
+    Vector *(*get)(dataBase,size_t key,size_t nums);
     // 获得数据大小
     size_t(*size)(dataBase);
     // 清理数据库
@@ -47,7 +56,7 @@ struct DataBase {
 };
 
 // 加载数据库
-dataBase load_database(const char *filePath, const char *type);
+dataBase load_database(const char *inPath, const char *type);
 
 // 关闭数据库
 void close_database(dataBase this);
@@ -56,7 +65,7 @@ void close_database(dataBase this);
 void clean_database(dataBase this);
 
 // 获取下一个索引键
-size_t get_next_index_key(database_index index);
+size_t get_new_key(database_index index);
 
 #define database(filePath, type) load_database(filePath, #type)
 #endif

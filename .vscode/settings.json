@@ -110,7 +110,27 @@
         "screen.h": "c",
         "check.h": "c",
         "database.h": "c",
-        "index.h": "c"
+        "index.h": "c",
+        "ccomplex": "c",
+        "cerrno": "c",
+        "cfloat": "c",
+        "climits": "c",
+        "ios": "c",
+        "queue": "c",
+        "cstdbool": "c",
+        "pair.h": "c",
+        "manager.h": "c",
+        "student_menu.h": "c",
+        "func.h": "c",
+        "command.h": "c",
+        "trie.h": "c",
+        "student_return.h": "c",
+        "wchar.h": "c",
+        "time.h": "c",
+        "admin_book.h": "c",
+        "page.h": "c",
+        "admin_menu.h": "c",
+        "admin_student.h": "c"
     },
     "makefile.launchConfigurations": [
         {
@@ -137,6 +157,12 @@
             "cwd": "/home/LingNc/oh_My_Librasys",
             "binaryPath": "/home/LingNc/oh_My_Librasys/main",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lea/study/c/oh_My_Librasys",
+            "binaryPath": "/home/lea/study/c/oh_My_Librasys/main",
+            "binaryArgs": []
         }
-    ]
+    ],
+    "makefile.makefilePath": ""
 }

@@ -4,6 +4,9 @@
 #include "Tools/Vector.h"
 #include <stdbool.h>
 
+// 默认哈希桶数量
+#define BUCKET_NUMS 100000
+
 typedef struct DataBase_Index DataBase_Index;
 typedef DataBase_Index *database_index;
 
@@ -14,6 +17,7 @@ struct DataBase_Index {
     size_t bucket_count; // 哈希桶数量
     vector *buckets; // 哈希桶数组
     size_t nums; // 索引数量
+    size_t _last_key; //最后一个索引
 };
 
 // 初始化索引
@@ -43,7 +47,10 @@ void remove_index(database_index index, size_t key);
 // 重建索引
 void rebuild_index(database_index index, const char *filePath);
 
-// 获取最后一个索引键
-size_t get_last_index_key(database_index index);
+// 获取第一个未使用的索引键
+size_t get_new_key(database_index index);
+
+// 快速新建以及初始化索引
+database_index new_index(const char filePath[]);
 
 #endif

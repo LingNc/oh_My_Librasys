@@ -12,9 +12,11 @@ static size_t default_hash_func(size_t key) {
 void init_index(database_index index, const char *filePath, size_t bucket_count) {
     index->filePath = new_string();
     index->filePath->assign_cstr(index->filePath, filePath);
+    // index->filePath->append_cstr(index->filePath,".idx");
     index->hash = default_hash_func;
     index->bucket_count = bucket_count;
     index->nums = 0; // 初始化索引数量
+    index->_last_key = 0; // 初始化_last_key
     index->buckets = (vector *)malloc(bucket_count * sizeof(vector));
     if (!index->buckets) {
         perror("Index: buckets 指针分配失败");
@@ -29,11 +31,7 @@ void init_index(database_index index, const char *filePath, size_t bucket_count)
 void close_index(database_index index) {
     for (size_t i = 0; i < index->bucket_count; ++i) {
         vector bucket = index->buckets[i];
-        for (size_t j = 0; j < bucket->size(bucket); ++j) {
-            pair p = (pair)bucket->at(bucket, j);
-            free_pair(p);
-        }
-        bucket->free(bucket);
+        delete_vector(bucket);
     }
     free(index->buckets);
     delete_string(index->filePath);
@@ -63,6 +61,9 @@ void add_index(database_index index, size_t key, size_t offset) {
     init_pairs(p, key, offset);
     bucket->push_back(bucket, p);
     index->nums++; // 增加索引数量
+    if (key > index->_last_key) {
+        index->_last_key = key; // 更新_last_key
+    }
 }
 
 // 删除键值对
@@ -74,26 +75,16 @@ void remove_index(database_index index, size_t key) {
         pair p = (pair)bucket->at(bucket, i);
         if (p->key == key) {
             bucket->remove(bucket, i);
-            free_pair(p);
+            // free_pair(p);
             index->nums--; // 减少索引数量
             return;
         }
     }
 }
 
-// 获取最后一个索引键
-size_t get_last_index_key(database_index index) {
-    size_t lastKey = 0;
-    for (size_t i = 0; i < index->bucket_count; ++i) {
-        vector bucket = index->buckets[i];
-        for (size_t j = 0; j < bucket->size(bucket); ++j) {
-            pair p = (pair)bucket->at(bucket, j);
-            if (p->key > lastKey) {
-                lastKey = p->key;
-            }
-        }
-    }
-    return lastKey;
+// 获取下一个未使用的索引键
+size_t get_new_key(database_index index){
+    return index->_last_key + 1;
 }
 
 // 从文件加载索引
@@ -102,14 +93,16 @@ void load_index(database_index index) {
     snprintf(indexFilePath, sizeof(indexFilePath), "%s.idx", index->filePath->c_str(index->filePath));
     FILE *indexFile = fopen(indexFilePath, "rb");
     if (!indexFile) {
-        perror("DataBase: 无法打开索引文件进行读取，正在初始化新索引");
+        perror("index: 无法打开索引文件进行读取，正在初始化新索引\n");
         init_index(index, index->filePath->c_str(index->filePath), index->bucket_count);
         return;
     }
     size_t indexCount;
-    fread(&indexCount, sizeof(size_t), 1, indexFile);
-    // index->nums = indexCount; // 设置索引数量
-    for (size_t i = 0; i < indexCount; ++i) {
+    // 读取索引数量
+    fread(&indexCount,sizeof(size_t),1,indexFile);
+    // 读取last_key
+    fread(&index->_last_key,sizeof(size_t),1,indexFile);
+    for(size_t i=0; i<indexCount; ++i){
         size_t key, offset;
         fread(&key, sizeof(size_t), 1, indexFile);
         fread(&offset, sizeof(size_t), 1, indexFile);
@@ -124,12 +117,16 @@ void save_index(database_index index) {
     snprintf(indexFilePath, sizeof(indexFilePath), "%s.idx", index->filePath->c_str(index->filePath));
     FILE *indexFile = fopen(indexFilePath, "wb");
     if (!indexFile) {
-        perror("Failed to open index file for writing");
+        perror("index: 不能打开index文件,可能文件夹不存在\n");
         return;
     }
-    fwrite(&index->nums, sizeof(size_t), 1, indexFile); // 写入索引数量
-    for (size_t i = 0; i < index->bucket_count; ++i) {
-        vector bucket = index->buckets[i];
+    // 写入索引数量
+    fwrite(&index->nums,sizeof(size_t),1,indexFile);
+    // 写入last_key
+    fwrite(&index->_last_key, sizeof(size_t), 1, indexFile);
+    // 写入索引数据
+    for(size_t i=0; i<index->bucket_count; ++i){
+        vector bucket=index->buckets[i];
         for (size_t j = 0; j < bucket->size(bucket); ++j) {
             pair p = (pair)bucket->at(bucket, j);
             size_t key = p->key;
@@ -146,7 +143,7 @@ void rebuild_index(database_index index, const char *filePath) {
     clear_index(index);
     FILE *file = fopen(filePath, "rb");
     if (!file) {
-        perror("DataBase: 无法打开文件进行读取");
+        perror("index: 无法打开文件进行读取");
         return;
     }
     fseek(file, sizeof(size_t), SEEK_SET); // 跳过数据数量
@@ -172,11 +169,18 @@ void rebuild_index(database_index index, const char *filePath) {
 void clear_index(database_index index) {
     for (size_t i = 0; i < index->bucket_count; ++i) {
         vector bucket = index->buckets[i];
-        for (size_t j = 0; j < bucket->size(bucket); ++j) {
-            pair p = (pair)bucket->at(bucket, j);
-            free_pair(p);
-        }
+        // for (size_t j = 0; j < bucket->size(bucket); ++j) {
+        //     pair p = (pair)bucket->at(bucket, j);
+        // }
         bucket->clear(bucket);
     }
+}
+
+// 新建索引
+database_index new_index(const char filePath[]){
+    database_index this=(database_index)malloc(sizeof(DataBase_Index));
+    init_index(this,filePath,BUCKET_NUMS);
+    load_index(this);
+    return this;
 }
 
