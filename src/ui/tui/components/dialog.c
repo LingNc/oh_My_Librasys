@@ -211,3 +211,38 @@ void tui_toast(const char *fmt, ...) {
 
     napms(800);
 }
+
+void tui_progress(const char *title, const char *stage, size_t done, size_t total) {
+    ui_frame frame;
+    if (!ui_frame_begin(title ? title : "正在导入", "请稍候…", &frame)) {
+        ui_frame_end();
+        return;
+    }
+
+    if (total == 0) total = 1;
+    if (done > total) done = total;
+
+    ui_puts(frame.y0, frame.x0, frame.w, stage ? stage : "处理中",
+            theme_attr(UI_PAIR_TITLE));
+
+    int bar_width = frame.w - 2;
+    if (bar_width > 60) bar_width = 60;
+    if (bar_width < 10) bar_width = frame.w;
+    int bar_y = frame.y0 + 2;
+    if (bar_y >= frame.y1) bar_y = frame.y1 - 1;
+    int filled = (int)((double)done * (double)bar_width / (double)total);
+
+    ui_puts(bar_y, frame.x0, 1, "[", theme_attr(UI_PAIR_HINT));
+    for (int i = 0; i < bar_width; ++i) {
+        wchar_t cell = i < filled ? L'█' : L'░';
+        ui_puts_w(bar_y, frame.x0 + 1 + i, 1, &cell,
+                  i < filled ? theme_attr(UI_PAIR_OK) : theme_attr(UI_PAIR_HINT));
+    }
+    ui_puts(bar_y, frame.x0 + bar_width + 1, 1, "]", theme_attr(UI_PAIR_HINT));
+
+    char count[96];
+    snprintf(count, sizeof(count), "%zu / %zu  (%zu%%)", done, total,
+             (done * 100) / total);
+    ui_puts(bar_y + 1, frame.x0, frame.w, count, theme_attr(UI_PAIR_NORMAL));
+    ui_frame_end();
+}

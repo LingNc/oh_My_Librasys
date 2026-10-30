@@ -9,6 +9,7 @@
 #include "service/admin.h"
 #include "service/auth.h"
 #include "service/format.h"
+#include "service/import.h"
 #include "ui/tui/components/dialog.h"
 #include "ui/tui/components/form.h"
 #include "ui/tui/components/menu.h"
@@ -37,6 +38,21 @@ static const char *positive_id(const char *value) {
 static void show_result(admin_op_result result) {
     if (result.status == ADMIN_OP_OK) tui_info("操作成功", "%s", result.message);
     else tui_error("操作失败", "%s", result.message);
+}
+
+static void import_progress(const char *stage, size_t done, size_t total,
+                            void *context) {
+    tui_progress((const char *)context, stage, done, total);
+}
+
+static void show_import_result(import_result result) {
+    if (result.ok) {
+        tui_info("导入完成", "%s\n共导入 %zu 条记录。", result.message, result.imported);
+    } else if (result.line != 0) {
+        tui_error("导入失败", "第 %zu 行：%s", result.line, result.message);
+    } else {
+        tui_error("导入失败", "%s", result.message);
+    }
 }
 
 static bool verify_current_password(manager current) {
@@ -278,6 +294,27 @@ void tui_admin_change_password(manager current) {
     };
     if (tui_form("修改密码", fields, 2, "Tab/↑↓ 切换  Enter 保存  Esc 取消") == TUI_FORM_OK)
         show_result(admin_change_password(current, current, password, confirmation));
+}
+
+static void import_file(const char *title, bool students) {
+    char path[256] = "";
+    tui_field field = { "文件路径", path, sizeof(path), 0, required };
+    if (tui_form(title, &field, 1, "Enter 导入  Esc 返回") != TUI_FORM_OK) return;
+
+    import_result result = students
+        ? import_students_file(path, import_progress, (void *)title)
+        : import_books_file(path, import_progress, (void *)title);
+    show_import_result(result);
+}
+
+void tui_admin_import_books(manager current) {
+    (void)current;
+    import_file("批量导入图书", false);
+}
+
+void tui_admin_import_students(manager current) {
+    (void)current;
+    import_file("批量导入学生", true);
 }
 
 void tui_admin_books(manager current) { books_table(current); }

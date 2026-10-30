@@ -34,7 +34,9 @@ void tui_admin_menu(manager user) {
         "5. 管理员管理",
         "6. 增加管理员",
         "7. 修改密码",
-        "8. 退出登录",
+        "8. 批量导入学生",
+        "9. 批量导入图书",
+        "10. 退出登录",
     };
 
     tui_menu_spec spec = {
@@ -48,7 +50,7 @@ void tui_admin_menu(manager user) {
 
     for (;;) {
         int choice = tui_menu(&spec);
-        if (choice < 0 || choice == 7) return;
+        if (choice < 0 || choice == 9) return;
         switch (choice) {
         case 0: tui_admin_students(user); break;
         case 1: tui_admin_add_student(user); break;
@@ -57,6 +59,8 @@ void tui_admin_menu(manager user) {
         case 4: tui_admin_managers(user); break;
         case 5: tui_admin_add_manager(user); break;
         case 6: tui_admin_change_password(user); break;
+        case 7: tui_admin_import_students(user); break;
+        case 8: tui_admin_import_books(user); break;
         default: tui_error("错误", "未知菜单项"); break;
         }
     }
