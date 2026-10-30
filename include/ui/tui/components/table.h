@@ -28,11 +28,19 @@ typedef struct {
 
     size_t page_size;                /* 0 → 默认 10 */
     const char *hint;                /* 状态栏提示，可为 NULL */
+    bool enable_command;             /* true 时按 / 返回 TUI_RESULT_COMMAND */
 
     /* 选中当前行后调用；返回 true 表示继续留在表格，false 表示返回调用方 */
     bool (*on_enter)(void *ctx, size_t row);
 } tui_table_spec;
 
 long tui_table(const tui_table_spec *spec);
+
+/* 全局默认每页行数（/set 命令使用） */
+size_t tui_table_default_page_size(void);
+void tui_table_set_default_page_size(size_t size);
+
+/* 下一次重绘时跳转到指定页（0 起），/page 命令使用 */
+void tui_table_request_page(size_t page);
 
 #endif // _tui_component_table_h

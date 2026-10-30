@@ -13,6 +13,23 @@
 #define TABLE_DEFAULT_PAGE 10
 #define TABLE_DEFAULT_HINT "↑↓/jk 移动  ←→/hl 翻页  Enter 查看  q 返回"
 
+static size_t g_default_page = TABLE_DEFAULT_PAGE;
+static bool g_pending_page = false;
+static size_t g_pending_page_value = 0;
+
+size_t tui_table_default_page_size(void) {
+    return g_default_page;
+}
+
+void tui_table_set_default_page_size(size_t size) {
+    if (size > 0) g_default_page = size;
+}
+
+void tui_table_request_page(size_t page) {
+    g_pending_page = true;
+    g_pending_page_value = page;
+}
+
 /* 画一行表头 */
 static void draw_header(const tui_table_spec *spec, const ui_frame *f, int y) {
     if (!spec->headers || y >= f->y1) return;
@@ -69,7 +86,7 @@ long tui_table(const tui_table_spec *spec) {
     if (!spec || !spec->row_count || !spec->row_text || spec->ncols == 0) return -1;
 
     const char *hint = spec->hint ? spec->hint : TABLE_DEFAULT_HINT;
-    size_t page_size = spec->page_size ? spec->page_size : TABLE_DEFAULT_PAGE;
+    size_t page_size = spec->page_size ? spec->page_size : tui_table_default_page_size();
 
     size_t total = spec->row_count(spec->ctx);
     size_t page = 0;
@@ -83,6 +100,15 @@ long tui_table(const tui_table_spec *spec) {
         if (total_pages == 0) total_pages = 1;
         if (page >= total_pages) page = total_pages - 1;
 
+        /* 命令面板 /page 请求的跳转，只生效一次 */
+        if (g_pending_page) {
+            page_size = spec->page_size ? spec->page_size : tui_table_default_page_size();
+            total_pages = (total + page_size - 1) / page_size;
+            if (total_pages == 0) total_pages = 1;
+            page = g_pending_page_value < total_pages ? g_pending_page_value : total_pages - 1;
+            hl = 0;
+            g_pending_page = false;
+        }
         ui_frame f;
         if (!ui_frame_begin(spec->title, hint, &f)) {
             tui_key k0 = tui_read_key();
@@ -124,6 +150,7 @@ long tui_table(const tui_table_spec *spec) {
         tui_key k = tui_read_key();
 
         if (k.type == TUI_KEY_RESIZE) continue;
+        if (spec->enable_command && tui_is_char(k, L'/')) return TUI_RESULT_COMMAND;
         if (tui_is_cancel(k)) return -1;
         if (tui_is_prev(k)) {
             if (hl > 0) --hl;

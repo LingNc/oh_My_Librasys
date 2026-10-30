@@ -8,6 +8,9 @@
 #define UI_MIN_COLS 60
 #define UI_MIN_ROWS 16
 
+/* 组件返回的特殊值：用户按 / 请求打开命令面板 */
+#define TUI_RESULT_COMMAND (-2)
+
 /*
  * 帧布局：
  *   ┌──────────────────────────────┐  第 0 行：标题栏

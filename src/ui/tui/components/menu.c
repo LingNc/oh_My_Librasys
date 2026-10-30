@@ -62,6 +62,7 @@ int tui_menu(const tui_menu_spec *spec) {
         tui_key k = tui_read_key();
 
         if (k.type == TUI_KEY_RESIZE) continue;
+        if (spec->enable_command && tui_is_char(k, L'/')) return TUI_RESULT_COMMAND;
         if (tui_is_cancel(k)) return -1;
         if (tui_is_enter(k)) return hl;
         if (tui_is_prev(k)) {

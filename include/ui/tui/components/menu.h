@@ -21,6 +21,7 @@ typedef struct {
     int (*post_info)(void *ctx, const ui_frame *f, int y);  /* 可为 NULL */
     void *ctx;
     const char *hint;                     /* 状态栏提示，可为 NULL */
+    bool enable_command;                  /* true 时按 / 返回 TUI_RESULT_COMMAND */
 } tui_menu_spec;
 
 int tui_menu(const tui_menu_spec *spec);
