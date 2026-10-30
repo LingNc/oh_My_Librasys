@@ -42,6 +42,18 @@ TUI_WIDTH_OBJECT := $(BUILD_DIR)/src/ui/tui/width.o
 TUI_WIDTH_TEST   := $(BUILD_DIR)/test_tui_width
 UNIT_TEST_TARGETS += $(TUI_WIDTH_TEST)
 
+# 借还业务测试：链接数据层、模型、service 与 function.o（均不依赖 ncurses）
+BORROW_TEST := $(BUILD_DIR)/test_borrow_service
+BORROW_TEST_SUPPORT := \
+	$(filter $(BUILD_DIR)/src/DataBase/% $(BUILD_DIR)/src/Tools/% \
+		$(BUILD_DIR)/src/models/% $(BUILD_DIR)/src/service/%,$(APP_OBJECTS)) \
+	$(BUILD_DIR)/src/function.o $(BUILD_DIR)/src/ui/components/func.o
+UNIT_TEST_TARGETS += $(BORROW_TEST)
+
+$(BORROW_TEST): test/test_borrow_service.c $(BORROW_TEST_SUPPORT)
+	@mkdir -p $(@D)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(BORROW_TEST_SUPPORT) $(LDFLAGS) $(LDLIBS) -o $@
+
 $(TUI_WIDTH_TEST): test/test_tui_width.c $(TUI_WIDTH_OBJECT)
 	@mkdir -p $(@D)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ $(LDFLAGS) -o $@
@@ -69,9 +81,12 @@ test: $(UNIT_TEST_TARGETS)
 	@set -e; for test in $(UNIT_TEST_TARGETS); do ./$$test; done
 
 # 只跑 TUI 的纯逻辑测试（不依赖 ncurses，也不受 test_vector 已知问题影响）
-.PHONY: test-tui test-import-files
+.PHONY: test-tui test-import-files test-borrow
 test-tui: $(TUI_WIDTH_TEST)
 	./$(TUI_WIDTH_TEST)
+
+test-borrow: $(BORROW_TEST)
+	./$(BORROW_TEST)
 
 test-import-files:
 	sh test/test_import_files.sh
