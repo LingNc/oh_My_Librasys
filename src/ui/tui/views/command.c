@@ -223,6 +223,12 @@ void tui_handle_command(void) {
 
 /* ------------------------------------------------------------- 搜索结果 */
 
+/* 供搜索结果表格内嵌调用的命令入口 */
+static void run_command(void *ctx) {
+    (void)ctx;
+    tui_handle_command();
+}
+
 typedef struct {
     search_keys found;
     size_t cached_row;
@@ -290,9 +296,10 @@ void tui_show_book_search(const char *keyword) {
     static const char *const headers[] = { "ID", "ISBN", "书名", "作者", "状态" };
     static const int widths[] = { 8, 18, 28, 18, 10 };
     tui_table_spec spec = {
-        "搜索结果 · 图书", headers, widths, 5,
-        search_rows, search_book_row, &ctx, 0,
-        "↑↓/jk 移动  q 返回  / 命令", true, NULL,
+        .title = "搜索结果 · 图书", .headers = headers, .col_widths = widths, .ncols = 5,
+        .row_count = search_rows, .row_text = search_book_row, .ctx = &ctx, .page_size = 0,
+        .hint = "↑↓/jk 移动  q 返回  / 命令", .enable_command = true,
+        .on_command = run_command,
     };
     tui_table(&spec);
 
@@ -314,9 +321,10 @@ void tui_show_student_search(const char *keyword) {
     static const char *const headers[] = { "学号", "姓名", "班级", "学院", "已借" };
     static const int widths[] = { 14, 18, 20, 24, 8 };
     tui_table_spec spec = {
-        "搜索结果 · 学生", headers, widths, 5,
-        search_rows, search_student_row, &ctx, 0,
-        "↑↓/jk 移动  q 返回  / 命令", true, NULL,
+        .title = "搜索结果 · 学生", .headers = headers, .col_widths = widths, .ncols = 5,
+        .row_count = search_rows, .row_text = search_student_row, .ctx = &ctx, .page_size = 0,
+        .hint = "↑↓/jk 移动  q 返回  / 命令", .enable_command = true,
+        .on_command = run_command,
     };
     tui_table(&spec);
 

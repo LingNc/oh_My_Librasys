@@ -26,6 +26,11 @@ static int draw_admin_info(void *ctx, const ui_frame *f, int y) {
     return y + 3;
 }
 
+static void run_command(void *ctx) {
+    (void)ctx;
+    tui_handle_command();
+}
+
 void tui_admin_menu(manager user) {
     static const char *const items[] = {
         "1. 学生管理",
@@ -49,6 +54,7 @@ void tui_admin_menu(manager user) {
         .ctx = user,
         .hint = "↑↓/jk 选择  Enter 确认  q 返回  / 命令",
         .enable_command = true,
+        .on_command = run_command,
     };
 
     for (;;) {

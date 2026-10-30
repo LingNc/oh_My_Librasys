@@ -8,6 +8,11 @@
 #include "ui/tui/views/student_borrow.h"
 #include "ui/tui/views/command.h"
 
+static void run_command(void *ctx) {
+    (void)ctx;
+    tui_handle_command();
+}
+
 static int draw_student_info(void *ctx, const ui_frame *f, int y) {
     student user = ctx;
     char info[512];
@@ -39,6 +44,7 @@ void tui_student_menu(student user) {
         .ctx = user,
         .hint = "↑↓/jk 选择  Enter 确认  q 返回  / 命令",
         .enable_command = true,
+        .on_command = run_command,
     };
 
     for (;;) {

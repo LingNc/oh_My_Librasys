@@ -243,6 +243,11 @@ static bool manager_action(void *ctx, size_t row) {
     return false;
 }
 
+static void run_command(void *ctx) {
+    (void)ctx;
+    tui_handle_command();
+}
+
 static void books_table(manager current) {
     for (;;) {
         crud_context ctx = { admin_book_keys(), CRUD_BOOK, (size_t)-1, NULL, current };
@@ -250,8 +255,9 @@ static void books_table(manager current) {
         static const int widths[] = { 8, 18, 28, 18, 12 };
         tui_table_spec spec = {
             .title = "图书管理", .headers = headers, .col_widths = widths, .ncols = 5,
-            .row_count = rows_count, .row_text = book_row, .ctx = &ctx, .page_size = 10,
+            .row_count = rows_count, .row_text = book_row, .ctx = &ctx, .page_size = 0,
             .hint = "↑↓/jk 移动  Enter 操作  q 返回", .enable_command = true,
+            .on_command = run_command,
             .on_enter = book_action,
         };
         long selected = tui_table(&spec);
@@ -269,8 +275,9 @@ static void students_table(manager current) {
         static const int widths[] = { 14, 18, 20, 24, 8 };
         tui_table_spec spec = {
             .title = "学生管理", .headers = headers, .col_widths = widths, .ncols = 5,
-            .row_count = rows_count, .row_text = student_row, .ctx = &ctx, .page_size = 10,
+            .row_count = rows_count, .row_text = student_row, .ctx = &ctx, .page_size = 0,
             .hint = "↑↓/jk 移动  Enter 操作  q 返回", .enable_command = true,
+            .on_command = run_command,
             .on_enter = student_action,
         };
         long selected = tui_table(&spec);
@@ -288,8 +295,9 @@ static void managers_table(manager current) {
         static const int widths[] = { 8, 20, 22, 20 };
         tui_table_spec spec = {
             .title = "管理员管理", .headers = headers, .col_widths = widths, .ncols = 4,
-            .row_count = rows_count, .row_text = manager_row, .ctx = &ctx, .page_size = 10,
+            .row_count = rows_count, .row_text = manager_row, .ctx = &ctx, .page_size = 0,
             .hint = "↑↓/jk 移动  Enter 操作  q 返回", .enable_command = true,
+            .on_command = run_command,
             .on_enter = manager_action,
         };
         long selected = tui_table(&spec);

@@ -86,6 +86,11 @@ static void show_about(void) {
              "快捷键      / 命令面板    Tab 补全    Enter 确认    q/Esc 返回");
 }
 
+static void run_command(void *ctx) {
+    (void)ctx;
+    tui_handle_command();
+}
+
 int tui_main_menu(void) {
     static const char *const items[] = {
         "1. 学生入口",
@@ -102,6 +107,7 @@ int tui_main_menu(void) {
         .pre_info = draw_welcome,
         .hint = "↑↓/jk 选择  Enter 确认  q 退出  / 命令",
         .enable_command = true,
+        .on_command = run_command,
         .center = true,
         .vcenter = true,
     };

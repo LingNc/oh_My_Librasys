@@ -9,6 +9,11 @@
 #include "ui/tui/components/table.h"
 #include "ui/tui/views/command.h"
 
+static void run_command(void *ctx) {
+    (void)ctx;
+    tui_handle_command();
+}
+
 /* ------------------------------------------------------------------ 借书 */
 
 typedef struct {
@@ -86,8 +91,9 @@ void tui_student_borrow(student user) {
 
         tui_table_spec spec = {
             .title = "借书 · 选择图书", .headers = headers, .col_widths = widths, .ncols = 5,
-            .row_count = borrow_rows, .row_text = borrow_row_text, .ctx = &ctx, .page_size = 10,
+            .row_count = borrow_rows, .row_text = borrow_row_text, .ctx = &ctx, .page_size = 0,
             .hint = "↑↓/jk 移动  ←→/hl 翻页  Enter 借阅  q 返回", .enable_command = true,
+            .on_command = run_command,
             .on_enter = borrow_action,
         };
 
@@ -171,8 +177,9 @@ void tui_student_return(student user) {
 
         tui_table_spec spec = {
             .title = "还书 · 我的借阅", .headers = headers, .col_widths = widths, .ncols = 4,
-            .row_count = return_rows, .row_text = return_row_text, .ctx = &ctx, .page_size = 10,
+            .row_count = return_rows, .row_text = return_row_text, .ctx = &ctx, .page_size = 0,
             .hint = "↑↓/jk 移动  Enter 归还  q 返回", .enable_command = true,
+            .on_command = run_command,
             .on_enter = return_action,
         };
 
