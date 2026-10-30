@@ -54,6 +54,13 @@ $(BORROW_TEST): test/test_borrow_service.c $(BORROW_TEST_SUPPORT)
 	@mkdir -p $(@D)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(BORROW_TEST_SUPPORT) $(LDFLAGS) $(LDLIBS) -o $@
 
+SEARCH_TEST := $(BUILD_DIR)/test_search_service
+UNIT_TEST_TARGETS += $(SEARCH_TEST)
+
+$(SEARCH_TEST): test/test_search_service.c $(BORROW_TEST_SUPPORT)
+	@mkdir -p $(@D)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(BORROW_TEST_SUPPORT) $(LDFLAGS) $(LDLIBS) -o $@
+
 $(TUI_WIDTH_TEST): test/test_tui_width.c $(TUI_WIDTH_OBJECT)
 	@mkdir -p $(@D)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ $(LDFLAGS) -o $@
@@ -81,12 +88,15 @@ test: $(UNIT_TEST_TARGETS)
 	@set -e; for test in $(UNIT_TEST_TARGETS); do ./$$test; done
 
 # 只跑 TUI 的纯逻辑测试（不依赖 ncurses，也不受 test_vector 已知问题影响）
-.PHONY: test-tui test-import-files test-borrow
+.PHONY: test-tui test-import-files test-borrow test-search
 test-tui: $(TUI_WIDTH_TEST)
 	./$(TUI_WIDTH_TEST)
 
 test-borrow: $(BORROW_TEST)
 	./$(BORROW_TEST)
+
+test-search: $(SEARCH_TEST)
+	./$(SEARCH_TEST)
 
 test-import-files:
 	sh test/test_import_files.sh
