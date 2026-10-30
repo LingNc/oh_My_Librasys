@@ -91,7 +91,7 @@ static void _database_add(dataBase this,void *data){
     *(size_t *)data = newKey;
     this->_buffer->push_back(this->_buffer, data);
     this->_buffer_index->push_back(this->_buffer_index, &newKey); // 将新键值对存入索引缓冲区
-    // this->_index->_last_key = newKey; // 更新_last_key
+    this->_index->_last_key = newKey; // 更新_last_key
 }
 
 // 添加数据,根据读入数据自动索引
