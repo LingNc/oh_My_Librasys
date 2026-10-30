@@ -95,6 +95,19 @@ long tui_table(const tui_table_spec *spec) {
     if (total_pages == 0) total_pages = 1;
 
     for (;;) {
+        /*
+         * 每轮同步页大小：/set 在表格运行期间修改全局值后，
+         * 返回表格时能立即生效（按当前高亮行的绝对位置重新分页）。
+         */
+        size_t desired_page = spec->page_size ? spec->page_size : tui_table_default_page_size();
+        if (desired_page != page_size) {
+            size_t abs_row = page * page_size + hl;
+            page_size = desired_page;
+            page = abs_row / page_size;
+            hl = abs_row % page_size;
+            if (page_size == 0) page_size = 1;
+        }
+
         total = spec->row_count(spec->ctx);
         total_pages = (total + page_size - 1) / page_size;
         if (total_pages == 0) total_pages = 1;
@@ -102,7 +115,6 @@ long tui_table(const tui_table_spec *spec) {
 
         /* 命令面板 /page 请求的跳转，只生效一次 */
         if (g_pending_page) {
-            page_size = spec->page_size ? spec->page_size : tui_table_default_page_size();
             total_pages = (total + page_size - 1) / page_size;
             if (total_pages == 0) total_pages = 1;
             page = g_pending_page_value < total_pages ? g_pending_page_value : total_pages - 1;
@@ -150,7 +162,13 @@ long tui_table(const tui_table_spec *spec) {
         tui_key k = tui_read_key();
 
         if (k.type == TUI_KEY_RESIZE) continue;
-        if (spec->enable_command && tui_is_char(k, L'/')) return TUI_RESULT_COMMAND;
+        if (spec->enable_command && tui_is_char(k, L'/')) {
+            if (spec->on_command) {
+                spec->on_command(spec->ctx);
+                continue;   /* 保留当前页与高亮，按 / 后不跳回第一页 */
+            }
+            return TUI_RESULT_COMMAND;
+        }
         if (tui_is_cancel(k)) return -1;
         if (tui_is_prev(k)) {
             if (hl > 0) --hl;

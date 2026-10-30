@@ -30,6 +30,13 @@ typedef struct {
     const char *hint;                /* 状态栏提示，可为 NULL */
     bool enable_command;             /* true 时按 / 返回 TUI_RESULT_COMMAND */
 
+    /*
+     * 非 NULL 时按 / 直接调用该回调并继续循环，不返回。
+     * 相比返回 TUI_RESULT_COMMAND 让调用方重建表格，
+     * 这样可以保留当前页与高亮位置。
+     */
+    void (*on_command)(void *ctx);
+
     /* 选中当前行后调用；返回 true 表示继续留在表格，false 表示返回调用方 */
     bool (*on_enter)(void *ctx, size_t row);
 } tui_table_spec;

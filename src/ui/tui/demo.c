@@ -106,7 +106,7 @@ static void demo_table(void) {
         .row_count = demo_row_count,
         .row_text = demo_row_text,
         .ctx = NULL,
-        .page_size = 10,
+        .page_size = 0,
     };
 
     for (;;) {

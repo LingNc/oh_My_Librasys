@@ -24,6 +24,7 @@ typedef struct {
     bool enable_command;                  /* true 时按 / 返回 TUI_RESULT_COMMAND */
     bool center;                          /* true 时菜单整体水平居中 */
     bool vcenter;                         /* true 时内容块整体垂直居中 */
+    void (*on_command)(void *ctx);        /* 非 NULL 时按 / 直接调用并继续 */
 } tui_menu_spec;
 
 int tui_menu(const tui_menu_spec *spec);
