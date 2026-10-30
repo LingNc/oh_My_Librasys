@@ -844,6 +844,8 @@ int main(int argc, char **argv) {
    （M1 实测 bug：密码框输入 `pass123` 时 `s` 被当成"下一字段"，导致丢字符。）
 10. **非交互终端必须拒绝启动**：`tui_init()` 里用 `isatty()` 拦截，
     否则 `wget_wch` 永远返回 `ERR`，组件会陷入忙等并刷屏。`TUI_KEY_EOF` 兜底处理为退出。
+11. **连续 `db->add()` 必须先推进索引键**：见已知问题 #2，需用 `add_unique()` 或保证 add/save 交替。
+12. **列表不得一次性构造全部对象**：用 `admin_*_keys()` + 按需 `admin_get_*()` 分页加载。
 
 ---
 
@@ -859,6 +861,7 @@ int main(int argc, char **argv) {
 | 2026-10-30 | v1.5 | M3 部分完成：管理员 CRUD service、快照列表与 TUI 图书/学生/管理员管理；批量导入和借阅关联操作待后续 | AI |
 | 2026-10-30 | v1.6 | M3 补充：图书借阅信息查看与管理员强制还书完成；批量导入因现有 CLI/持久化耦合继续暂缓 | AI |
 | 2026-10-30 | v1.7 | M3 批量导入完成：定义 5 列图书/4 列学生格式，重生成样例文件，增加预校验、索引维护、TUI 进度与格式测试 | AI |
+| 2026-10-30 | v1.8 | 修复导入后列表只显示首条：规避 `_last_key` 不前进（已知问题 #2），列表改为键列表 + 单行惰性加载 | AI |
 
 ---
 
@@ -904,6 +907,33 @@ int main(int argc, char **argv) {
   1. 修 `Vector.c`：为 `"char*"` 补 `_itemSize = sizeof(char*)` 与对应比较函数；
   2. 认为 `"char*"` 已废弃（现推荐 `"String"`），把 `test_vector.c` 的该用例改写/删除；
   3. 暂不处理，`make test` 中跳过该用例，并在此处标记为已知失败。
+
+### #2 `DataBase::add()` 不推进 `_last_key`，连续 add 会复用同一个键
+
+- **状态**：**未修改数据层**；已在 service 层规避（`src/service/import.c::add_unique`）。是否修 `DataBase.c` 待作者决定。
+- **现象**：批量导入后，管理界面只显示第一条记录，但数据库文件确实包含全部数据。
+- **根因**：`src/DataBase/DataBase.c` 的 `_database_add()` 中
+  `this->_index->_last_key = newKey;` 被注释掉；而 `get_new_key()` 依赖 `_last_key + 1`。
+  `_last_key` 只在 `_database_save()` → `add_index()` 时才前进。
+  因此**连续 add 而不 save**，所有记录会拿到同一个键，索引里只剩一条可查。
+- **为什么 CLI 旧导入没暴露**：`load_books_from_file()` 的 `TEMP_NUMS = 1`，每行都 `save()`，键能正常递增。
+- **最小复现**（3 行图书文件，一次性 add 后 save）
+
+  ```text
+  import ok=1 imported=3
+  db size=3 last_key=1     ← 3 条数据，键却都是 1
+  findable=1               ← 只能查到 1 条
+  ```
+
+- **service 层规避**：导入时在每条 `add()` 之后同步推进 `db->_index->_last_key`，
+  并每 4096 条 `save()` 一次控制内存。修复后同一用例输出 `last_key=3`、`findable=3`。
+- **已受影响的数据必须重建**：旧版导入写出的记录 `id` 本身已全部相同，
+  `rebuild_index()` 也无法区分，需要删除对应的 `db/*.db` 与 `db/*.idx` 后重新导入。
+- **可选处置**（等作者决定）
+
+  1. 在 `_database_add()` 中恢复 `this->_index->_last_key = newKey;`（推荐，消除隐式契约）；
+  2. 保持现状，由调用方保证 add 与 save 交替；
+  3. 暂不处理，仅保留 service 层规避。
 
 ---
 

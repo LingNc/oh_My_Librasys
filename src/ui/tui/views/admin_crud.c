@@ -15,10 +15,41 @@
 #include "ui/tui/components/menu.h"
 #include "ui/tui/components/table.h"
 
+typedef enum { CRUD_BOOK, CRUD_STUDENT, CRUD_MANAGER } crud_kind;
+
 typedef struct {
-    vector rows;
+    admin_keys keys;
+    crud_kind kind;
+    size_t cached_row;
+    void *cached_item;
     manager current;
 } crud_context;
+
+static void forget_row(crud_context *ctx) {
+    if (!ctx->cached_item) return;
+    switch (ctx->kind) {
+    case CRUD_BOOK: free_book(ctx->cached_item); break;
+    case CRUD_STUDENT: free_student(ctx->cached_item); break;
+    case CRUD_MANAGER: free_manager(ctx->cached_item); break;
+    }
+    ctx->cached_item = NULL;
+    ctx->cached_row = (size_t)-1;
+}
+
+static void *row_item(crud_context *ctx, size_t row) {
+    if (ctx->cached_item && ctx->cached_row == row) return ctx->cached_item;
+    forget_row(ctx);
+    if (row >= ctx->keys.count) return NULL;
+
+    size_t key = ctx->keys.keys[row];
+    switch (ctx->kind) {
+    case CRUD_BOOK: ctx->cached_item = admin_get_book(key); break;
+    case CRUD_STUDENT: ctx->cached_item = admin_get_student(key); break;
+    case CRUD_MANAGER: ctx->cached_item = admin_get_manager(key); break;
+    }
+    ctx->cached_row = row;
+    return ctx->cached_item;
+}
 
 static const char *required(const char *value) {
     return value && value[0] ? NULL : "不能为空";
@@ -69,11 +100,12 @@ static bool verify_current_password(manager current) {
 }
 
 static size_t rows_count(void *ctx) {
-    return ((crud_context *)ctx)->rows->size(((crud_context *)ctx)->rows);
+    return ((crud_context *)ctx)->keys.count;
 }
 
 static void book_row(void *ctx, size_t row, size_t col, char *out, size_t cap) {
-    book item = ((crud_context *)ctx)->rows->at(((crud_context *)ctx)->rows, row);
+    book item = row_item(ctx, row);
+    if (!item) { out[0] = '\0'; return; }
     switch (col) {
     case 0: snprintf(out, cap, "%zu", item->id); break;
     case 1: snprintf(out, cap, "%s", item->ISBN->c_str(item->ISBN)); break;
@@ -85,7 +117,8 @@ static void book_row(void *ctx, size_t row, size_t col, char *out, size_t cap) {
 }
 
 static void student_row(void *ctx, size_t row, size_t col, char *out, size_t cap) {
-    student item = ((crud_context *)ctx)->rows->at(((crud_context *)ctx)->rows, row);
+    student item = row_item(ctx, row);
+    if (!item) { out[0] = '\0'; return; }
     switch (col) {
     case 0: snprintf(out, cap, "%zu", item->studentID); break;
     case 1: snprintf(out, cap, "%s", item->name->c_str(item->name)); break;
@@ -97,7 +130,8 @@ static void student_row(void *ctx, size_t row, size_t col, char *out, size_t cap
 }
 
 static void manager_row(void *ctx, size_t row, size_t col, char *out, size_t cap) {
-    manager item = ((crud_context *)ctx)->rows->at(((crud_context *)ctx)->rows, row);
+    manager item = row_item(ctx, row);
+    if (!item) { out[0] = '\0'; return; }
     switch (col) {
     case 0: snprintf(out, cap, "%zu", item->id); break;
     case 1: snprintf(out, cap, "%s", item->name->c_str(item->name)); break;
@@ -109,7 +143,8 @@ static void manager_row(void *ctx, size_t row, size_t col, char *out, size_t cap
 
 static bool book_action(void *ctx, size_t row) {
     crud_context *list = ctx;
-    book item = list->rows->at(list->rows, row);
+    book item = row_item(list, row);
+    if (!item) return false;
     static const char *const options[] = { "1. 查看借阅信息", "2. 强制还书", "3. 修改图书", "4. 删除图书", "5. 返回" };
     tui_menu_spec spec = { .title = "图书操作", .items = options, .count = 5 };
     int choice = tui_menu(&spec);
@@ -156,7 +191,8 @@ static bool book_action(void *ctx, size_t row) {
 
 static bool student_action(void *ctx, size_t row) {
     crud_context *list = ctx;
-    student item = list->rows->at(list->rows, row);
+    student item = row_item(list, row);
+    if (!item) return false;
     static const char *const options[] = { "1. 修改学生", "2. 删除学生", "3. 返回" };
     tui_menu_spec spec = { .title = "学生操作", .items = options, .count = 3 };
     int choice = tui_menu(&spec);
@@ -183,7 +219,8 @@ static bool student_action(void *ctx, size_t row) {
 
 static bool manager_action(void *ctx, size_t row) {
     crud_context *list = ctx;
-    manager item = list->rows->at(list->rows, row);
+    manager item = row_item(list, row);
+    if (!item) return false;
     static const char *const options[] = { "1. 修改姓名", "2. 删除管理员", "3. 返回" };
     tui_menu_spec spec = { .title = "管理员操作", .items = options, .count = 3 };
     int choice = tui_menu(&spec);
@@ -207,39 +244,42 @@ static bool manager_action(void *ctx, size_t row) {
 
 static void books_table(manager current) {
     for (;;) {
-        crud_context ctx = { admin_list_books(), current };
+        crud_context ctx = { admin_book_keys(), CRUD_BOOK, (size_t)-1, NULL, current };
         static const char *const headers[] = { "ID", "ISBN", "书名", "作者", "状态" };
         static const int widths[] = { 8, 18, 28, 18, 12 };
         tui_table_spec spec = { "图书管理", headers, widths, 5, rows_count, book_row, &ctx, 10,
                                 "↑↓/jk 移动  Enter 操作  q 返回", book_action };
         long selected = tui_table(&spec);
-        delete_vector(ctx.rows);
+        forget_row(&ctx);
+        admin_keys_free(&ctx.keys);
         if (selected < 0) return;
     }
 }
 
 static void students_table(manager current) {
     for (;;) {
-        crud_context ctx = { admin_list_students(), current };
+        crud_context ctx = { admin_student_keys(), CRUD_STUDENT, (size_t)-1, NULL, current };
         static const char *const headers[] = { "学号", "姓名", "班级", "学院", "已借" };
         static const int widths[] = { 14, 18, 20, 24, 8 };
         tui_table_spec spec = { "学生管理", headers, widths, 5, rows_count, student_row, &ctx, 10,
                                 "↑↓/jk 移动  Enter 操作  q 返回", student_action };
         long selected = tui_table(&spec);
-        delete_vector(ctx.rows);
+        forget_row(&ctx);
+        admin_keys_free(&ctx.keys);
         if (selected < 0) return;
     }
 }
 
 static void managers_table(manager current) {
     for (;;) {
-        crud_context ctx = { admin_list_managers(), current };
+        crud_context ctx = { admin_manager_keys(), CRUD_MANAGER, (size_t)-1, NULL, current };
         static const char *const headers[] = { "ID", "姓名", "注册日期", "注册人" };
         static const int widths[] = { 8, 20, 22, 20 };
         tui_table_spec spec = { "管理员管理", headers, widths, 4, rows_count, manager_row, &ctx, 10,
                                 "↑↓/jk 移动  Enter 操作  q 返回", manager_action };
         long selected = tui_table(&spec);
-        delete_vector(ctx.rows);
+        forget_row(&ctx);
+        admin_keys_free(&ctx.keys);
         if (selected < 0) return;
     }
 }

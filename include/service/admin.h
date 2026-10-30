@@ -23,10 +23,20 @@ typedef struct {
     const char *message;
 } admin_op_result;
 
-/* 返回独立快照 vector，调用方必须 delete_vector() */
-vector admin_list_books(void);
-vector admin_list_students(void);
-vector admin_list_managers(void);
+/* 键列表：只保存存在的记录键，配合按需加载避免一次性构造全部对象 */
+typedef struct {
+    size_t *keys;
+    size_t count;
+} admin_keys;
+
+admin_keys admin_book_keys(void);
+admin_keys admin_student_keys(void);
+admin_keys admin_manager_keys(void);
+void admin_keys_free(admin_keys *keys);
+
+book admin_get_book(size_t key);
+student admin_get_student(size_t key);
+manager admin_get_manager(size_t key);
 
 admin_op_result admin_add_book(const char *isbn, const char *name,
                                const char *author, const char *publisher,

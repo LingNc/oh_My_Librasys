@@ -21,6 +21,24 @@ extern database_index stoid;
 #define BOOK_PUBLISHER_CAP 500
 #define BOOK_TIME_CAP 20
 #define STUDENT_FIELD_CAP 50
+#define IMPORT_SAVE_BATCH 4096
+
+/*
+ * DataBase 的 _database_add() 里更新 _last_key 的那行被注释掉了，
+ * 而 get_new_key() 依赖 _last_key 自增。若连续 add 而不 save，
+ * 所有记录会拿到同一个键，索引里只剩一条可查。
+ *
+ * CLI 旧导入是每行 save 一次，所以不会暴露该问题。
+ * 这里在 add 之后同步推进 _last_key，并定期 save，
+ * 从而在不修改 src/DataBase/ 的前提下得到唯一键。
+ */
+static void add_unique(dataBase db, void *item) {
+    db->add(db, item);
+    size_t key = *(size_t *)item;
+    if (key > db->_index->_last_key) {
+        db->_index->_last_key = key;
+    }
+}
 
 static import_result make_result(bool ok, size_t imported, size_t line,
                                  const char *message) {
@@ -134,9 +152,12 @@ import_result import_books_file(const char *path, import_progress_fn progress,
         }
         book item = new_book();
         load_book(item, 0, fields[0], fields[1], fields[2], fields[3], fields[4], 0);
-        bookDb->add(bookDb, item);
+        add_unique(bookDb, item);
         free_book(item);
         ++imported;
+        if (imported % IMPORT_SAVE_BATCH == 0) {
+            bookDb->save(bookDb);
+        }
         if (progress && (imported == total || imported % 128 == 0)) {
             progress("导入图书", imported, total, context);
         }
@@ -207,10 +228,14 @@ import_result import_students_file(const char *path, import_progress_fn progress
         }
         student item = new_student();
         load_student(item, 0, student_id, fields[1], fields[2], fields[3], 0, "", "");
-        studentDb->add(studentDb, item);
+        add_unique(studentDb, item);
         add_index(stoid, item->studentID, item->id);
         free_student(item);
         ++imported;
+        if (imported % IMPORT_SAVE_BATCH == 0) {
+            studentDb->save(studentDb);
+            save_index(stoid);
+        }
         if (progress && (imported == total || imported % 128 == 0)) {
             progress("导入学生", imported, total, context);
         }

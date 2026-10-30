@@ -22,30 +22,41 @@ static int empty(const char *value) {
     return !value || !value[0];
 }
 
-static vector list_database(dataBase db) {
-    vector items = new_vector(db->_type->c_str(db->_type));
+static admin_keys collect_keys(dataBase db) {
+    admin_keys result = { NULL, 0 };
+    size_t capacity = 0;
     for (size_t key = 1; key <= db->_index->_last_key; ++key) {
-        void *item = db->find_key(db, key);
-        if (!item) continue;
-        items->push_back(items, item);
-        if (strcmp(db->_type->c_str(db->_type), "Book") == 0) free_book(item);
-        else if (strcmp(db->_type->c_str(db->_type), "Student") == 0) free_student(item);
-        else if (strcmp(db->_type->c_str(db->_type), "Manager") == 0) free_manager(item);
+        if (find_index(db->_index, key) == 0) continue; /* 已删除或空洞 */
+        if (result.count == capacity) {
+            size_t next_capacity = capacity ? capacity * 2 : 256;
+            size_t *next = realloc(result.keys, next_capacity * sizeof(*next));
+            if (!next) {
+                free(result.keys);
+                admin_keys empty = { NULL, 0 };
+                return empty;
+            }
+            result.keys = next;
+            capacity = next_capacity;
+        }
+        result.keys[result.count++] = key;
     }
-    return items;
+    return result;
 }
 
-vector admin_list_books(void) {
-    return list_database(bookDb);
+admin_keys admin_book_keys(void) { return collect_keys(bookDb); }
+admin_keys admin_student_keys(void) { return collect_keys(studentDb); }
+admin_keys admin_manager_keys(void) { return collect_keys(managerDb); }
+
+void admin_keys_free(admin_keys *keys) {
+    if (!keys) return;
+    free(keys->keys);
+    keys->keys = NULL;
+    keys->count = 0;
 }
 
-vector admin_list_students(void) {
-    return list_database(studentDb);
-}
-
-vector admin_list_managers(void) {
-    return list_database(managerDb);
-}
+book admin_get_book(size_t key) { return bookDb->find_key(bookDb, key); }
+student admin_get_student(size_t key) { return studentDb->find_key(studentDb, key); }
+manager admin_get_manager(size_t key) { return managerDb->find_key(managerDb, key); }
 
 admin_op_result admin_add_book(const char *isbn, const char *name,
                                const char *author, const char *publisher,
