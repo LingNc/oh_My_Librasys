@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 #include "models/Book.h"
 #include "models/uiBook.h"
 #include "models/Student.h"
@@ -25,6 +26,24 @@ void clock_times(const char *msg,size_t nums){
     cli_clear_screen();
     printf("%s%zu\n",msg,nums);
 }
+
+static bool split_import_fields(char *line, char **fields, size_t expected) {
+    size_t count = 1;
+    fields[0] = line;
+    for (char *p = line; *p; ++p) {
+        if (*p == '\r' || *p == '\n') {
+            *p = '\0';
+            break;
+        }
+        if (*p == ',') {
+            *p = '\0';
+            if (count == expected) return false;
+            fields[count++] = p + 1;
+        }
+    }
+    return count == expected;
+}
+
 // 从文件中批量加载书籍
 bool load_books_from_file(const char *filePath, dataBase bookDb) {
     FILE *file = fopen(filePath, "r");
@@ -37,15 +56,18 @@ bool load_books_from_file(const char *filePath, dataBase bookDb) {
     int count = 0;
     char line[1024];
     while (fgets(line, sizeof(line), file)) {
-        size_t id;
-        char ISBN[100], name[50], author[500], publisher[500], time[20];
-        int status;
-
-        sscanf(line, "%zu,%99[^,],%49[^,],%499[^,],%499[^,],%19[^,],%d",
-               &id, ISBN, name, author, publisher, time, &status);
+        char *fields[5];
+        if (!split_import_fields(line, fields, 5) ||
+            strlen(fields[0]) >= 100 || strlen(fields[1]) >= 50 ||
+            strlen(fields[2]) >= 500 || strlen(fields[3]) >= 500 ||
+            strlen(fields[4]) >= 20 || !fields[0][0] || !fields[1][0] ||
+            !fields[2][0] || !fields[3][0]) {
+             fclose(file);
+             return false;
+         }
 
         book newBook = new_book();
-        load_book(newBook, id, ISBN, name, author, publisher, time, 0);
+        load_book(newBook, 0, fields[0], fields[1], fields[2], fields[3], fields[4], 0);
         bookDb->add(bookDb, newBook);
         count++;
         clock_times("加载书籍数量:",count);
@@ -70,15 +92,25 @@ bool load_students_from_file(const char *filePath, dataBase studentDb) {
     int count = 0;
     char line[1024];
     while (fgets(line, sizeof(line), file)) {
-        size_t studentID;
-        char name[50], class[50], department[50], borrowedDate[20], returnDate[20];
-        int borrowedCount;
-
-        sscanf(line, "%zu,%49[^,],%49[^,],%49[^,],%d,%19[^,],%19[^,]",
-               &studentID, name, class, department, &borrowedCount, borrowedDate, returnDate);
+        char *fields[4];
+        if (!split_import_fields(line, fields, 4) ||
+            strlen(fields[0]) >= 32 || strlen(fields[1]) >= 50 ||
+            strlen(fields[2]) >= 50 || strlen(fields[3]) >= 50 ||
+            !fields[0][0] || !fields[1][0] || !fields[2][0] || !fields[3][0]) {
+             fclose(file);
+             return false;
+         }
+        char *end = NULL;
+        unsigned long long parsed_id = strtoull(fields[0], &end, 10);
+        if (!end || *end != '\0' || parsed_id == 0 ||
+            parsed_id > (unsigned long long)(size_t)-1) {
+            fclose(file);
+            return false;
+        }
+        size_t studentID = (size_t)parsed_id;
 
         student newStudent = new_student();
-        load_student(newStudent, 0, studentID, name, class, department, borrowedCount, borrowedDate, returnDate);
+        load_student(newStudent, 0, studentID, fields[1], fields[2], fields[3], 0, "", "");
         studentDb->add(studentDb, newStudent);
 
         count++;

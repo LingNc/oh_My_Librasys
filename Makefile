@@ -69,9 +69,12 @@ test: $(UNIT_TEST_TARGETS)
 	@set -e; for test in $(UNIT_TEST_TARGETS); do ./$$test; done
 
 # 只跑 TUI 的纯逻辑测试（不依赖 ncurses，也不受 test_vector 已知问题影响）
-.PHONY: test-tui
+.PHONY: test-tui test-import-files
 test-tui: $(TUI_WIDTH_TEST)
 	./$(TUI_WIDTH_TEST)
+
+test-import-files:
+	sh test/test_import_files.sh
 
 .PHONY: check-test
 check-test: $(CHECK_TEST)
