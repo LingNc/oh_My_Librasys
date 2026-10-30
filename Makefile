@@ -1,65 +1,96 @@
-# Makefile
+CC ?= gcc
 
-# 编译器
-CC = gcc
+# UI 后端: both(默认) | cli | tui
+#   cli  = 只编译命令行界面，不依赖 ncursesw
+#   tui  = 只编译 TUI（保留 CLI 入口作为回退）
+#   both = 两者都编译（默认）
+UI ?= both
 
-# 编译器选项
-CFLAGS = -Wall -Wextra -g -I include
+CPPFLAGS ?= -Iinclude
+CFLAGS ?= -std=gnu11 -Wall -Wextra -Wno-error=incompatible-pointer-types -g
+LDFLAGS ?=
+LDLIBS ?=
 
-# 链接选项
-LDFLAGS =
+NCURSES_CFLAGS := $(shell pkg-config --cflags ncursesw 2>/dev/null)
+NCURSES_LIBS   := $(shell pkg-config --libs ncursesw 2>/dev/null)
 
-# 目标文件
-TARGET = main
+TARGET := main
+BUILD_DIR := build
 
-# 查找所有源文件
-SRCS = $(wildcard src/models/*c src/Tools/*.c src/DataBase/*.c src/ui/components/*.c src/ui/admin/*.c src/ui/student/*.c src/ui/*.c src/*.c)
+ALL_SRC_FILES := $(shell find src -type f -name '*.c' | sort)
 
-# 对象文件目录
-OBJDIR = build
+ifeq ($(UI),cli)
+SRC_FILES := $(filter-out src/ui/tui/%,$(ALL_SRC_FILES))
+else
+SRC_FILES := $(ALL_SRC_FILES)
+CPPFLAGS  += $(NCURSES_CFLAGS) -DHAVE_TUI=1
+LDLIBS    += $(NCURSES_LIBS)
+endif
 
-# 对象文件
-OBJS = $(SRCS:src/%.c=$(OBJDIR)/%.o)
+APP_OBJECTS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
+LIB_OBJECTS := $(filter-out $(BUILD_DIR)/src/main.o,$(APP_OBJECTS))
+TEST_SUPPORT_OBJECTS := $(filter-out $(BUILD_DIR)/src/main.o \
+	$(BUILD_DIR)/src/function.o $(BUILD_DIR)/src/DataBase/% \
+	$(BUILD_DIR)/src/ui/%,$(APP_OBJECTS))
 
-# 测试文件
-TEST_SRCS = $(wildcard test/*.c)
-TEST_OBJS = $(TEST_SRCS:test/%.c=$(OBJDIR)/test_%.o)
-TEST_TARGETS = $(TEST_SRCS:test/%.c=$(OBJDIR)/test_%)
+UNIT_TEST_SOURCES := $(filter-out test/test_check.c test/test_tui_width.c,$(wildcard test/*.c))
+UNIT_TEST_TARGETS := $(patsubst test/%.c,$(BUILD_DIR)/test_%,$(UNIT_TEST_SOURCES))
 
-# 创建对象文件目录及其子目录
-$(OBJDIR):
-	mkdir -p $(OBJDIR) $(dir $(OBJS))
+# 纯逻辑的 TUI 测试：只链接 width.o（该文件不依赖 ncurses），
+# 因此即使 make UI=cli 也能跑。
+TUI_WIDTH_OBJECT := $(BUILD_DIR)/src/ui/tui/width.o
+TUI_WIDTH_TEST   := $(BUILD_DIR)/test_tui_width
+UNIT_TEST_TARGETS += $(TUI_WIDTH_TEST)
 
-# 编译目标
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+$(TUI_WIDTH_TEST): test/test_tui_width.c $(TUI_WIDTH_OBJECT)
+	@mkdir -p $(@D)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
-# 编译源文件为对象文件
-$(OBJDIR)/%.o: src/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+CHECK_TEST := $(BUILD_DIR)/test_check
 
-# 编译测试文件为对象文件
-$(OBJDIR)/test_%.o: test/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+.DEFAULT_GOAL := all
 
-# 链接测试文件
-$(OBJDIR)/test_%: $(OBJDIR)/test_%.o $(filter-out $(OBJDIR)/main.o, $(OBJS))
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+.PHONY: all
+all: $(TARGET)
 
-# 运行所有测试
+$(TARGET): $(APP_OBJECTS)
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
+
+$(BUILD_DIR)/%.o: %.c
+	@mkdir -p $(@D)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c $< -o $@
+
+$(BUILD_DIR)/test_%: test/%.c $(LIB_OBJECTS)
+	@mkdir -p $(@D)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(TEST_SUPPORT_OBJECTS) $(LDFLAGS) $(LDLIBS) -o $@
+
 .PHONY: test
-test: $(TEST_TARGETS)
-	for test in $(TEST_TARGETS); do ./$$test; done
+test: $(UNIT_TEST_TARGETS)
+	@set -e; for test in $(UNIT_TEST_TARGETS); do ./$$test; done
 
-# 清理生成的文件
+# 只跑 TUI 的纯逻辑测试（不依赖 ncurses，也不受 test_vector 已知问题影响）
+.PHONY: test-tui
+test-tui: $(TUI_WIDTH_TEST)
+	./$(TUI_WIDTH_TEST)
+
+.PHONY: check-test
+check-test: $(CHECK_TEST)
+	./$(CHECK_TEST)
+
+$(CHECK_TEST): test/test_check.c
+	@mkdir -p $(@D)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LDFLAGS) $(shell pkg-config --libs check 2>/dev/null) -o $@
+
+.PHONY: preprocess
+preprocess: $(SRC_FILES)
+	@mkdir -p preprocess
+	@set -e; for src in $^; do \
+		$(CC) $(CPPFLAGS) $(CFLAGS) -E "$$src" \
+			-o "preprocess/$$(basename "$$src" .c).i"; \
+	done
+
 .PHONY: clean
 clean:
-	rm -rf $(OBJDIR) $(TARGET) $(TEST_TARGETS)
+	rm -rf $(BUILD_DIR) $(TARGET) preprocess
 
-# 预处理器输出
-.PHONY: preprocess
-preprocess: $(SRCS)
-	@mkdir -p preprocess
-	@for src in $^; do \
-		$(CC) $(CFLAGS) -E $$src -o preprocess/`basename $$src .c`.i; \
-	done
+-include $(APP_OBJECTS:.o=.d)
