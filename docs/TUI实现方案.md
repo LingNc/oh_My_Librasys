@@ -809,6 +809,8 @@ int main(int argc, char **argv) {
       `make test-search`、`make test-import-files` 均通过；110x34 与 80x24 均已验证
 - [x] **M6 完成，全部里程碑（M0–M6）结束**
 
+修复后补充（2026-10-30）：数据层已知问题 #3（`find()` 不过滤）已修复并新增 `make test-find`。
+
 配色表（256 色）：
 
 | 用途 | 前景 | 背景 |
@@ -920,7 +922,7 @@ int main(int argc, char **argv) {
 | 2026-10-30 | v2.1 | M6 进行中：冷调机械灰阶主题、主页 ONMYLIB ASCII 标识、README TUI 说明                                                       | AI   |
 | 2026-10-30 | v2.2 | 主页换用 slant 斜体大字标识、菜单居中、移除演示项并新增关于；修复对话框多行与边框遮挡                                       | AI   |
 | 2026-10-30 | v2.3 | M6 完成：主菜单垂直居中、关于页补充项目简介与两位主要作者（Leabol / LingNc）、对话框换行宽度自适应；全部里程碑结束              | AI   |
-| 2026-10-30 | v2.3 | M6 完成：主菜单垂直居中、关于页补充项目简介与两位主要作者、对话框换行宽度自适应                                           | AI   |
+| 2026-10-30 | v2.4 | 修复数据层已知问题 #3：`find()` 比较符改为 `== 0`、修复每命中一条泄漏一个对象、无命中返回 0；新增 `test-find`；记录 #4 | AI   |
 
 ---
 
@@ -994,31 +996,34 @@ int main(int argc, char **argv) {
 
 ### #3 `DataBase::find()` 不按条件过滤，返回所有记录
 
-- **状态**：**未修改数据层**；M5 搜索已改为 service 层逐键扫描，不依赖 `find()`。待作者决定是否修复。
+- **状态**：✅ **已修复**（作者授权后由 AI 修改数据层）。
 - **现象**：只设置一个字段作为条件，`find()` 仍返回全部记录。
 - **根因**：`src/DataBase/DataBase.c` 的 `_database_find()` 中
 
   ```c
   if (this->_find_buffer->_cmp_item(item, data) >= 0) {   /* 应为 == 0 */
-      buff->push_back(buff, item);
   ```
 
   `Book::cmp` 命中返回 0、不命中返回 1，因此 `>= 0` 恒成立，条件被忽略。
   `_student_cmp` 可能返回负数，所以学生场景表现为“部分过滤”，更难察觉。
-- **最小复现**（3 本书，条件为 ISBN-B）
+- **修复内容**
 
-  ```text
-  find(next=1) -> _find_buffer size=3
-    match: ISBN-A 书一
-    match: ISBN-B 书二
-    match: ISBN-C 书三
-  EXPECT: only ISBN-B (1 record)
-  ```
+  1. 比较改为 `== 0`，并统一 `_cmp_item` / `_dcmp_item` 两条分支的命中判定；
+  2. 修复每命中一条就泄漏一个对象的 bug（`item` 只 `malloc` 不释放）；
+  3. 无任何命中时返回 `0`（原来返回 `1`，会让 `_database_get_find` 死循环）。
+- **验证**：`make test-find` 8 项断言全通过；ASan 下 0 内存错误，且分配次数比修复前少 295 次。
+- **仍未解决（层次二）**：`get_find()` 仍不可靠——`last_key` 取的是记录自身 id 而非续查位置、
+  每次 `find()` 都从文件头重扫、`_find_buffer` 无界增长、`find()` 签名没有起始位置。
+  完整分页查询建议在 service 层基于 `search_*` 的键列表实现，不要依赖 `get_find`。
 
-- **规避**：`src/service/search.c` 按索引逐键 `find_key()` 并自行做子串匹配。
-- **可选处置**：把比较改为 `== 0`；同时确认 `last_key = *(size_t *)item` 的语义（当前取记录自身 id）。
+### #4 `close_database()` / `close_index()` 会崩溃
 
-> 备注：M4 之后作者已修复 #2（`_last_key` 推进），当前工作区的 `find()` 行为仍为上述现状。
+- **状态**：**未修复**；`src/main.c` 中释放代码早已被注释掉，疑似正在于此。
+- **现象**：在测试中调用 `close_index()` + `close_database()` 后，ASan 报
+  `BUS on unknown address`，栈落在 `sanitizer_atomic` 内部。
+- **影响**：进程退出时由系统回收，正常运行不受影响；但无法做干净的内存释放验证。
+- **建议**：先不修，等真正需要优雅退出时再处理（`Vector::free` 实际是 `clear` 而非释放容器，
+  `Index::close_index` 释放后 `DataBase::close_database` 可能重复释放同一索引）。
 
 ---
 
