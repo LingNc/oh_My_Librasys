@@ -22,8 +22,8 @@
 #include <curses.h>
 
 #include "ui/tui/tui.h"
-#include "ui/tui/demo.h"
 #include "ui/tui/theme.h"
+#include "ui/tui/views/main_menu.h"
 
 static bool g_tui_active = false;
 
@@ -97,7 +97,7 @@ int tui_run(void) {
         return 1;
     }
 
-    int rc = tui_demo();
+    int rc = tui_main_menu();
 
     tui_shutdown();
     return rc;
