@@ -6,6 +6,7 @@
 #include "ui/tui/components/dialog.h"
 #include "ui/tui/components/menu.h"
 #include "ui/tui/theme.h"
+#include "ui/tui/views/admin_crud.h"
 
 extern dataBase managerDb;
 
@@ -48,6 +49,15 @@ void tui_admin_menu(manager user) {
     for (;;) {
         int choice = tui_menu(&spec);
         if (choice < 0 || choice == 7) return;
-        tui_info("功能迁移中", "该功能将在 M3 管理员功能阶段接入。");
+        switch (choice) {
+        case 0: tui_admin_students(user); break;
+        case 1: tui_admin_add_student(user); break;
+        case 2: tui_admin_books(user); break;
+        case 3: tui_admin_add_book(user); break;
+        case 4: tui_admin_managers(user); break;
+        case 5: tui_admin_add_manager(user); break;
+        case 6: tui_admin_change_password(user); break;
+        default: tui_error("错误", "未知菜单项"); break;
+        }
     }
 }
