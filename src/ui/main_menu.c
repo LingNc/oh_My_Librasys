@@ -6,26 +6,24 @@
 #include "DataBase/DataBase.h"
 #include "models/Manager.h"
 #include "models/Student.h"
-#include "Tools/Hash.h"
+#include "service/auth.h"
 
 extern dataBase managerDb, studentDb, passwordDb;
 extern database_index stoid;
 
 bool verify_password(size_t id) {
-    string stored_hash = passwordDb->find_key(passwordDb, id);
-    if (!stored_hash) {
-        printf("密码未设置\n");
-        return false;
-    }
-
     for (int attempts = 0; attempts < 3; attempts++) {
         string input_password = get_password("请输入密码: ");
-        string input_hash=sha256(input_password);
-        if(input_hash->cmp(input_hash,stored_hash)==0){
+        manager_auth_result result = auth_login_manager(
+            id, input_password->c_str(input_password));
+        if (result.status == AUTH_OK) {
             return true;
-        } else {
-            printf("密码错误，请重试\n");
         }
+        if (result.status == AUTH_PASSWORD_NOT_SET) {
+            printf("密码未设置\n");
+            return false;
+        }
+        printf("密码错误，请重试\n");
     }
     return false;
 }
@@ -60,8 +58,7 @@ void login(void *arg){
             cli_getch();
         }
     } else {
-        id=find_index(stoid,id);
-        student s = studentDb->find_key(studentDb, id);
+        student s = auth_find_student(id);
         if (s) {
             student_menu(s);
         } else {
