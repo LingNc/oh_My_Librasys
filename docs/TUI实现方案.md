@@ -58,10 +58,11 @@ main.c
 
 规模约 6000 行，`printf / getch / clear_screen` 调用点约 270 处，其中**非 UI 层只有 2 处**：
 
-| 位置 | 调用 | 影响 |
-|---|---|---|
-| `src/function.c:25` | `clear_screen()` | 批量导入时刷新进度 |
-| `src/function.c:160` | `getch()` | 等待按键 |
+
+| 位置                 | 调用             | 影响               |
+| -------------------- | ---------------- | ------------------ |
+| `src/function.c:25`  | `clear_screen()` | 批量导入时刷新进度 |
+| `src/function.c:160` | `getch()`        | 等待按键           |
 
 这是一个好消息：**UI 逻辑基本集中在 `src/ui/` 内**，业务层与 UI 的耦合面很小。
 
@@ -103,11 +104,12 @@ void refresh(char *input, int *input_index, const char *new_content);  // 同名
 
 **对策（必须做，M0 第一步）**：重命名项目侧函数
 
-| 旧名 | 新名 | 说明 |
-|---|---|---|
-| `getch()` | `cli_getch()` | 全仓库机械替换 |
-| `refresh(s,i,c)` | `cli_refresh_line(s,i,c)` | 仅 `func.c` / `command.c` 使用 |
-| `clear_screen()` | `cli_clear_screen()` | 无冲突，但为对称与可读性一起改 |
+
+| 旧名             | 新名                      | 说明                           |
+| ---------------- | ------------------------- | ------------------------------ |
+| `getch()`        | `cli_getch()`             | 全仓库机械替换                 |
+| `refresh(s,i,c)` | `cli_refresh_line(s,i,c)` | 仅`func.c` / `command.c` 使用  |
+| `clear_screen()` | `cli_clear_screen()`      | 无冲突，但为对称与可读性一起改 |
 
 > 备选方案（不推荐）：`#define NCURSES_NOMACROS` 或 `#undef getch`。只能解决编译期，解决不了符号覆盖。
 
@@ -127,14 +129,15 @@ void refresh(char *input, int *input_index, const char *new_content);  // 同名
 
 ## 3. 技术选型
 
-| 维度 | 选择 | 理由 |
-|---|---|---|
-| 库 | **ncursesw**（`-lncursesw -ltinfo`） | 需求指定；已确认本机可用（`pkg-config --libs ncursesw` 正常） |
-| 字符 | **宽字符 API**：`wget_wch` / `waddnwstr` / `wcwidth` | 中文对齐的唯一可靠做法 |
-| 光标/输入 | `cbreak + noecho + keypad` | 逐键响应，兼容方向键 |
-| 布局 | 自绘边框窗口（`newwin` + `box`），非 form/menu 扩展库 | 现有 UI 结构简单，用扩展库反而难控中文与自定义布局 |
-| 并发 | 无 | 保持单线程，避免引入线程复杂度 |
-| 后端切换 | **运行时参数** `--tui`，CLI/TUI 共存于同一二进制 | 改动最小、可对比调试、出问题可退回 |
+
+| 维度      | 选择                                                  | 理由                                                          |
+| --------- | ----------------------------------------------------- | ------------------------------------------------------------- |
+| 库        | **ncursesw**（`-lncursesw -ltinfo`）                  | 需求指定；已确认本机可用（`pkg-config --libs ncursesw` 正常） |
+| 字符      | **宽字符 API**：`wget_wch` / `waddnwstr` / `wcwidth`  | 中文对齐的唯一可靠做法                                        |
+| 光标/输入 | `cbreak + noecho + keypad`                            | 逐键响应，兼容方向键                                          |
+| 布局      | 自绘边框窗口（`newwin` + `box`），非 form/menu 扩展库 | 现有 UI 结构简单，用扩展库反而难控中文与自定义布局            |
+| 并发      | 无                                                    | 保持单线程，避免引入线程复杂度                                |
+| 后端切换  | **运行时参数** `--tui`，CLI/TUI 共存于同一二进制      | 改动最小、可对比调试、出问题可退回                            |
 
 > 为什么不用 `ncurses` 的 `menu`/`form` 扩展库：它们对宽字符列宽处理不透明、样式定制受限，且会引入额外状态管理。自己封装 4 个组件（menu/table/form/dialog）成本更低。
 
@@ -219,12 +222,13 @@ src/ui/tui/
 
 与初稿的差异（实现时发现更合理，已按此执行）：
 
-| 初稿 | 实际 | 原因 |
-|---|---|---|
-| 独立的 `input.h` | 合并进 `components/form.c` | 目前只有表单需要单行编辑；等命令面板需要时再抽 |
-| 独立的 `statusbar.h` | 合并进 `window.c`（状态栏是帧的一部分） | 状态栏与帧同一布局语义，分开反而要传更多参数 |
-| 独立的 `toast.h` | 合并进 `components/dialog.c` | toast 是对话框的非阻塞变体 |
-| `width.c` 内含绘制函数 | `width.c` 纯逻辑，绘制在 `window.c` | 让 `width.c` 能被单元测试单独链接，不引入 ncurses |
+
+| 初稿                   | 实际                                   | 原因                                             |
+| ---------------------- | -------------------------------------- | ------------------------------------------------ |
+| 独立的`input.h`        | 合并进`components/form.c`              | 目前只有表单需要单行编辑；等命令面板需要时再抽   |
+| 独立的`statusbar.h`    | 合并进`window.c`（状态栏是帧的一部分） | 状态栏与帧同一布局语义，分开反而要传更多参数     |
+| 独立的`toast.h`        | 合并进`components/dialog.c`            | toast 是对话框的非阻塞变体                       |
+| `width.c` 内含绘制函数 | `width.c` 纯逻辑，绘制在 `window.c`    | 让`width.c` 能被单元测试单独链接，不引入 ncurses |
 
 > 现有 `include/ui/**`、`src/ui/**`（非 tui 子目录）保持原位，**不做目录搬迁**，避免一次性的巨大 diff。
 
@@ -296,17 +300,18 @@ tui_key tui_read_key(void);         /* 唯一接触 wget_wch 的地方 */
 
 映射规则（与现有 CLI 保持一致，另加 TUI 习惯键）：
 
-| 语义 | 现有 CLI | TUI 接受 |
-|---|---|---|
-| 上/下移 | `w` / `s`、方向键 | `k`/`j`、`w`/`s`、↑/↓ |
-| 左/右翻页 | `a`/`d` | `h`/`l`、PgUp/PgDn、←/→ |
-| 确认 | `Enter` | Enter |
-| 返回/取消 | `q` | `q`、Esc |
-| 命令模式 | `/` | `/` |
-| 数字直选 | `1`..`9` | `1`..`9` |
-| 帮助 | `/help` | `F1`、`?` |
-| 搜索 | `/search` | `/` 打开命令面板 |
-| 表单切换字段 | 无 | Tab / Shift-Tab（`KEY_BTAB`） |
+
+| 语义         | 现有 CLI          | TUI 接受                      |
+| ------------ | ----------------- | ----------------------------- |
+| 上/下移      | `w` / `s`、方向键 | `k`/`j`、`w`/`s`、↑/↓       |
+| 左/右翻页    | `a`/`d`           | `h`/`l`、PgUp/PgDn、←/→     |
+| 确认         | `Enter`           | Enter                         |
+| 返回/取消    | `q`               | `q`、Esc                      |
+| 命令模式     | `/`               | `/`                           |
+| 数字直选     | `1`..`9`          | `1`..`9`                      |
+| 帮助         | `/help`           | `F1`、`?`                     |
+| 搜索         | `/search`         | `/` 打开命令面板              |
+| 表单切换字段 | 无                | Tab / Shift-Tab（`KEY_BTAB`） |
 
 ### 5.3 宽度与文本工具
 
@@ -571,14 +576,15 @@ enum {
 
 ### 6.6 中文/宽字符注意事项汇总
 
-| 问题 | 做法 |
-|---|---|
-| 中英混排对齐 | 一律 `wcwidth` 计算，禁止 `strlen` |
-| 宽字符截断 | 按列宽截断，全角不能切一半 |
-| 输入退格 | 按码点删除 |
-| `setlocale` | 必须在 `initscr` 之前 |
+
+| 问题              | 做法                                                   |
+| ----------------- | ------------------------------------------------------ |
+| 中英混排对齐      | 一律`wcwidth` 计算，禁止 `strlen`                      |
+| 宽字符截断        | 按列宽截断，全角不能切一半                             |
+| 输入退格          | 按码点删除                                             |
+| `setlocale`       | 必须在`initscr` 之前                                   |
 | `wget_wch` 返回值 | `OK` = 普通字符；`KEY_CODE_YES` = 功能键；`ERR` = 忽略 |
-| 终端不支持中文 | 启动时检测 `MB_CUR_MAX > 1`，否则提示并回退 CLI |
+| 终端不支持中文    | 启动时检测`MB_CUR_MAX > 1`，否则提示并回退 CLI         |
 
 ---
 
@@ -586,12 +592,13 @@ enum {
 
 ### 7.1 必须修改（M0）
 
-| 文件 | 改动 |
-|---|---|
+
+| 文件                                                       | 改动                                                                                    |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `include/ui/components/func.h`、`src/ui/components/func.c` | `getch`→`cli_getch`，`refresh`→`cli_refresh_line`，`clear_screen`→`cli_clear_screen` |
-| 全仓库 `src/ui/**`、`src/function.c` | 同步改名（机械替换） |
-| `Makefile` | 增加 `UI` 变量、ncursesw 检测与链接、TUI 源文件过滤 |
-| `src/main.c` | 增加 `--tui` 分支（`#ifdef HAVE_TUI`） |
+| 全仓库`src/ui/**`、`src/function.c`                        | 同步改名（机械替换）                                                                    |
+| `Makefile`                                                 | 增加`UI` 变量、ncursesw 检测与链接、TUI 源文件过滤                                      |
+| `src/main.c`                                               | 增加`--tui` 分支（`#ifdef HAVE_TUI`）                                                   |
 
 ### 7.2 新增文件
 
@@ -605,14 +612,15 @@ enum {
 
 ### 7.4 需要"拆分"的现有函数
 
-| 现有函数 | 问题 | 拆分方式 |
-|---|---|---|
-| `verify_password`（main_menu.c） | 内含 `printf` + `get_password` | → `auth_verify_password` + 视图循环 |
-| `login` | UI 与业务混杂 | → `auth_login_*` + `views/login.c` |
-| `add_book_manual`/`edit_book`/`delete_book` | 直接 `printf`/`getaline` | → `book_add/update/remove` + 表单视图 |
-| `add_manager`/`edit_manager`/`delete_manager` | 同上 | → `manager_*` + 表单视图 |
-| `load_books_from_file`/`load_students_from_file` | `clock_times` 打印进度 | → `*_import_file(path, progress_cb)` |
-| `page()` / `menu()` | 隐式参数布局 | TUI 用显式结构体，不复用 |
+
+| 现有函数                                         | 问题                          | 拆分方式                              |
+| ------------------------------------------------ | ----------------------------- | ------------------------------------- |
+| `verify_password`（main_menu.c）                 | 内含`printf` + `get_password` | →`auth_verify_password` + 视图循环   |
+| `login`                                          | UI 与业务混杂                 | →`auth_login_*` + `views/login.c`    |
+| `add_book_manual`/`edit_book`/`delete_book`      | 直接`printf`/`getaline`       | →`book_add/update/remove` + 表单视图 |
+| `add_manager`/`edit_manager`/`delete_manager`    | 同上                          | →`manager_*` + 表单视图              |
+| `load_books_from_file`/`load_students_from_file` | `clock_times` 打印进度        | →`*_import_file(path, progress_cb)`  |
+| `page()` / `menu()`                              | 隐式参数布局                  | TUI 用显式结构体，不复用              |
 
 ---
 
@@ -656,13 +664,14 @@ test-tui: $(TUI_WIDTH_TEST)
 
 常用命令：
 
-| 命令 | 作用 |
-|---|---|
-| `make` | 构建 CLI + TUI（默认 both） |
-| `make UI=cli` | 只构建 CLI，完全不依赖 ncursesw |
-| `make test-tui` | 只跑 TUI 纯逻辑测试（不受已知 #1 影响） |
-| `make test` | 全部测试（当前因已知问题 #1 仍会失败） |
-| `./main` / `./main --tui` | 分别进入 CLI / TUI |
+
+| 命令                      | 作用                                    |
+| ------------------------- | --------------------------------------- |
+| `make`                    | 构建 CLI + TUI（默认 both）             |
+| `make UI=cli`             | 只构建 CLI，完全不依赖 ncursesw         |
+| `make test-tui`           | 只跑 TUI 纯逻辑测试（不受已知 #1 影响） |
+| `make test`               | 全部测试（当前因已知问题 #1 仍会失败）  |
+| `./main` / `./main --tui` | 分别进入 CLI / TUI                      |
 
 `main.c` 变更：
 
@@ -698,78 +707,84 @@ int main(int argc, char **argv) {
 
 ### M0 构建与解耦地基（预计 0.5 天）
 
-- [x] 重命名 `getch` / `refresh` / `clear_screen` → `cli_getch` / `cli_refresh_line` / `cli_clear_screen`（全仓库，31 + 25 + 5 处）
-- [x] Makefile：`UI` 变量、ncursesw 检测、TUI 目录过滤
-- [x] 新增 `src/ui/tui/tui.c`：`tui_init/shutdown` + 演示屏（含 atexit / 信号兜底）
-- [x] 新增 `include/ui/tui/tui.h`
-- [x] `main.c` 增加 `--tui` 分支（失败回退 CLI）
-- [x] **验收**：`make`、`make UI=cli` 均通过；`nm main` 不再导出 `getch`/`refresh`；演示屏与退出行为（交互待作者在真实终端确认）
-- [ ] 待确认：`./main --tui` 在真实终端下的显示与 `q` 退出（自动化环境无 tty）
+- [X]  重命名 `getch` / `refresh` / `clear_screen` → `cli_getch` / `cli_refresh_line` / `cli_clear_screen`（全仓库，31 + 25 + 5 处）
+- [X]  Makefile：`UI` 变量、ncursesw 检测、TUI 目录过滤
+- [X]  新增 `src/ui/tui/tui.c`：`tui_init/shutdown` + 演示屏（含 atexit / 信号兜底）
+- [X]  新增 `include/ui/tui/tui.h`
+- [X]  `main.c` 增加 `--tui` 分支（失败回退 CLI）
+- [X]  **验收**：`make`、`make UI=cli` 均通过；`nm main` 不再导出 `getch`/`refresh`；演示屏与退出行为（交互待作者在真实终端确认）
+- [ ]  待确认：`./main --tui` 在真实终端下的显示与 `q` 退出（自动化环境无 tty）
 
 ### M1 核心库 + 四个组件（预计 1.5 天）——已完成
 
-- [x] `width.c`：UTF-8 转换、`wcswidth`、按列宽截断（附单元测试 `make test-tui`）
-- [x] `key.c`：`tui_read_key`，方向键 / Backspace / Tab / Resize / F1 / EOF
-- [x] `theme.c`：6 组颜色，无颜色时自动降级为 `A_REVERSE` / `A_BOLD`
-- [x] `window.c`：外框、标题栏、状态栏、原子刷新（`wnoutrefresh` + `doupdate`）、终端过小提示
-- [x] `menu.c`：高亮整行、pre/post info、数字直选
-- [x] `form.c`：多字段、Tab/方向键切换、密码掩码、数字过滤、字段级校验、光标定位
-- [x] `table.c`：表头、分隔线、分页、整行高亮、`on_enter` 回调
-- [x] `dialog.c`：info / error / confirm / toast，按列宽自动换行
-- [x] `demo.c`：`./main --tui` 进入的组件演示（宽度自检 / 菜单 / 表格 / 表单 / 对话框）
-- [x] **验收**：tmux 伪终端逐页截图 + Python 计算显示列宽，**每行宽度完全一致（115/115）**，中文框线不错位；`make test-tui` 通过；`make UI=cli` 仍可构建
+- [X]  `width.c`：UTF-8 转换、`wcswidth`、按列宽截断（附单元测试 `make test-tui`）
+- [X]  `key.c`：`tui_read_key`，方向键 / Backspace / Tab / Resize / F1 / EOF
+- [X]  `theme.c`：6 组颜色，无颜色时自动降级为 `A_REVERSE` / `A_BOLD`
+- [X]  `window.c`：外框、标题栏、状态栏、原子刷新（`wnoutrefresh` + `doupdate`）、终端过小提示
+- [X]  `menu.c`：高亮整行、pre/post info、数字直选
+- [X]  `form.c`：多字段、Tab/方向键切换、密码掩码、数字过滤、字段级校验、光标定位
+- [X]  `table.c`：表头、分隔线、分页、整行高亮、`on_enter` 回调
+- [X]  `dialog.c`：info / error / confirm / toast，按列宽自动换行
+- [X]  `demo.c`：`./main --tui` 进入的组件演示（宽度自检 / 菜单 / 表格 / 表单 / 对话框）
+- [X]  **验收**：tmux 伪终端逐页截图 + Python 计算显示列宽，**每行宽度完全一致（115/115）**，中文框线不错位；`make test-tui` 通过；`make UI=cli` 仍可构建
 
 ### M2 service 层抽取 + 主菜单/登录（预计 1 天）——已完成
 
-- [x] `service/auth.c`：管理员结构化认证、学生学号索引查询；无终端 I/O
-- [x] `service/format.c`：Book / Student / Manager 行格式化；CLI 列表复用
-- [x] `views/main_menu.c`、`views/login.c`
-- [x] `views/admin_menu.c`、`views/student_menu.c`：登录后角色控制台及用户信息
-- [x] CLI 登录与列表显示改为调用 service（行为不变）
-- [x] TUI 主入口从组件演示切换为真实主菜单；组件演示保留为主菜单第 3 项
-- [x] **验收**：tmux 伪终端验证管理员错误密码提示、root/admin 成功登录、学生不存在提示、角色控制台与返回路径；`make`、`make test-tui`、`make UI=cli` 均通过
+- [X]  `service/auth.c`：管理员结构化认证、学生学号索引查询；无终端 I/O
+- [X]  `service/format.c`：Book / Student / Manager 行格式化；CLI 列表复用
+- [X]  `views/main_menu.c`、`views/login.c`
+- [X]  `views/admin_menu.c`、`views/student_menu.c`：登录后角色控制台及用户信息
+- [X]  CLI 登录与列表显示改为调用 service（行为不变）
+- [X]  TUI 主入口从组件演示切换为真实主菜单；组件演示保留为主菜单第 3 项
+- [X]  **验收**：tmux 伪终端验证管理员错误密码提示、root/admin 成功登录、学生不存在提示、角色控制台与返回路径；`make`、`make test-tui`、`make UI=cli` 均通过
 
 > M2 只负责认证与角色入口。角色菜单中 CRUD / 借还项明确显示“功能迁移中”，
 > 不调用旧 `printf` UI；管理员功能在 M3 接入，学生借还在 M4 接入。
 
 ### M3 管理员功能（预计 2 天）——部分完成
 
-- [x] `service/admin.c`：图书/学生/管理员单条 CRUD 与结构化结果
-- [x] TUI 快照列表：按数据库索引最大 key 扫描并跳过删除空洞，列表持有独立副本
-- [x] 图书：列表/新增/修改/删除；借出中的图书拒绝删除并提示
-- [x] 学生：列表/新增/修改/删除；仍有未归还图书的学生拒绝删除；维护 `stoid` 索引
-- [x] 管理员：列表/新增/修改/删除/修改自己的密码；保留权限和当前密码二次验证
-- [x] 图书/学生批量导入：纯业务字段格式、全文件预校验、进度回调及 TUI 进度条
-- [x] 图书操作中的借阅信息查看与强制还书；复用 `btos` 和现有借阅记录格式
-- [ ] 批量导入 TUI 与进度条：现有导入函数仍混合 CLI 输出、解析和持久化，待单独抽取后接入
-- [ ] **待验收**：在隔离数据库目录完成新增/修改/删除端到端对照；当前构建和静态检查已通过，自动按键冒烟因输入时序不可靠未计为通过
+- [X]  `service/admin.c`：图书/学生/管理员单条 CRUD 与结构化结果
+- [X]  TUI 快照列表：按数据库索引最大 key 扫描并跳过删除空洞，列表持有独立副本
+- [X]  图书：列表/新增/修改/删除；借出中的图书拒绝删除并提示
+- [X]  学生：列表/新增/修改/删除；仍有未归还图书的学生拒绝删除；维护 `stoid` 索引
+- [X]  管理员：列表/新增/修改/删除/修改自己的密码；保留权限和当前密码二次验证
+- [X]  图书/学生批量导入：纯业务字段格式、全文件预校验、进度回调及 TUI 进度条
+- [X]  图书操作中的借阅信息查看与强制还书；复用 `btos` 和现有借阅记录格式
+- [ ]  批量导入 TUI 与进度条：现有导入函数仍混合 CLI 输出、解析和持久化，待单独抽取后接入
+- [ ]  **待验收**：在隔离数据库目录完成新增/修改/删除端到端对照；当前构建和静态检查已通过，自动按键冒烟因输入时序不可靠未计为通过
 
 > 导入文件契约：`Book.txt` 每行 5 列 `ISBN,书名,作者,出版社,出版时间`；
 > `Student.txt` 每行 4 列 `学号,姓名,班级,学院`。数据库 ID、图书状态、借阅时间/数量和索引均由系统维护。
 > 导入先完整校验；字段数、字段长度、学生学号非法/重复时整批不写入。
 > 本阶段没有修改 `src/models`、`src/DataBase`、`src/Tools`。
 
-### M4 学生功能（预计 1 天）
+### M4 学生功能（预计 1 天）——已完成
 
-- [ ] `service/borrow.c`
-- [ ] 借书（书籍分页选择 + 借阅记录写入 `btos`/`borrow_records`）
-- [ ] 还书（已借列表 + 逾期提示）
-- [ ] 借阅信息查看
-- [ ] **验收**：借/还流程与 CLI 一致，逾期天数显示正确
+- [x] `service/borrow.c`：借书、还书、逾期判定、已借列表，无终端 I/O
+- [x] 借书：分页浏览图书 → Enter 确认 → 写入借阅记录并更新 `btos`/图书状态/学生计数
+- [x] 还书："我的借阅"列表显示借阅与逾期时长，确认后归还
+- [x] 借阅信息查看：还书列表同时承担当前借阅概览（含逾期天数/小时）
+- [x] 规则与 CLI 一致：仅可借图书可借；上限 `MAX_AVAILABLE`；
+      学生自助归还逾期书被拒绝并提示联系管理员；`allow_overdue=true` 供管理员代办
+- [x] **验收**：`make test-borrow` 21 项断言全部通过；重新打开数据库后状态一致；
+      tmux 真实终端完成 借书 → 状态刷新 → 还书 → 借阅数回落 的完整闭环
+
+> 本阶段未修改 `src/models`、`src/DataBase`、`src/Tools`。
+> 图书浏览复用 `admin_*_keys()` 惰性加载，避免一次性构造十几万对象。
 
 ### M5 命令面板与搜索（预计 0.5 天）
 
-- [ ] 复用 `Tools/Trie` 做 `/` 命令面板（`set/help/search/page`）
-- [ ] 搜索结果在表格中展示
-- [ ] **验收**：Tab 补全、命令执行不破坏界面
+- [ ]  复用 `Tools/Trie` 做 `/` 命令面板（`set/help/search/page`）
+- [ ]  搜索结果在表格中展示
+- [ ]  **验收**：Tab 补全、命令执行不破坏界面
 
 ### M6 打磨与文档（预计 0.5 天）
 
-- [ ] 颜色主题、错误提示统一、状态栏文案
-- [ ] 终端过小提示、无颜色降级、`MB_CUR_MAX==1` 回退
-- [ ] README 增加 TUI 使用说明与截图（可选）
-- [ ] 本文档补充"实现差异记录"
-- [ ] **验收**：`make UI=cli` 与 `make` 均通过；`./main --tui` 全流程可玩
+- [ ]  颜色主题、错误提示统一、状态栏文案
+- [ ]  终端过小提示、无颜色降级、`MB_CUR_MAX==1` 回退
+- [ ]  README 增加 TUI 使用说明与截图（可选）
+- [ ]  本文档补充"实现差异记录"
+- [ ]  **验收**：`make UI=cli` 与 `make` 均通过；`./main --tui` 全流程可玩
 
 ### 时间总计
 
@@ -781,27 +796,28 @@ int main(int argc, char **argv) {
 
 ### 10.1 自动化
 
-| 层 | 方式 |
-|---|---|
-| `width.c` | `test/test_tui_width.c`：中英混排宽度、截断、UTF-8 往返 |
-| `key.c` 映射 | 把 `tui_read_key` 拆成"原始码 → `tui_key`"的纯函数，直接测 |
-| service 层 | `test/test_service.c`：用临时目录建库，覆盖增删改查/登录失败/重复 ID |
-| 既有测试 | `make test` 必须保持全绿 |
+
+| 层           | 方式                                                                 |
+| ------------ | -------------------------------------------------------------------- |
+| `width.c`    | `test/test_tui_width.c`：中英混排宽度、截断、UTF-8 往返              |
+| `key.c` 映射 | 把`tui_read_key` 拆成"原始码 → `tui_key`"的纯函数，直接测           |
+| service 层   | `test/test_service.c`：用临时目录建库，覆盖增删改查/登录失败/重复 ID |
+| 既有测试     | `make test` 必须保持全绿                                             |
 
 > 注意：ncurses 只能有一个进程实例操作终端，**不要**在单元测试里 `initscr`。所有可测逻辑必须与 ncurses 解耦。
 
 ### 10.2 手动冒烟清单（每个里程碑跑一遍）
 
-- [ ] 主菜单 → 学生入口 → 返回 → 管理员入口 → 退出
-- [ ] 错误密码 3 次后返回
-- [ ] 图书列表翻页、数字跳转、Enter 查看
-- [ ] 新增图书（含空值/重复 ISBN 校验）
-- [ ] 批量导入 `Book.txt`，进度显示，完成后列表数量正确
-- [ ] 修改/删除图书（删除需 `tui_confirm`）
-- [ ] 借书 → 学生借阅列表出现 → 还书 → 状态恢复"可借"
-- [ ] `Ctrl+C` / `SIGTERM` 退出后终端正常
-- [ ] 终端 40×12 时提示过小；恢复大小后自动重绘
-- [ ] 无颜色的 `TERM=dumb`/`mono` 终端可操作
+- [ ]  主菜单 → 学生入口 → 返回 → 管理员入口 → 退出
+- [ ]  错误密码 3 次后返回
+- [ ]  图书列表翻页、数字跳转、Enter 查看
+- [ ]  新增图书（含空值/重复 ISBN 校验）
+- [ ]  批量导入 `Book.txt`，进度显示，完成后列表数量正确
+- [ ]  修改/删除图书（删除需 `tui_confirm`）
+- [ ]  借书 → 学生借阅列表出现 → 还书 → 状态恢复"可借"
+- [ ]  `Ctrl+C` / `SIGTERM` 退出后终端正常
+- [ ]  终端 40×12 时提示过小；恢复大小后自动重绘
+- [ ]  无颜色的 `TERM=dumb`/`mono` 终端可操作
 
 ### 10.3 CLI 回归
 
@@ -811,24 +827,25 @@ int main(int argc, char **argv) {
 
 ## 11. 风险与应对
 
-| 风险 | 等级 | 应对 |
-|---|---|---|
-| `getch`/`refresh` 符号冲突导致诡异崩溃 | 高 | M0 必须改名；CI 中 `nm main \| grep getch` 校验仅来自 ncurses |
-| 中文错位 | 高 | 统一 `wcwidth` 绘制；禁止 `strlen` 对齐；M1 专项验收 |
-| 业务函数内 `printf` 打穿 curses | 高 | service 抽取；TUI 路径禁止调用任何带 `printf` 的旧视图函数 |
-| 参数隐式（`page()` 的 `void *args[]`）抄错 | 中 | TUI 一律显式结构体，不复用旧参数布局 |
-| 终端崩溃后残留乱码 | 中 | `atexit` + 信号兜底；`curs_set(1)` 恢复 |
-| 大库一次性加载卡顿 | 中 | 表格分页按页取数，不缓存全库 |
-| ncurses 版本差异（`set_escdelay`） | 低 | 版本条件编译 / `ESCDELAY` 环境变量 |
-| 双后端代码漂移 | 中 | service 唯一数据入口；每个里程碑对照 CLI 结果 |
-| 数据层既有 bug 被误判为 TUI 问题 | 中 | 每个里程碑先跑 CLI 对照组；异常先复现再定位，见 §12.1.1 |
+
+| 风险                                       | 等级 | 应对                                                        |
+| ------------------------------------------ | ---- | ----------------------------------------------------------- |
+| `getch`/`refresh` 符号冲突导致诡异崩溃     | 高   | M0 必须改名；CI 中`nm main | grep getch` 校验仅来自 ncurses |
+| 中文错位                                   | 高   | 统一`wcwidth` 绘制；禁止 `strlen` 对齐；M1 专项验收         |
+| 业务函数内`printf` 打穿 curses             | 高   | service 抽取；TUI 路径禁止调用任何带`printf` 的旧视图函数   |
+| 参数隐式（`page()` 的 `void *args[]`）抄错 | 中   | TUI 一律显式结构体，不复用旧参数布局                        |
+| 终端崩溃后残留乱码                         | 中   | `atexit` + 信号兜底；`curs_set(1)` 恢复                     |
+| 大库一次性加载卡顿                         | 中   | 表格分页按页取数，不缓存全库                                |
+| ncurses 版本差异（`set_escdelay`）         | 低   | 版本条件编译 /`ESCDELAY` 环境变量                           |
+| 双后端代码漂移                             | 中   | service 唯一数据入口；每个里程碑对照 CLI 结果               |
+| 数据层既有 bug 被误判为 TUI 问题           | 中   | 每个里程碑先跑 CLI 对照组；异常先复现再定位，见 §12.1.1    |
 
 ---
 
 ## 12. 协作约定（给 AI 的硬性规则）
 
 1. **不碰数据层**：`src/models`、`src/DataBase`、`src/Tools` 不做"顺手重构"；确需修改先写进本文档。
-1.1 **数据层可能存在既有 bug（已知且被作者确认）**。测试过程中一旦在 `src/models`、`src/DataBase`、`src/Tools`、`src/function.c` 中发现异常行为：
+   1.1 **数据层可能存在既有 bug（已知且被作者确认）**。测试过程中一旦在 `src/models`、`src/DataBase`、`src/Tools`、`src/function.c` 中发现异常行为：
    - **立即停止当前改动**，不自行修复、不"临时绕过"；
    - 输出一份最小复现（输入、实际输出、期望输出、涉及文件行号）通知作者；
    - 得到作者确认后再决定：修复 / 在文档中记录为已知问题 / 由作者本人处理。
@@ -851,17 +868,19 @@ int main(int argc, char **argv) {
 
 ## 13. 变更记录
 
-| 日期 | 版本 | 内容 | 作者 |
-|---|---|---|---|
-| 2026-10-30 | v1 | 初稿：架构、API、里程碑 | AI |
-| 2026-10-30 | v1.1 | 新增 §12.1.1「数据层 bug 处置规则」（作者要求：发现即报告，不自行修复）；风险表补充一条 | AI |
-| 2026-10-30 | v1.2 | M0 完成：签名改名、Makefile `UI` 开关、TUI 骨架；记录 §14 已知问题 #1 | AI |
-| 2026-10-30 | v1.3 | M1 完成：`width/key/theme/window` + 4 个组件 + 组件演示；修正表单按键语义、新增非 tty 拦截；#1 经作者确认暂不修复 | AI |
-| 2026-10-30 | v1.4 | M2 完成：认证与格式化 service、真实主菜单、管理员/学生登录与角色控制台；CLI 复用 service | AI |
-| 2026-10-30 | v1.5 | M3 部分完成：管理员 CRUD service、快照列表与 TUI 图书/学生/管理员管理；批量导入和借阅关联操作待后续 | AI |
-| 2026-10-30 | v1.6 | M3 补充：图书借阅信息查看与管理员强制还书完成；批量导入因现有 CLI/持久化耦合继续暂缓 | AI |
-| 2026-10-30 | v1.7 | M3 批量导入完成：定义 5 列图书/4 列学生格式，重生成样例文件，增加预校验、索引维护、TUI 进度与格式测试 | AI |
-| 2026-10-30 | v1.8 | 修复导入后列表只显示首条：规避 `_last_key` 不前进（已知问题 #2），列表改为键列表 + 单行惰性加载 | AI |
+
+| 日期       | 版本 | 内容                                                                                                              | 作者 |
+| ---------- | ---- | ----------------------------------------------------------------------------------------------------------------- | ---- |
+| 2026-10-30 | v1   | 初稿：架构、API、里程碑                                                                                           | AI   |
+| 2026-10-30 | v1.1 | 新增 §12.1.1「数据层 bug 处置规则」（作者要求：发现即报告，不自行修复）；风险表补充一条                          | AI   |
+| 2026-10-30 | v1.2 | M0 完成：签名改名、Makefile`UI` 开关、TUI 骨架；记录 §14 已知问题 #1                                             | AI   |
+| 2026-10-30 | v1.3 | M1 完成：`width/key/theme/window` + 4 个组件 + 组件演示；修正表单按键语义、新增非 tty 拦截；#1 经作者确认暂不修复 | AI   |
+| 2026-10-30 | v1.4 | M2 完成：认证与格式化 service、真实主菜单、管理员/学生登录与角色控制台；CLI 复用 service                          | AI   |
+| 2026-10-30 | v1.5 | M3 部分完成：管理员 CRUD service、快照列表与 TUI 图书/学生/管理员管理；批量导入和借阅关联操作待后续               | AI   |
+| 2026-10-30 | v1.6 | M3 补充：图书借阅信息查看与管理员强制还书完成；批量导入因现有 CLI/持久化耦合继续暂缓                              | AI   |
+| 2026-10-30 | v1.7 | M3 批量导入完成：定义 5 列图书/4 列学生格式，重生成样例文件，增加预校验、索引维护、TUI 进度与格式测试             | AI   |
+| 2026-10-30 | v1.8 | 修复导入后列表只显示首条：规避`_last_key` 不前进（已知问题 #2），列表改为键列表 + 单行惰性加载                    | AI   |
+| 2026-10-30 | v1.9 | M4 完成：借还 service、学生借书/还书/借阅概览视图、`test-borrow` 回归测试；修复连续对话框边框残留                      | AI   |
 
 ---
 
@@ -884,7 +903,6 @@ int main(int argc, char **argv) {
   All string tests passed!
   Segmentation fault (core dumped)
   ```
-
 - **回溯**
 
   ```text
@@ -894,7 +912,6 @@ int main(int argc, char **argv) {
   #1  test_string_vector () at test/test_vector.c:70
   #2  main () at test/test_vector.c:80
   ```
-
 - **疑似根因**：`new_vector("char*")` 在 `src/Tools/Vector.c` 的 `_init_all()` 中落到最后的 `else` 分支；
   其中只识别 `int / float / double / size_t / char`，`"char*"` 不匹配 → `result = 0` →
   `_itemSize = 0` → `malloc(0)`。随后 `push_back` 6 个元素越界写入，`at()` 返回非法指针，
@@ -910,7 +927,8 @@ int main(int argc, char **argv) {
 
 ### #2 `DataBase::add()` 不推进 `_last_key`，连续 add 会复用同一个键
 
-- **状态**：**未修改数据层**；已在 service 层规避（`src/service/import.c::add_unique`）。是否修 `DataBase.c` 待作者决定。
+- **状态**：✅ **已由作者修复**（`_database_add()` 恢复 `_last_key` 赋值）；
+  service 层的 `add_unique()` 保留为幂等防御，不再依赖该契约。旧数据仍需重建（见下）。
 - **现象**：批量导入后，管理界面只显示第一条记录，但数据库文件确实包含全部数据。
 - **根因**：`src/DataBase/DataBase.c` 的 `_database_add()` 中
   `this->_index->_last_key = newKey;` 被注释掉；而 `get_new_key()` 依赖 `_last_key + 1`。
@@ -924,7 +942,6 @@ int main(int argc, char **argv) {
   db size=3 last_key=1     ← 3 条数据，键却都是 1
   findable=1               ← 只能查到 1 条
   ```
-
 - **service 层规避**：导入时在每条 `add()` 之后同步推进 `db->_index->_last_key`，
   并每 4096 条 `save()` 一次控制内存。修复后同一用例输出 `last_key=3`、`findable=3`。
 - **已受影响的数据必须重建**：旧版导入写出的记录 `id` 本身已全部相同，
@@ -938,6 +955,7 @@ int main(int argc, char **argv) {
 ---
 
 ## 附：M0 最小可运行示例（用于验证环境）
+
 ```c
 /* src/ui/tui/tui.c —— M0 版本，仅用于验证 ncursesw 可用 */
 #include <locale.h>
