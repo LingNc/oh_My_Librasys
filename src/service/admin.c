@@ -8,9 +8,10 @@
 #include "DataBase/Index.h"
 #include "Tools/Hash.h"
 #include "Tools/String.h"
+#include "function.h"
 
 extern dataBase bookDb, studentDb, managerDb, passwordDb, borrowDb;
-extern database_index stoid;
+extern database_index btos, stoid;
 
 static admin_op_result result(admin_op_status status, const char *message) {
     admin_op_result value = { status, message };
@@ -84,6 +85,39 @@ admin_op_result admin_delete_book(book item) {
     bookDb->rm(bookDb, item->id);
     bookDb->save(bookDb);
     return result(ADMIN_OP_OK, "删除图书成功");
+}
+
+student admin_book_borrower(book item) {
+    if (!item || item->status != 1) return NULL;
+    size_t student_id = find_index(btos, item->id);
+    if (student_id == 0) return NULL;
+    return studentDb->find_key(studentDb, student_id);
+}
+
+admin_op_result admin_force_return(book item) {
+    student borrower = admin_book_borrower(item);
+    if (!item || !borrower) return result(ADMIN_OP_NOT_FOUND, "未找到借阅学生或借阅记录");
+
+    vector records = load_borrow_records(borrowDb, borrower->id);
+    for (size_t i = 0; i < records->size(records); ++i) {
+        string record = records->at(records, i);
+        size_t book_id = 0;
+        memcpy(&book_id, record->c_str(record), sizeof(book_id));
+        if (book_id != item->id) continue;
+
+        records->remove(records, i);
+        save_borrow_records(borrowDb, borrower->id, records);
+        records->free(records);
+        borrower->borrowedCount--;
+        item->status = 0;
+        item->borrowData = 0;
+        studentDb->change(studentDb, borrower->id, borrower);
+        bookDb->change(bookDb, item->id, item);
+        return result(ADMIN_OP_OK, "强制还书成功");
+    }
+
+    records->free(records);
+    return result(ADMIN_OP_NOT_FOUND, "未找到借阅记录");
 }
 
 admin_op_result admin_add_student(size_t student_id, const char *name,

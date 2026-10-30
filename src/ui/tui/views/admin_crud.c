@@ -94,10 +94,26 @@ static void manager_row(void *ctx, size_t row, size_t col, char *out, size_t cap
 static bool book_action(void *ctx, size_t row) {
     crud_context *list = ctx;
     book item = list->rows->at(list->rows, row);
-    static const char *const options[] = { "1. 修改图书", "2. 删除图书", "3. 返回" };
-    tui_menu_spec spec = { .title = "图书操作", .items = options, .count = 3 };
+    static const char *const options[] = { "1. 查看借阅信息", "2. 强制还书", "3. 修改图书", "4. 删除图书", "5. 返回" };
+    tui_menu_spec spec = { .title = "图书操作", .items = options, .count = 5 };
     int choice = tui_menu(&spec);
     if (choice == 0) {
+        student borrower = admin_book_borrower(item);
+        if (!borrower) {
+            tui_info("借阅信息", "当前图书未借出，或未找到借阅学生。");
+        } else {
+            tui_info("借阅信息", "学号：%zu\n姓名：%s\n班级：%s\n学院：%s",
+                     borrower->studentID, borrower->name->c_str(borrower->name),
+                     borrower->class->c_str(borrower->class),
+                     borrower->department->c_str(borrower->department));
+            free_student(borrower);
+        }
+    } else if (choice == 1) {
+        if (tui_confirm("确定强制归还《%s》吗？", item->name->c_str(item->name))) {
+            show_result(admin_force_return(item));
+            return false;
+        }
+    } else if (choice == 2) {
         char isbn[128], name[128], author[128], publisher[128], date[64];
         snprintf(isbn, sizeof(isbn), "%s", item->ISBN->c_str(item->ISBN));
         snprintf(name, sizeof(name), "%s", item->name->c_str(item->name));
@@ -115,7 +131,7 @@ static bool book_action(void *ctx, size_t row) {
             show_result(admin_update_book(item, isbn, name, author, publisher, date));
             return false;
         }
-    } else if (choice == 1 && tui_confirm("确定删除《%s》吗？", item->name->c_str(item->name))) {
+    } else if (choice == 3 && tui_confirm("确定删除《%s》吗？", item->name->c_str(item->name))) {
         show_result(admin_delete_book(item));
         return false;
     }

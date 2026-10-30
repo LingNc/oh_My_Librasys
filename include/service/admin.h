@@ -35,6 +35,8 @@ admin_op_result admin_update_book(book item, const char *isbn, const char *name,
                                   const char *author, const char *publisher,
                                   const char *published_at);
 admin_op_result admin_delete_book(book item);
+student admin_book_borrower(book item);
+admin_op_result admin_force_return(book item);
 
 admin_op_result admin_add_student(size_t student_id, const char *name,
                                   const char *class_name, const char *department);
