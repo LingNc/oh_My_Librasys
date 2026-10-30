@@ -10,10 +10,13 @@
 #include "ui/tui/width.h"
 
 #define TABLE_CELL_MAX 256
-#define TABLE_DEFAULT_PAGE 10
 #define TABLE_DEFAULT_HINT "↑↓/jk 移动  ←→/hl 翻页  Enter 查看  q 返回"
 
-static size_t g_default_page = TABLE_DEFAULT_PAGE;
+/*
+ * 0 表示自动：按窗口可用高度决定每页行数（默认行为）。
+ * /set 设置为正数后改为固定行数。
+ */
+static size_t g_default_page = 0;
 static bool g_pending_page = false;
 static size_t g_pending_page_value = 0;
 
@@ -22,7 +25,7 @@ size_t tui_table_default_page_size(void) {
 }
 
 void tui_table_set_default_page_size(size_t size) {
-    if (size > 0) g_default_page = size;
+    g_default_page = size;   /* 0 = 恢复自动填满 */
 }
 
 void tui_table_request_page(size_t page) {
@@ -86,26 +89,44 @@ long tui_table(const tui_table_spec *spec) {
     if (!spec || !spec->row_count || !spec->row_text || spec->ncols == 0) return -1;
 
     const char *hint = spec->hint ? spec->hint : TABLE_DEFAULT_HINT;
-    size_t page_size = spec->page_size ? spec->page_size : tui_table_default_page_size();
+    size_t page_size = 0;       /* 0 = 尚未确定，首轮按窗口高度算出 */
 
     size_t total = spec->row_count(spec->ctx);
     size_t page = 0;
     size_t hl = 0;              /* 页内高亮 */
-    size_t total_pages = (total + page_size - 1) / page_size;
-    if (total_pages == 0) total_pages = 1;
+    size_t total_pages = 1;
 
     for (;;) {
         /*
-         * 每轮同步页大小：/set 在表格运行期间修改全局值后，
-         * 返回表格时能立即生效（按当前高亮行的绝对位置重新分页）。
+         * 先建立帧，因为自动页大小需要知道窗口可用高度。
+         * 布局：表头 1 行 + 分隔线 1 行 + 数据区 + 底部信息 1 行。
          */
+        ui_frame f;
+        if (!ui_frame_begin(spec->title, hint, &f)) {
+            tui_key k0 = tui_read_key();
+            if (tui_is_cancel(k0)) return -1;
+            continue;
+        }
+
         size_t desired_page = spec->page_size ? spec->page_size : tui_table_default_page_size();
-        if (desired_page != page_size) {
+        if (desired_page == 0) {
+            /* 自动：占满内容区剩余高度 */
+            int available = f.h - 3;
+            if (available < 1) available = 1;
+            desired_page = (size_t)available;
+        }
+
+        /*
+         * 页大小可能因 /set 或窗口 resize 而变化，
+         * 按当前高亮行的绝对位置重新分页，避免跳页。
+         */
+        if (page_size == 0) {
+            page_size = desired_page;
+        } else if (desired_page != page_size) {
             size_t abs_row = page * page_size + hl;
             page_size = desired_page;
             page = abs_row / page_size;
             hl = abs_row % page_size;
-            if (page_size == 0) page_size = 1;
         }
 
         total = spec->row_count(spec->ctx);
@@ -120,12 +141,6 @@ long tui_table(const tui_table_spec *spec) {
             page = g_pending_page_value < total_pages ? g_pending_page_value : total_pages - 1;
             hl = 0;
             g_pending_page = false;
-        }
-        ui_frame f;
-        if (!ui_frame_begin(spec->title, hint, &f)) {
-            tui_key k0 = tui_read_key();
-            if (tui_is_cancel(k0)) return -1;
-            continue;
         }
 
         char info[128];

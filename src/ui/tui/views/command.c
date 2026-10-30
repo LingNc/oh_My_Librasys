@@ -129,7 +129,7 @@ static void show_help(void) {
     tui_info("命令帮助",
              "/search <关键字>    搜索图书\n"
              "/students <关键字>  搜索学生\n"
-             "/set <n>            设置每页行数\n"
+             "/set <n>            每页行数，auto 为自适应窗口\n"
              "/page <n>           跳转到第 n 页\n"
              "/help               显示本帮助\n"
              "Tab 补全命令，Esc 取消");
@@ -181,13 +181,20 @@ bool tui_command_palette(tui_command_request *request) {
         return true;
     }
     if (strcmp(name, "set") == 0) {
-        int size = atoi(argument);
-        if (size <= 0) {
-            tui_error("命令", "/set 需要一个正整数");
+        if (argument[0] == '\0' || strcmp(argument, "auto") == 0) {
+            tui_table_set_default_page_size(0);
+            tui_toast("每页行数已改为自适应窗口");
+            return false;
+        }
+
+        char *end = NULL;
+        long size = strtol(argument, &end, 10);
+        if (!end || *end != '\0' || size <= 0 || size > 1000) {
+            tui_error("命令", "/set 需要 1-1000 的整数，或 auto（自适应）");
             return false;
         }
         tui_table_set_default_page_size((size_t)size);
-        tui_toast("每页行数已设为 %d", size);
+        tui_toast("每页行数已设为 %ld", size);
         return false;
     }
     if (strcmp(name, "page") == 0) {
