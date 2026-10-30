@@ -37,7 +37,9 @@ bool ui_frame_begin(const char *title, const char *status, ui_frame *f) {
     }
 
     erase();
+    attron(theme_attr(UI_PAIR_BORDER));
     box(stdscr, 0, 0);
+    attroff(theme_attr(UI_PAIR_BORDER));
 
     if (title) {
         char buf[256];
