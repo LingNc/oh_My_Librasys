@@ -9,7 +9,7 @@
 #endif
 #include "ui/components/func.h"
 #include <stdbool.h>
-void clear_screen(){
+void cli_clear_screen(){
     printf("\033[H\033[J");
 }
 
@@ -41,7 +41,7 @@ char handle_event(char ch){
 
 
 // Unix/Linux/macOS 使用 termios 禁用回显和标准输入缓冲
-char getch(){
+char cli_getch(){
 #ifdef _WIN32
     char ch=_getch();
     if(ch==0||ch==224){
@@ -80,7 +80,7 @@ void backspace(char *input,int *input_index){
     }
 }
 
-void refresh(char *input,int *input_index,const char *new_content){
+void cli_refresh_line(char *input,int *input_index,const char *new_content){
     // 使用退格符删除index行
     for(int i=0; i<*input_index; i++){
         printf("\b \b");

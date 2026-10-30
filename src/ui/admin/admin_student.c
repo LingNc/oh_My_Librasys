@@ -25,7 +25,7 @@ void admin_student_postInfo(void *arg){
 }
 
 void import_students(void *arg){
-    clear_screen();
+    cli_clear_screen();
     printf("按q键退出\n");
     printf("批量导入学生功能\n");
     char file_path[100];
@@ -37,12 +37,12 @@ void import_students(void *arg){
     if(res) printf("批量导入学生成功\n");
     else printf("批量导入学生失败\n");
     getchar(); getchar(); // 等待用户按键
-    clear_screen();
+    cli_clear_screen();
 }
 
 void add_student_manual(void *arg){
     while(1){
-        clear_screen();
+        cli_clear_screen();
         printf("增加学生功能\n");
         size_t id;
         char idStr[MAX_INPUT];
@@ -54,7 +54,7 @@ void add_student_manual(void *arg){
         id=(size_t)atoll(idStr);
         if(studentDb->find_key(studentDb,id)){
             printf("学生ID已存在，请重新输入\n");
-            getch();
+            cli_getch();
             continue;
         }
         printf("请输入姓名: ");
@@ -79,7 +79,7 @@ void add_student_manual(void *arg){
 
         printf("增加学生成功\n");
         printf("是否继续添加? (y/n)\n");
-        // getch();
+        // cli_getch();
         // 清空输入缓冲区
         char a[MAX_INPUT];
         if(!getaline(a,"qny")){
@@ -88,11 +88,11 @@ void add_student_manual(void *arg){
         }
         if(strlen(a)!=1){
             printf("无效输入\n");
-            getch();
+            cli_getch();
             return;
         }
-        getch(); // 等待用户按键
-        clear_screen();
+        cli_getch(); // 等待用户按键
+        cli_clear_screen();
     }
 }
 
@@ -117,7 +117,7 @@ void edit_student(void *arg) {
     student s = (student)arg;
 
     if (s) {
-        clear_screen();
+        cli_clear_screen();
         printf("修改学生功能\n");
         char name[50], class[50], department[50];
 
@@ -146,7 +146,7 @@ void edit_student(void *arg) {
     } else {
         printf("\n学生不存在\n");
     }
-    getch();
+    cli_getch();
 }
 
 void delete_student(void *arg) {
@@ -178,7 +178,7 @@ void delete_student(void *arg) {
     } else {
         printf("学生不存在\n");
     }
-    getch();
+    cli_getch();
 }
 
 void force_return_book(void *arg) {

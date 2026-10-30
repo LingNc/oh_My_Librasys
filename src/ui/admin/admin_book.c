@@ -26,7 +26,7 @@ void admin_book_postInfo(void *arg) {
 }
 
 void import_books(void *arg) {
-    clear_screen();
+    cli_clear_screen();
     printf("按q键退出\n");
     printf("批量导入书籍功能\n");
     char file_path[100];
@@ -38,12 +38,12 @@ void import_books(void *arg) {
     if (res) printf("批量导入书籍成功\n");
     else printf("批量导入书籍失败\n");
     getchar(); getchar(); // 等待用户按键
-    clear_screen();
+    cli_clear_screen();
 }
 
 void add_book_manual(void *arg) {
     while (1) {
-        clear_screen();
+        cli_clear_screen();
         printf("增加图书功能\n");
         char ISBN[20], name[50], author[50], publisher[50], time[20];
         printf("请输入ISBN: ");
@@ -78,10 +78,10 @@ void add_book_manual(void *arg) {
             return;
         }
         if (a[0] != 'y') break;
-        clear_screen();
+        cli_clear_screen();
     }
     getchar(); getchar(); // 等待用户按键
-    clear_screen();
+    cli_clear_screen();
 }
 
 void add_book(void *arg) {
@@ -105,7 +105,7 @@ void edit_book(void *arg) {
     book b = (book)arg;
 
     if (b) {
-        clear_screen();
+        cli_clear_screen();
         printf("修改图书功能\n");
         char ISBN[20], name[50], author[50], publisher[50], time[20];
 
@@ -144,7 +144,7 @@ void edit_book(void *arg) {
     } else {
         printf("图书不存在\n");
     }
-    getch();
+    cli_getch();
 }
 
 void delete_book(void *arg){
@@ -184,7 +184,7 @@ void delete_book(void *arg){
     else{
         printf("图书不存在\n");
     }
-    getch();
+    cli_getch();
 }
 
 void view_borrow_info(void *arg){

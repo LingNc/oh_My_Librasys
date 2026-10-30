@@ -22,7 +22,7 @@ extern database_index btos,stoid;
 extern dataBase managerDb,passwordDb;
 
 void clock_times(const char *msg,size_t nums){
-    clear_screen();
+    cli_clear_screen();
     printf("%s%zu\n",msg,nums);
 }
 // 从文件中批量加载书籍
@@ -157,7 +157,7 @@ void init_root(){
 
         free_manager(root);
         printf("初始化完毕\n按任意键继续...");
-        getch();
+        cli_getch();
     }
 }
 

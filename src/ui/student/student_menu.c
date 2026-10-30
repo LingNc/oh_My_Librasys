@@ -31,7 +31,7 @@ void student_postInfo(void *arg){
 
 // void view_borrow_info(void **arg){
 //     size_t student_id=*(size_t *)arg[0];
-//     clear_screen();
+//     cli_clear_screen();
 //     printf("查看借阅信息功能\n");
 
 //     student s=studentDb->find_key(studentDb,student_id);
@@ -59,7 +59,7 @@ void student_postInfo(void *arg){
 //         printf("当前学生尚未借书，暂未借阅信息。\n");
 //     }
 //     getchar();  // 等待用户按键
-//     clear_screen();
+//     cli_clear_screen();
 // }
 
 void student_menu(void *arg){

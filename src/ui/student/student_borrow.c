@@ -60,11 +60,11 @@ void borrow_book(void *arg){
         studentDb->change(studentDb,s->id,s);
         bookDb->change(bookDb,b->id,b);
         printf("借书成功\n");
-        getch();
+        cli_getch();
     }
     else{
         printf("无法借书，已达到最大借阅数量或图书已借出。\n");
-        getch();
+        cli_getch();
     }
 }
 

@@ -18,7 +18,7 @@ void display_menu(int highlight, const wchar_t **choices, int n_choices) {
 }
 
 bool handle_menu_input(int *highlight, int n_choices, int *choice) {
-    char ch = getch();
+    char ch = cli_getch();
     bool direct_jump = false;
 
     switch (ch) {
@@ -51,7 +51,7 @@ void menu(int n_choices, const wchar_t **choices, void (**funcs)(void *), void *
     int choice = -1;
 
     while (1) {
-        clear_screen();
+        cli_clear_screen();
         // preInfo
         if(funcs[0]){
             if(arg){

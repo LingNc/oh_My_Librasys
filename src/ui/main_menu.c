@@ -31,7 +31,7 @@ bool verify_password(size_t id) {
 }
 
 void login(void *arg){
-    clear_screen();
+    cli_clear_screen();
     bool is_admin = *(bool *)arg;
     size_t id;
     if(is_admin){
@@ -53,11 +53,11 @@ void login(void *arg){
                 admin_menu(m);
             } else {
                 printf("密码验证失败\n");
-                getch();
+                cli_getch();
             }
         } else {
             printf("管理员ID不存在请重新输入\n");
-            getch();
+            cli_getch();
         }
     } else {
         id=find_index(stoid,id);
@@ -66,7 +66,7 @@ void login(void *arg){
             student_menu(s);
         } else {
             printf("学号输入有误，请重新输入\n");
-            getch();
+            cli_getch();
         }
     }
 }

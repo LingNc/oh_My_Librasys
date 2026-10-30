@@ -22,7 +22,7 @@ void display_page(vector content, int page, int total_pages, int highlight, void
 }
 
 int handle_page_input(int *page, int total_pages, int *highlight, int *choice, void **args) {
-    char ch = getch();
+    char ch = cli_getch();
     bool direct_jump = false;
     int pageSize = *(int *)args[0];
     int lineSize = *(int *)args[1];
@@ -98,7 +98,7 @@ void page(dataBase db, int pageSize, void (**funcs)(void *), void **arg) {
         else{
             content=db->get(db,page*pageSize,pageSize);
         }
-        clear_screen();
+        cli_clear_screen();
         // preInfo
         if (funcs[0]){
             if(arg){

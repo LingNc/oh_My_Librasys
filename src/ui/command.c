@@ -56,7 +56,7 @@ void autocomplete(trie root,char *input,bool *show_matches,int *index,char *pref
     }
 
     // 刷新补全到分支的内容
-    refresh(input-1,index,input-1);
+    cli_refresh_line(input-1,index,input-1);
     // 如果无须补全直接返回
     if(node->is_end_of_word)
         return;
@@ -85,11 +85,11 @@ void autocomplete(trie root,char *input,bool *show_matches,int *index,char *pref
                     strcat(newContent,match->c_str(match));
                     strcat(newContent," ");
                 }
-                refresh(input-1,index,newContent);
+                cli_refresh_line(input-1,index,newContent);
                 char temp;
                 // 按任意键返回
-                getch();
-                refresh(input-1,index,oldContent);
+                cli_getch();
+                cli_refresh_line(input-1,index,oldContent);
             }
             matches->free(matches);
             *show_matches=false;
@@ -112,7 +112,7 @@ void execute(void **args){
 
     input[index++]='/';
     printf("%s",input);
-    while((ch=getch())!='\n'){
+    while((ch=cli_getch())!='\n'){
         if(ch=='\t'){
             input[index]='\0';
             autocomplete(root,input+1,&show_matches,&index,input+1);
@@ -173,5 +173,5 @@ void execute(void **args){
     else{
         printf("\n无效命令，输入 /help 查看帮助\n");
     }
-    getch();
+    cli_getch();
 }

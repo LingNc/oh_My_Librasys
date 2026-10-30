@@ -11,7 +11,7 @@ string get_password(const char msg[]){
     printf("%s",msg);
     while(1){
         // 禁用回显读取字符
-        ch=getch();
+        ch=cli_getch();
 
         if(ch=='\n'){ // 回车键结束输入
             break;

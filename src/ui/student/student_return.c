@@ -41,7 +41,7 @@ void return_book(void *arg){
                     size_t price=overTime/10;
                     printf("并缴纳管理费用：%zu元\n",price);
                     printf("按任意键继续\n");
-                    getch();
+                    cli_getch();
                     return;
                 }
                 borrow_records->remove(borrow_records,i);
@@ -54,7 +54,7 @@ void return_book(void *arg){
                 studentDb->change(studentDb,s->id,s);
                 bookDb->change(bookDb, b->id, b);
                 printf("还书成功\n");
-                getch();
+                cli_getch();
                 return;
             }
         }
@@ -62,7 +62,7 @@ void return_book(void *arg){
     } else {
         printf("该条目不存在，或者书籍或学生不存在\n");
     }
-    getch();
+    cli_getch();
 }
 
 void return_book_config(void *arg) {

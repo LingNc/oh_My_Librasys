@@ -50,7 +50,7 @@ bool admin_vertify_password(size_t id) {
     else{
         printf("密码验证失败\n");
         printf("按任意键继续\n");
-        getch();
+        cli_getch();
         return false;
     }
 }
@@ -69,7 +69,7 @@ bool admin_authenticate(void* arg){
         if(it->registered_by->cmp(it->registered_by,me->name)!=0){
             printf("权限不足,该管理员由 %s 管理\n",it->registered_by->c_str(it->registered_by));
             printf("按任意键继续\n");
-            getch();
+            cli_getch();
             return false;
         }
     }
@@ -79,7 +79,7 @@ bool admin_authenticate(void* arg){
 void add_manager(void *arg){
     manager m=(manager)arg;
     while(1){
-        clear_screen();
+        cli_clear_screen();
         printf("增加管理员功能\n");
         size_t id;
         char name[50],idStr[MAX_INPUT];
@@ -92,7 +92,7 @@ void add_manager(void *arg){
 
         if(managerDb->find_key(managerDb, id)){
             printf("管理员ID已存在，请重新输入\n");
-            getch();
+            cli_getch();
             continue;
         }
         printf("请输入姓名: ");
@@ -141,10 +141,10 @@ void add_manager(void *arg){
             return;
         }
         if (a[0] != 'y') break;
-        clear_screen();
+        cli_clear_screen();
     }
     getchar(); getchar(); // 等待用户按键
-    clear_screen();
+    cli_clear_screen();
 }
 
 void edit_manager(void *arg) {
@@ -154,7 +154,7 @@ void edit_manager(void *arg) {
     } *args = arg;
     manager me=args->me;
     manager it=args->it;
-    clear_screen();
+    cli_clear_screen();
     if (it) {
         printf("修改管理员功能\n");
         char name[50];
@@ -176,7 +176,7 @@ void edit_manager(void *arg) {
     } else {
         printf("\n管理员不存在\n");
     }
-    getch();
+    cli_getch();
 }
 
 void delete_manager(void *arg) {
@@ -186,7 +186,7 @@ void delete_manager(void *arg) {
     } *args=arg;
     manager me=args->me;
     manager it=args->it;
-    clear_screen();
+    cli_clear_screen();
     if(it){
         // 鉴权
         if(!admin_authenticate(arg)) return;
@@ -199,7 +199,7 @@ void delete_manager(void *arg) {
         printf("管理员不存在\n");
     }
     printf("按任意键继续\n");
-    getch();
+    cli_getch();
 }
 
 
@@ -210,7 +210,7 @@ void edit_password(void *arg){
     } *args=arg;
     manager me=args->me;
     manager it=args->it;
-    clear_screen();
+    cli_clear_screen();
     printf("修改密码功能\n");
     // 鉴权
     if(!admin_authenticate(arg)) return;
@@ -227,7 +227,7 @@ void edit_password(void *arg){
         printf("两次输入的密码不一致\n");
     }
     printf("按任意键继续\n");
-    getch(); // 等待用户按键
+    cli_getch(); // 等待用户按键
 }
 
 void manager_menu(void *arg) {
