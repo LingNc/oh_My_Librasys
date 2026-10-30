@@ -91,10 +91,9 @@ static void compute_geometry(dialog_box *box) {
 
 static void draw_box(const dialog_box *box, const char *title, const char *footer,
                      int title_attr) {
-    /* 遮罩：先把对话框区域刷成空白，避免下面内容透出来 */
-    for (int i = 0; i < box->h; ++i) {
-        mvhline(box->y + i, box->x, ' ', box->w);
-    }
+    /* 模态对话框：先清屏再画，避免上一个对话框的边框残留。
+     * 对话框关闭后调用方会重绘自己的视图。 */
+    erase();
 
     WINDOW *w = derwin(stdscr, box->h, box->w, box->y, box->x);
     if (!w) return;
@@ -135,7 +134,7 @@ static void vmessage(const char *title, const char *footer, int title_attr,
     memset(&box, 0, sizeof(box));
     box.nlines = wrap_text(text, 60, box.lines);
     if (box.nlines == 0) {
-        snprintf(box.lines[0], DIALOG_LINE_MAX, "%s", text);
+        snprintf(box.lines[0], DIALOG_LINE_MAX, "%.500s", text);
         box.nlines = 1;
     }
     compute_geometry(&box);

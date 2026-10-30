@@ -5,6 +5,7 @@
 #include "ui/tui/components/dialog.h"
 #include "ui/tui/components/menu.h"
 #include "ui/tui/theme.h"
+#include "ui/tui/views/student_borrow.h"
 
 static int draw_student_info(void *ctx, const ui_frame *f, int y) {
     student user = ctx;
@@ -40,6 +41,10 @@ void tui_student_menu(student user) {
     for (;;) {
         int choice = tui_menu(&spec);
         if (choice < 0 || choice == 2) return;
-        tui_info("功能迁移中", "该功能将在 M4 学生功能阶段接入。");
+        switch (choice) {
+        case 0: tui_student_borrow(user); break;
+        case 1: tui_student_return(user); break;
+        default: tui_error("错误", "未知菜单项"); break;
+        }
     }
 }
