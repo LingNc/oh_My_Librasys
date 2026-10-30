@@ -139,9 +139,14 @@ static void vmessage(const char *title, const char *footer, int title_attr,
     char text[DIALOG_LINE_MAX * 2];
     vsnprintf(text, sizeof(text), fmt, ap);
 
+    /* 换行宽度随屏幕自适应，避免长文本被折得过窄 */
+    int wrapw = COLS - 10;
+    if (wrapw < 40) wrapw = 40;
+    if (wrapw > 76) wrapw = 76;
+
     dialog_box box;
     memset(&box, 0, sizeof(box));
-    box.nlines = wrap_text(text, 60, box.lines);
+    box.nlines = wrap_text(text, wrapw, box.lines);
     if (box.nlines == 0) {
         snprintf(box.lines[0], DIALOG_LINE_MAX, "%.500s", text);
         box.nlines = 1;

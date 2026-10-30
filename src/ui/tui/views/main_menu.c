@@ -71,14 +71,19 @@ static void show_about(void) {
     tui_info("ABOUT / 关于",
              "ONMYLIB // LIBRARY MANAGEMENT SYSTEM\n"
              "\n"
-             "版本      TUI 1.0\n"
-             "终端界面  ncursesw (宽字符 / 灰阶)\n"
-             "存储      本地文件数据库 (db/)\n"
-             "构建      make  |  make UI=cli\n"
-             "启动      ./main  |  ./main --tui\n"
+             "一个用 C 语言从零实现的图书管理系统，不依赖第三方容器库：\n"
+             "自研泛型 Vector / String / Pair / Hash / Trie，\n"
+             "基于本地文件 + 哈希索引的存储层，\n"
+             "并提供命令行与 ncursesw 终端两套界面。\n"
              "\n"
-             "快捷键    / 命令面板    ? 帮助\n"
-             "Enter 确认    q/Esc 返回");
+             "主要作者    Leabol    LingNc\n"
+             "\n"
+             "版本        TUI 1.0\n"
+             "终端界面    ncursesw（宽字符 / 灰阶主题）\n"
+             "构建        make  |  make UI=cli\n"
+             "启动        ./main  |  ./main --tui\n"
+             "\n"
+             "快捷键      / 命令面板    Tab 补全    Enter 确认    q/Esc 返回");
 }
 
 int tui_main_menu(void) {
@@ -98,6 +103,7 @@ int tui_main_menu(void) {
         .hint = "↑↓/jk 选择  Enter 确认  q 退出  / 命令",
         .enable_command = true,
         .center = true,
+        .vcenter = true,
     };
 
     for (;;) {
