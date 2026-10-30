@@ -92,13 +92,77 @@
         "variant": "cpp",
         "stdio.h": "c",
         "string.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "stdlib.h": "c",
+        "vector.h": "c",
+        "stdbool.h": "c",
+        "type.h": "c",
+        "assert.h": "c",
+        "list.h": "c",
+        "student.h": "c",
+        "*.def": "c",
+        "menu.h": "c",
+        "book.h": "c",
+        "uibook.h": "c",
+        "function.h": "c",
+        "uistudent.h": "c",
+        "window.h": "c",
+        "screen.h": "c",
+        "check.h": "c",
+        "database.h": "c",
+        "index.h": "c",
+        "ccomplex": "c",
+        "cerrno": "c",
+        "cfloat": "c",
+        "climits": "c",
+        "ios": "c",
+        "queue": "c",
+        "cstdbool": "c",
+        "pair.h": "c",
+        "manager.h": "c",
+        "student_menu.h": "c",
+        "func.h": "c",
+        "command.h": "c",
+        "trie.h": "c",
+        "student_return.h": "c",
+        "wchar.h": "c",
+        "time.h": "c",
+        "admin_book.h": "c",
+        "page.h": "c",
+        "admin_menu.h": "c",
+        "admin_student.h": "c"
     },
     "makefile.launchConfigurations": [
         {
             "cwd": "/home/lingnc/BookManager",
             "binaryPath": "/home/lingnc/BookManager/main",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/attacking_bird/BookManager",
+            "binaryPath": "/home/attacking_bird/BookManager/main",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lingnc/oh_My_Librasys",
+            "binaryPath": "/home/lingnc/oh_My_Librasys/main",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lea/oh_My_Librasys",
+            "binaryPath": "/home/lea/oh_My_Librasys/main",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/LingNc/oh_My_Librasys",
+            "binaryPath": "/home/LingNc/oh_My_Librasys/main",
+            "binaryArgs": []
+        },
+        {
+            "cwd": "/home/lea/study/c/oh_My_Librasys",
+            "binaryPath": "/home/lea/study/c/oh_My_Librasys/main",
+            "binaryArgs": []
         }
-    ]
+    ],
+    "makefile.makefilePath": ""
 }

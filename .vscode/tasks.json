@@ -10,7 +10,7 @@
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
             ],
             "options": {
                 "cwd": "${fileDirname}"
@@ -44,6 +44,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
+                "-std=gnu11",
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
