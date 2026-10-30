@@ -7,6 +7,7 @@
 #include "service/borrow.h"
 #include "ui/tui/components/dialog.h"
 #include "ui/tui/components/table.h"
+#include "ui/tui/views/command.h"
 
 /* ------------------------------------------------------------------ 借书 */
 
@@ -84,15 +85,16 @@ void tui_student_borrow(student user) {
         static const int widths[] = { 8, 18, 28, 18, 18 };
 
         tui_table_spec spec = {
-            "借书 · 选择图书", headers, widths, 5,
-            borrow_rows, borrow_row_text, &ctx, 10,
-            "↑↓/jk 移动  ←→/hl 翻页  Enter 借阅  q 返回",
-            borrow_action,
+            .title = "借书 · 选择图书", .headers = headers, .col_widths = widths, .ncols = 5,
+            .row_count = borrow_rows, .row_text = borrow_row_text, .ctx = &ctx, .page_size = 10,
+            .hint = "↑↓/jk 移动  ←→/hl 翻页  Enter 借阅  q 返回", .enable_command = true,
+            .on_enter = borrow_action,
         };
 
         long selected = tui_table(&spec);
         borrow_forget(&ctx);
         admin_keys_free(&ctx.keys);
+        if (selected == TUI_RESULT_COMMAND) { tui_handle_command(); continue; }
         if (selected < 0) return;
     }
 }
@@ -168,14 +170,15 @@ void tui_student_return(student user) {
         static const int widths[] = { 8, 30, 18, 22 };
 
         tui_table_spec spec = {
-            "还书 · 我的借阅", headers, widths, 4,
-            return_rows, return_row_text, &ctx, 10,
-            "↑↓/jk 移动  Enter 归还  q 返回",
-            return_action,
+            .title = "还书 · 我的借阅", .headers = headers, .col_widths = widths, .ncols = 4,
+            .row_count = return_rows, .row_text = return_row_text, .ctx = &ctx, .page_size = 10,
+            .hint = "↑↓/jk 移动  Enter 归还  q 返回", .enable_command = true,
+            .on_enter = return_action,
         };
 
         long selected = tui_table(&spec);
         delete_vector(ctx.books);
+        if (selected == TUI_RESULT_COMMAND) { tui_handle_command(); continue; }
         if (selected < 0) return;
     }
 }

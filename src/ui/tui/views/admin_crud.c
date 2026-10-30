@@ -10,6 +10,7 @@
 #include "service/auth.h"
 #include "service/format.h"
 #include "service/import.h"
+#include "ui/tui/views/command.h"
 #include "ui/tui/components/dialog.h"
 #include "ui/tui/components/form.h"
 #include "ui/tui/components/menu.h"
@@ -247,11 +248,16 @@ static void books_table(manager current) {
         crud_context ctx = { admin_book_keys(), CRUD_BOOK, (size_t)-1, NULL, current };
         static const char *const headers[] = { "ID", "ISBN", "书名", "作者", "状态" };
         static const int widths[] = { 8, 18, 28, 18, 12 };
-        tui_table_spec spec = { "图书管理", headers, widths, 5, rows_count, book_row, &ctx, 10,
-                                "↑↓/jk 移动  Enter 操作  q 返回", book_action };
+        tui_table_spec spec = {
+            .title = "图书管理", .headers = headers, .col_widths = widths, .ncols = 5,
+            .row_count = rows_count, .row_text = book_row, .ctx = &ctx, .page_size = 10,
+            .hint = "↑↓/jk 移动  Enter 操作  q 返回", .enable_command = true,
+            .on_enter = book_action,
+        };
         long selected = tui_table(&spec);
         forget_row(&ctx);
         admin_keys_free(&ctx.keys);
+        if (selected == TUI_RESULT_COMMAND) { tui_handle_command(); continue; }
         if (selected < 0) return;
     }
 }
@@ -261,11 +267,16 @@ static void students_table(manager current) {
         crud_context ctx = { admin_student_keys(), CRUD_STUDENT, (size_t)-1, NULL, current };
         static const char *const headers[] = { "学号", "姓名", "班级", "学院", "已借" };
         static const int widths[] = { 14, 18, 20, 24, 8 };
-        tui_table_spec spec = { "学生管理", headers, widths, 5, rows_count, student_row, &ctx, 10,
-                                "↑↓/jk 移动  Enter 操作  q 返回", student_action };
+        tui_table_spec spec = {
+            .title = "学生管理", .headers = headers, .col_widths = widths, .ncols = 5,
+            .row_count = rows_count, .row_text = student_row, .ctx = &ctx, .page_size = 10,
+            .hint = "↑↓/jk 移动  Enter 操作  q 返回", .enable_command = true,
+            .on_enter = student_action,
+        };
         long selected = tui_table(&spec);
         forget_row(&ctx);
         admin_keys_free(&ctx.keys);
+        if (selected == TUI_RESULT_COMMAND) { tui_handle_command(); continue; }
         if (selected < 0) return;
     }
 }
@@ -275,11 +286,16 @@ static void managers_table(manager current) {
         crud_context ctx = { admin_manager_keys(), CRUD_MANAGER, (size_t)-1, NULL, current };
         static const char *const headers[] = { "ID", "姓名", "注册日期", "注册人" };
         static const int widths[] = { 8, 20, 22, 20 };
-        tui_table_spec spec = { "管理员管理", headers, widths, 4, rows_count, manager_row, &ctx, 10,
-                                "↑↓/jk 移动  Enter 操作  q 返回", manager_action };
+        tui_table_spec spec = {
+            .title = "管理员管理", .headers = headers, .col_widths = widths, .ncols = 4,
+            .row_count = rows_count, .row_text = manager_row, .ctx = &ctx, .page_size = 10,
+            .hint = "↑↓/jk 移动  Enter 操作  q 返回", .enable_command = true,
+            .on_enter = manager_action,
+        };
         long selected = tui_table(&spec);
         forget_row(&ctx);
         admin_keys_free(&ctx.keys);
+        if (selected == TUI_RESULT_COMMAND) { tui_handle_command(); continue; }
         if (selected < 0) return;
     }
 }

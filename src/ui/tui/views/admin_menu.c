@@ -7,6 +7,7 @@
 #include "ui/tui/components/menu.h"
 #include "ui/tui/theme.h"
 #include "ui/tui/views/admin_crud.h"
+#include "ui/tui/views/command.h"
 
 extern dataBase managerDb;
 
@@ -46,10 +47,13 @@ void tui_admin_menu(manager user) {
         .initial = 0,
         .pre_info = draw_admin_info,
         .ctx = user,
+        .hint = "↑↓/jk 选择  Enter 确认  q 返回  / 命令",
+        .enable_command = true,
     };
 
     for (;;) {
         int choice = tui_menu(&spec);
+        if (choice == TUI_RESULT_COMMAND) { tui_handle_command(); continue; }
         if (choice < 0 || choice == 9) return;
         switch (choice) {
         case 0: tui_admin_students(user); break;

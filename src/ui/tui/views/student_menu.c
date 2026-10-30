@@ -6,6 +6,7 @@
 #include "ui/tui/components/menu.h"
 #include "ui/tui/theme.h"
 #include "ui/tui/views/student_borrow.h"
+#include "ui/tui/views/command.h"
 
 static int draw_student_info(void *ctx, const ui_frame *f, int y) {
     student user = ctx;
@@ -36,10 +37,13 @@ void tui_student_menu(student user) {
         .initial = 0,
         .pre_info = draw_student_info,
         .ctx = user,
+        .hint = "↑↓/jk 选择  Enter 确认  q 返回  / 命令",
+        .enable_command = true,
     };
 
     for (;;) {
         int choice = tui_menu(&spec);
+        if (choice == TUI_RESULT_COMMAND) { tui_handle_command(); continue; }
         if (choice < 0 || choice == 2) return;
         switch (choice) {
         case 0: tui_student_borrow(user); break;

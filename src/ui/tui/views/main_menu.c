@@ -7,6 +7,7 @@
 #include "ui/tui/components/menu.h"
 #include "ui/tui/demo.h"
 #include "ui/tui/theme.h"
+#include "ui/tui/views/command.h"
 #include "ui/tui/views/login.h"
 
 static int draw_welcome(void *ctx, const ui_frame *f, int y) {
@@ -41,11 +42,13 @@ int tui_main_menu(void) {
         .count = (int)(sizeof(items) / sizeof(items[0])),
         .initial = 0,
         .pre_info = draw_welcome,
-        .hint = "↑↓/jk 选择  Enter 确认  q 退出",
+        .hint = "↑↓/jk 选择  Enter 确认  q 退出  / 命令",
+        .enable_command = true,
     };
 
     for (;;) {
         int choice = tui_menu(&spec);
+        if (choice == TUI_RESULT_COMMAND) { tui_handle_command(); continue; }
         if (choice < 0 || choice == 3) return 0;
 
         switch (choice) {
