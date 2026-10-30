@@ -184,24 +184,35 @@ static size_t _database_find(dataBase this, size_t nums, const void *data) {
             void *item = malloc(buff->_itemSize);
             if (this->_find_buffer->_init_item) this->_find_buffer->_init_item(item);
             this->_find_buffer->_in_data_item(item, buffer);
+
+            /*
+             * 自定义类型的 cmp 约定：相等返回 0，不相等返回非 0，
+             * 因此这里必须用 == 0 判断命中（原先用 >= 0 会把所有记录都算作命中）。
+             */
+            int matched = 0;
             if (this->_find_buffer->_cmp_item) {
-                if (this->_find_buffer->_cmp_item(item, data) >= 0) {
-                    buff->push_back(buff, item);
-                    found_count++;
-                } else {
-                    free(item);
-                }
+                matched = (this->_find_buffer->_cmp_item(item, data) == 0);
             } else {
-                if (buff->_dcmp_item(item, data, buff->_typename->c_str(buff->_typename)) == 0) {
-                    buff->push_back(buff, item);
-                    found_count++;
-                } else {
-                    free(item);
-                }
+                matched = (buff->_dcmp_item(item, data,
+                           buff->_typename->c_str(buff->_typename)) == 0);
             }
-            free(buffer);
-            if (found_count >= nums) {
+
+            if (matched) {
+                /* 记录自身 id 供续查游标使用，push_back 会复制一份进缓冲区 */
                 last_key = *(size_t *)item;
+                buff->push_back(buff, item);
+                found_count++;
+            }
+
+            /*
+             * item 由 malloc + _init_item 创建，push_back 内部已做拷贝，
+             * 这里必须释放原对象，否则每次 find 都会泄漏一条记录。
+             */
+            if (buff->_free_item) buff->_free_item(item);
+            free(item);
+            free(buffer);
+
+            if (matched && found_count >= nums) {
                 break;
             }
         } else {
@@ -209,6 +220,13 @@ static size_t _database_find(dataBase this, size_t nums, const void *data) {
         }
     }
     fclose(file);
+
+    /*
+     * 返回值语义：返回"下一条待查记录的键"，0 表示已到末尾。
+     * 没有任何命中时也返回 0，避免调用方（_database_get_find）
+     * 把 1 当成有效游标而反复扫描同一批数据。
+     */
+    if (found_count == 0) return 0;
     return last_key + 1;
 }
 
