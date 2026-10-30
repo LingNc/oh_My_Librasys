@@ -772,11 +772,24 @@ int main(int argc, char **argv) {
 > 本阶段未修改 `src/models`、`src/DataBase`、`src/Tools`。
 > 图书浏览复用 `admin_*_keys()` 惰性加载，避免一次性构造十几万对象。
 
-### M5 命令面板与搜索（预计 0.5 天）
+### M5 命令面板与搜索（预计 0.5 天）——已完成
 
-- [ ]  复用 `Tools/Trie` 做 `/` 命令面板（`set/help/search/page`）
-- [ ]  搜索结果在表格中展示
-- [ ]  **验收**：Tab 补全、命令执行不破坏界面
+- [x] `/` 命令面板：底部单行输入框，Tab 前缀补全
+- [x] 命令：`help`、`search <关键字>`、`students <关键字>`、`set <n>`、`page <n>`
+- [x] 搜索：图书按 ISBN/书名/作者/出版社，学生按学号精确 + 姓名/班级/学院
+- [x] 搜索结果在表格中展示，最多 200 条并提示截断
+- [x] 主菜单、管理员菜单、学生菜单及各类列表均可用 `/`
+- [x] **验收**：`make test-search` 12 项断言全通过；tmux 验证
+      Tab 补全（`sea`→`search`）、`/help`、`/set 10`、`/page 3`（1/3→3/3）、
+      未登录时全局搜索图书
+
+实现差异：
+
+| 初稿 | 实际 | 原因 |
+|---|---|---|
+| 复用 `Tools/Trie` | 组件内自带小型前缀树 | 现有 Trie 依赖全局 `root` 且不支持枚举候选；新实现无全局状态 |
+| `set` / `page` 仅限分页列表 | 全局默认页大小 + 一次性跳页请求 | 命令在面板内执行时无法拿到具体表格实例，用模块级变量衔接 |
+| 搜索复用 `db->find()` | service 层逐键扫描 + 子串匹配 | `find()` 不过滤（已知问题 #3）；12 万条扫描约 0.6s |
 
 ### M6 打磨与文档（预计 0.5 天）
 
@@ -881,6 +894,7 @@ int main(int argc, char **argv) {
 | 2026-10-30 | v1.7 | M3 批量导入完成：定义 5 列图书/4 列学生格式，重生成样例文件，增加预校验、索引维护、TUI 进度与格式测试             | AI   |
 | 2026-10-30 | v1.8 | 修复导入后列表只显示首条：规避`_last_key` 不前进（已知问题 #2），列表改为键列表 + 单行惰性加载                    | AI   |
 | 2026-10-30 | v1.9 | M4 完成：借还 service、学生借书/还书/借阅概览视图、`test-borrow` 回归测试；修复连续对话框边框残留                      | AI   |
+| 2026-10-30 | v2.0 | M5 完成：`/` 命令面板、Tab 补全、图书/学生搜索、`set`/`page`；新增 `test-search`；记录已知问题 #3                           | AI   |
 
 ---
 
@@ -951,6 +965,34 @@ int main(int argc, char **argv) {
   1. 在 `_database_add()` 中恢复 `this->_index->_last_key = newKey;`（推荐，消除隐式契约）；
   2. 保持现状，由调用方保证 add 与 save 交替；
   3. 暂不处理，仅保留 service 层规避。
+
+### #3 `DataBase::find()` 不按条件过滤，返回所有记录
+
+- **状态**：**未修改数据层**；M5 搜索已改为 service 层逐键扫描，不依赖 `find()`。待作者决定是否修复。
+- **现象**：只设置一个字段作为条件，`find()` 仍返回全部记录。
+- **根因**：`src/DataBase/DataBase.c` 的 `_database_find()` 中
+
+  ```c
+  if (this->_find_buffer->_cmp_item(item, data) >= 0) {   /* 应为 == 0 */
+      buff->push_back(buff, item);
+  ```
+
+  `Book::cmp` 命中返回 0、不命中返回 1，因此 `>= 0` 恒成立，条件被忽略。
+  `_student_cmp` 可能返回负数，所以学生场景表现为“部分过滤”，更难察觉。
+- **最小复现**（3 本书，条件为 ISBN-B）
+
+  ```text
+  find(next=1) -> _find_buffer size=3
+    match: ISBN-A 书一
+    match: ISBN-B 书二
+    match: ISBN-C 书三
+  EXPECT: only ISBN-B (1 record)
+  ```
+
+- **规避**：`src/service/search.c` 按索引逐键 `find_key()` 并自行做子串匹配。
+- **可选处置**：把比较改为 `== 0`；同时确认 `last_key = *(size_t *)item` 的语义（当前取记录自身 id）。
+
+> 备注：M4 之后作者已修复 #2（`_last_key` 推进），当前工作区的 `find()` 行为仍为上述现状。
 
 ---
 
