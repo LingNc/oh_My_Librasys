@@ -22,6 +22,7 @@ typedef struct {
     void *ctx;
     const char *hint;                     /* 状态栏提示，可为 NULL */
     bool enable_command;                  /* true 时按 / 返回 TUI_RESULT_COMMAND */
+    bool center;                          /* true 时菜单整体水平居中 */
 } tui_menu_spec;
 
 int tui_menu(const tui_menu_spec *spec);

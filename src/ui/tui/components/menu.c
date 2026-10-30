@@ -31,22 +31,37 @@ int tui_menu(const tui_menu_spec *spec) {
             y = spec->pre_info(spec->ctx, &f, y);
         }
 
+        /* 居中模式：按最长选项计算内容块宽度，整体水平居中 */
+        int xoff = 0;
+        int block_w = f.w;
+        if (spec->center) {
+            int maxw = 0;
+            for (int i = 0; i < spec->count; ++i) {
+                int w = ui_utf8_width(spec->items[i]);
+                if (w > maxw) maxw = w;
+            }
+            block_w = maxw + 2;
+            if (block_w > f.w) block_w = f.w;
+            xoff = (f.w - block_w) / 2;
+            if (xoff < 0) xoff = 0;
+        }
+
         for (int i = 0; i < spec->count && y < f.y1; ++i, ++y) {
             bool sel = (i == hl);
             int attr = sel ? theme_attr(UI_PAIR_HILITE) : theme_attr(UI_PAIR_NORMAL);
 
             if (sel) {
-                ui_clear_span(y, f.x0, f.w);
+                ui_clear_span(y, f.x0 + xoff, block_w);
             }
-            ui_puts(y, f.x0, 2, sel ? ">" : " ", attr);
-            ui_puts(y, f.x0 + 2, f.w - 2, spec->items[i], attr);
+            ui_puts(y, f.x0 + xoff, 2, sel ? ">" : " ", attr);
+            ui_puts(y, f.x0 + xoff + 2, block_w - 2, spec->items[i], attr);
 
             if (sel) {
-                /* 用高亮色补满整行，形成选中条 */
+                /* 用高亮色补满内容块，形成选中条 */
                 int used = 2 + ui_utf8_width(spec->items[i]);
-                if (used < f.w) {
+                if (used < block_w) {
                     attron(attr);
-                    mvhline(y, f.x0 + used, ' ', f.w - used);
+                    mvhline(y, f.x0 + xoff + used, ' ', block_w - used);
                     attroff(attr);
                 }
             }
