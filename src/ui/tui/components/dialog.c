@@ -11,7 +11,7 @@
 #include "ui/tui/window.h"
 #include "ui/tui/width.h"
 
-#define DIALOG_MAX_LINES 8
+#define DIALOG_MAX_LINES 20
 #define DIALOG_LINE_MAX  512
 
 typedef struct {
@@ -98,17 +98,15 @@ static void draw_box(const dialog_box *box, const char *title, const char *foote
     WINDOW *w = derwin(stdscr, box->h, box->w, box->y, box->x);
     if (!w) return;
 
-    box(w, 0, 0);
-    if (title && title[0]) {
-        char t[256];
-        snprintf(t, sizeof(t), " %s ", title);
-        wattron(w, title_attr);
-        mvwaddstr(w, 0, 2, t);
-        wattroff(w, title_attr);
-    }
+    /* 内容区可用宽度：左右各留 1 列内边距 + 两侧边框 */
+    int inner = box->w - 5;
+    if (inner < 1) inner = 1;
 
-    for (int i = 0; i < box->nlines; ++i) {
-        mvwaddstr(w, 2 + i, 3, box->lines[i]);
+    /* 先画内容并按列宽裁剪，避免内容越过右边框 */
+    for (int i = 0; i < box->nlines && 2 + i < box->h - 2; ++i) {
+        char clipped[DIALOG_LINE_MAX];
+        ui_fit_utf8(box->lines[i], inner, clipped, sizeof(clipped));
+        mvwaddstr(w, 2 + i, 3, clipped);
     }
 
     if (footer && footer[0]) {
@@ -118,6 +116,17 @@ static void draw_box(const dialog_box *box, const char *title, const char *foote
         wattron(w, theme_attr(UI_PAIR_HINT));
         mvwaddstr(w, box->h - 2, fx, footer);
         wattroff(w, theme_attr(UI_PAIR_HINT));
+    }
+
+    /* 边框最后画，保证任何情况下都不会被内容遮挡 */
+    box(w, 0, 0);
+
+    if (title && title[0]) {
+        char t[256];
+        snprintf(t, sizeof(t), " %s ", title);
+        wattron(w, title_attr);
+        mvwaddstr(w, 0, 2, t);
+        wattroff(w, title_attr);
     }
 
     wnoutrefresh(w);
