@@ -27,8 +27,31 @@ int tui_menu(const tui_menu_spec *spec) {
         }
 
         int y = f.y0;
+        int pre_height = 0;
         if (spec->pre_info) {
             y = spec->pre_info(spec->ctx, &f, y);
+            pre_height = y - f.y0;
+        }
+
+        /*
+         * 垂直居中：先试画一遍得到内容总高度，再清屏按偏移重画。
+         * ui_frame_begin 内部会 erase()，因此预画不会留痕迹。
+         */
+        if (spec->vcenter) {
+            int total = pre_height + spec->count;
+            if (spec->post_info) total += 1;
+            int off = (f.h - total) / 2;
+            if (off > 0) {
+                if (!ui_frame_begin(spec->title, hint, &f)) {
+                    tui_key k0 = tui_read_key();
+                    if (tui_is_cancel(k0)) return -1;
+                    continue;
+                }
+                y = f.y0 + off;
+                if (spec->pre_info) {
+                    y = spec->pre_info(spec->ctx, &f, y);
+                }
+            }
         }
 
         /* 居中模式：按最长选项计算内容块宽度，整体水平居中 */
