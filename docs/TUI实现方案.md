@@ -719,12 +719,18 @@ int main(int argc, char **argv) {
 - [x] `demo.c`：`./main --tui` 进入的组件演示（宽度自检 / 菜单 / 表格 / 表单 / 对话框）
 - [x] **验收**：tmux 伪终端逐页截图 + Python 计算显示列宽，**每行宽度完全一致（115/115）**，中文框线不错位；`make test-tui` 通过；`make UI=cli` 仍可构建
 
-### M2 service 层抽取 + 主菜单/登录（预计 1 天）
+### M2 service 层抽取 + 主菜单/登录（预计 1 天）——已完成
 
-- [ ] `service/auth.c`、`service/format.c`
-- [ ] `views/main_menu.c`、`views/login.c`
-- [ ] CLI 侧改为调用 service（行为不变）
-- [ ] **验收**：TUI 可完成管理员/学生登录、密码错误 3 次锁定、返回主菜单
+- [x] `service/auth.c`：管理员结构化认证、学生学号索引查询；无终端 I/O
+- [x] `service/format.c`：Book / Student / Manager 行格式化；CLI 列表复用
+- [x] `views/main_menu.c`、`views/login.c`
+- [x] `views/admin_menu.c`、`views/student_menu.c`：登录后角色控制台及用户信息
+- [x] CLI 登录与列表显示改为调用 service（行为不变）
+- [x] TUI 主入口从组件演示切换为真实主菜单；组件演示保留为主菜单第 3 项
+- [x] **验收**：tmux 伪终端验证管理员错误密码提示、root/admin 成功登录、学生不存在提示、角色控制台与返回路径；`make`、`make test-tui`、`make UI=cli` 均通过
+
+> M2 只负责认证与角色入口。角色菜单中 CRUD / 借还项明确显示“功能迁移中”，
+> 不调用旧 `printf` UI；管理员功能在 M3 接入，学生借还在 M4 接入。
 
 ### M3 管理员功能（预计 2 天）
 
@@ -840,6 +846,7 @@ int main(int argc, char **argv) {
 | 2026-10-30 | v1.1 | 新增 §12.1.1「数据层 bug 处置规则」（作者要求：发现即报告，不自行修复）；风险表补充一条 | AI |
 | 2026-10-30 | v1.2 | M0 完成：签名改名、Makefile `UI` 开关、TUI 骨架；记录 §14 已知问题 #1 | AI |
 | 2026-10-30 | v1.3 | M1 完成：`width/key/theme/window` + 4 个组件 + 组件演示；修正表单按键语义、新增非 tty 拦截；#1 经作者确认暂不修复 | AI |
+| 2026-10-30 | v1.4 | M2 完成：认证与格式化 service、真实主菜单、管理员/学生登录与角色控制台；CLI 复用 service | AI |
 
 ---
 
