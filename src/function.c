@@ -205,7 +205,7 @@ void create_folder(const char *path) {
     }
 #else
     if (access(path, F_OK) == 0) {
-        printf("文件夹 '%s' 已存在。\n", path);
+        // printf("文件夹 '%s' 已存在。\n", path);
         return;
     }
 #endif
